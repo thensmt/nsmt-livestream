@@ -2805,9 +2805,9 @@ function buildReport(){
 
   const totRow=(t)=>`<tr class="rtot">
     <td></td><td><b>TOTAL</b></td><td><b>${t.pts}</b></td>
-    <td>${t.fgm}-${t.fga}<br><small>${pct(t.fgm,t.fga)}</small></td>
-    <td>${t.tpm}-${t.tpa}<br><small>${pct(t.tpm,t.tpa)}</small></td>
-    <td>${t.ftm}-${t.fta}<br><small>${pct(t.ftm,t.fta)}</small></td>
+    <td>${t.fgm}-${t.fga}${t.fga>0?`<br><small>${pct(t.fgm,t.fga)}</small>`:''}</td>
+    <td>${t.tpm}-${t.tpa}${t.tpa>0?`<br><small>${pct(t.tpm,t.tpa)}</small>`:''}</td>
+    <td>${t.ftm}-${t.fta}${t.fta>0?`<br><small>${pct(t.ftm,t.fta)}</small>`:''}</td>
     <td>${t.oreb||0}</td><td>${t.dreb||0}</td><td>${(t.oreb||0)+(t.dreb||0)}</td>
     <td>${t.ast}</td><td>${t.stl}</td><td>${t.blk}</td><td>${t.to}</td>
     <td>${t.pf}</td>
