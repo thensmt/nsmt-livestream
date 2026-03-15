@@ -1,0 +1,38 @@
+# Large design asset folder (store in Google Drive)
+Livestream/NSMT Logo - Final Files/
+
+# Capacitor-generated native projects (regenerated via `cap add`)
+nsmt-app/ios/
+nsmt-app/android/
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Node
+nsmt-app/node_modules/
+nsmt-app/www/
+
+# Capacitor iOS build artifacts
+nsmt-app/ios/App/Pods/
+nsmt-app/ios/App/App/public/
+nsmt-app/ios/App/build/
+nsmt-app/ios/App/*.xcworkspace/xcuserdata/
+nsmt-app/ios/App/*.xcodeproj/xcuserdata/
+nsmt-app/ios/App/.build/
+
+# Capacitor Android build artifacts
+nsmt-app/android/.gradle/
+nsmt-app/android/build/
+nsmt-app/android/app/build/
+nsmt-app/android/local.properties
+
+# Logs
+*.log
+npm-debug.log*
+
+# Firebase
+.firebase/

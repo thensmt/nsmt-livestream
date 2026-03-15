@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NSMT Basketball Stats Control</title>
+  <style>
+    :root{
+      --bg:#f4f5f7;
+      --panel:#ffffff;
+      --ink:#0f1115;
+      --muted:#5b6472;
+      --line:#d6dae3;
+      --accent:#0c2a57;
+      --accent-2:#0e80fc;
+      --chip:#eef1f6;
+      --danger:#b8322e;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: "Avenir Next Condensed", "DIN Condensed", "Roboto Condensed", "Helvetica Neue", sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    header{
+      background:linear-gradient(120deg, #10131a 0%, #1c2330 100%);
+      color:#fff;
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    header h1{
+      margin:0;
+      font-size:24px;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+    }
+    .meta{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      font-size:14px;
+    }
+    .meta label{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:#c9d2e3;
+    }
+    .meta input{
+      height:34px;
+      padding:0 10px;
+      border-radius:8px;
+      border:1px solid #2c3445;
+      background:#131824;
+      color:#fff;
+      min-width:160px;
+    }
+    .wrap{
+      padding:18px 18px 32px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 10px 26px rgba(16,23,38,.08);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(320px,1fr));
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr;}
+    }
+    .scoreboard{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px 16px;
+      align-items:center;
+    }
+    .scoreboard label{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:var(--muted);
+    }
+    .scoreboard input, .scoreboard select{
+      height:38px;
+      padding:0 10px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:16px;
+      min-width:110px;
+    }
+    .scoreboard .clock-row{
+      display:flex;
+      gap:8px;
+      align-items:flex-end;
+    }
+    .scoreboard button{
+      height:38px;
+      padding:0 12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background:var(--chip);
+      font-size:14px;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+    .scoreboard button.primary{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+    .scoreboard button.danger{
+      background:#fff3f3;
+      color:var(--danger);
+      border-color:#f3b9b7;
+    }
+
+    .team-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .team-title{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-size:18px;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      font-weight:700;
+    }
+    .team-title input{
+      height:36px;
+      padding:0 10px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      font-size:16px;
+      min-width:190px;
+    }
+    .team-metrics{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:var(--muted);
+    }
+    .team-metrics input{
+      height:34px;
+      padding:0 10px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      font-size:14px;
+      min-width:70px;
+    }
+
+    .table-wrap{
+      overflow-x:auto;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+    }
+    thead th{
+      background:#11141c;
+      color:#fff;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+      padding:8px 6px;
+      text-align:center;
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+    tbody td{
+      border-bottom:1px solid var(--line);
+      padding:6px 4px;
+      text-align:center;
+      font-size:14px;
+    }
+    tbody tr:nth-child(even){
+      background:#f7f8fb;
+    }
+    tbody input{
+      width:100%;
+      height:30px;
+      border:1px solid #cdd3df;
+      border-radius:6px;
+      padding:0 4px;
+      text-align:center;
+      font-size:14px;
+    }
+    tbody input.name{
+      text-align:left;
+      padding-left:6px;
+      min-width:180px;
+    }
+    .stat-pair{
+      display:flex;
+      align-items:center;
+      gap:2px;
+    }
+    .stat-pair input{
+      width:44px;
+    }
+    .stat-pair span{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .calc{
+      font-weight:700;
+    }
+    .totals{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .totals-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    .totals-row strong{
+      font-size:16px;
+    }
+    .totals-chip{
+      background:var(--chip);
+      padding:6px 10px;
+      border-radius:10px;
+      border:1px solid var(--line);
+    }
+    .totals-perc{
+      font-size:13px;
+      color:var(--muted);
+      margin-left:4px;
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+    .actions button{
+      height:34px;
+      padding:0 12px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:var(--chip);
+      font-size:12px;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:var(--muted);
+    }
+
+    /* ── LIVE SCORING PANEL ── */
+    .live-panel{
+      background:linear-gradient(160deg,#10131a 0%,#1a2033 100%);
+      color:#fff;
+      padding:20px 18px 16px;
+      border-bottom:2px solid #1f2430;
+    }
+    .live-grid{
+      display:grid;
+      grid-template-columns:1fr 160px 1fr;
+      gap:12px;
+      align-items:center;
+    }
+    @media(max-width:700px){
+      .live-grid{
+        grid-template-columns:1fr 1fr;
+        grid-template-rows:auto auto;
+      }
+      .live-center{
+        grid-column:1 / -1;
+        grid-row:2;
+        flex-direction:row;
+        flex-wrap:wrap;
+        justify-content:center;
+      }
+    }
+    .live-team{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+    }
+    .live-name{
+      font-size:16px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      color:#9aa5bd;
+    }
+    .live-score-display{
+      font-size:80px;
+      font-weight:900;
+      line-height:1;
+      color:#fff;
+      font-variant-numeric:tabular-nums;
+      min-width:80px;
+      text-align:center;
+    }
+    .score-btns{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .score-btn{
+      min-width:60px;
+      height:60px;
+      border-radius:14px;
+      border:none;
+      font-size:22px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--accent-2);
+      color:#fff;
+      letter-spacing:.5px;
+      transition:transform .1s,opacity .15s;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+    .score-btn:active{ transform:scale(.93); opacity:.8; }
+    .score-btn.undo{ background:#7f1f1f; min-width:52px; font-size:18px; }
+    .live-center{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    .live-period-select{
+      width:100%;
+      height:40px;
+      padding:0 8px;
+      border-radius:10px;
+      border:1px solid #2c3445;
+      background:#1a1f2c;
+      color:#fff;
+      font-size:16px;
+      text-align:center;
+    }
+    .live-clock-display{
+      font-size:38px;
+      font-weight:900;
+      color:#fff;
+      font-variant-numeric:tabular-nums;
+      letter-spacing:1px;
+    }
+    .live-clock-btns{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .live-clock-btn{
+      height:40px;
+      padding:0 12px;
+      border-radius:10px;
+      border:1px solid #2c3445;
+      background:#1a1f2c;
+      color:#fff;
+      font-size:13px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+    .live-clock-btn.go{ background:var(--accent); border-color:var(--accent); color:#fff; }
+    .live-clock-btn.danger{ background:#7f1f1f; border-color:#7f1f1f; }
+    .live-bottom{
+      margin-top:14px;
+      display:flex;
+      gap:12px;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .live-stat-group{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      flex:1;
+      min-width:80px;
+    }
+    .live-stat-label{
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+      color:#9aa5bd;
+    }
+    .live-stat-btns{
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+    .live-stat-count{
+      font-size:26px;
+      font-weight:900;
+      color:#fff;
+      min-width:30px;
+      text-align:center;
+    }
+    .live-stat-btn{
+      width:38px;
+      height:38px;
+      border-radius:8px;
+      border:1px solid #2c3445;
+      background:#1a1f2c;
+      color:#fff;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+    .live-stat-btn:active{ transform:scale(.92); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Basketball Stats Control</h1>
+    <div class="meta">
+      <label>Event
+        <input id="eventTitle" placeholder="WCAC Championship">
+      </label>
+      <label>Date / Time
+        <input id="gameDate" placeholder="03/07/26 7:00 PM">
+      </label>
+      <label>Status
+        <input id="gameStatus" placeholder="Final / Halftime">
+      </label>
+    </div>
+  </header>
+
+  <!-- ══ LIVE SCORING PANEL ══ -->
+  <div class="live-panel">
+    <div class="live-grid">
+      <!-- AWAY -->
+      <div class="live-team">
+        <div class="live-name" id="liveAwayName">AWAY</div>
+        <div class="live-score-display" id="liveAwayScore">0</div>
+        <div class="score-btns">
+          <button class="score-btn" onclick="addScore('away',1)">+1</button>
+          <button class="score-btn" onclick="addScore('away',2)">+2</button>
+          <button class="score-btn" onclick="addScore('away',3)">+3</button>
+          <button class="score-btn undo" onclick="addScore('away',-1)">-1</button>
+        </div>
+      </div>
+      <!-- CENTER: period + clock -->
+      <div class="live-center">
+        <select id="livePeriod" class="live-period-select">
+          <option value="1st">1st</option>
+          <option value="2nd">2nd</option>
+          <option value="3rd">3rd</option>
+          <option value="4th">4th</option>
+          <option value="OT">OT</option>
+          <option value="2OT">2OT</option>
+          <option value="3OT">3OT</option>
+        </select>
+        <div class="live-clock-display" id="liveClockDisplay">8:00</div>
+        <div class="live-clock-btns">
+          <button class="live-clock-btn go" id="liveBtnStart">&#9654; Start</button>
+          <button class="live-clock-btn" id="liveBtnPause">&#9646;&#9646; Pause</button>
+          <button class="live-clock-btn danger" id="liveBtnReset">&#8634; Reset</button>
+        </div>
+      </div>
+      <!-- HOME -->
+      <div class="live-team">
+        <div class="live-name" id="liveHomeName">HOME</div>
+        <div class="live-score-display" id="liveHomeScore">0</div>
+        <div class="score-btns">
+          <button class="score-btn" onclick="addScore('home',1)">+1</button>
+          <button class="score-btn" onclick="addScore('home',2)">+2</button>
+          <button class="score-btn" onclick="addScore('home',3)">+3</button>
+          <button class="score-btn undo" onclick="addScore('home',-1)">-1</button>
+        </div>
+      </div>
+    </div>
+    <!-- fouls + timeouts row -->
+    <div class="live-bottom">
+      <div class="live-stat-group">
+        <div class="live-stat-label">Away Fouls</div>
+        <div class="live-stat-btns">
+          <button class="live-stat-btn" onclick="addFouls('away',-1)">&#8722;</button>
+          <div class="live-stat-count" id="liveAwayFouls">0</div>
+          <button class="live-stat-btn" onclick="addFouls('away',1)">+</button>
+        </div>
+      </div>
+      <div class="live-stat-group">
+        <div class="live-stat-label">Away TOs</div>
+        <div class="live-stat-btns">
+          <button class="live-stat-btn" onclick="addTO('away',-1)">&#8722;</button>
+          <div class="live-stat-count" id="liveAwayTOs">5</div>
+          <button class="live-stat-btn" onclick="addTO('away',1)">+</button>
+        </div>
+      </div>
+      <div class="live-stat-group">
+        <div class="live-stat-label">Home TOs</div>
+        <div class="live-stat-btns">
+          <button class="live-stat-btn" onclick="addTO('home',-1)">&#8722;</button>
+          <div class="live-stat-count" id="liveHomeTOs">5</div>
+          <button class="live-stat-btn" onclick="addTO('home',1)">+</button>
+        </div>
+      </div>
+      <div class="live-stat-group">
+        <div class="live-stat-label">Home Fouls</div>
+        <div class="live-stat-btns">
+          <button class="live-stat-btn" onclick="addFouls('home',-1)">&#8722;</button>
+          <div class="live-stat-count" id="liveHomeFouls">0</div>
+          <button class="live-stat-btn" onclick="addFouls('home',1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="scoreboard">
+        <label>Game Clock
+          <div class="clock-row">
+            <input id="clock" placeholder="8:00">
+            <button id="btnStart" class="primary">Start</button>
+            <button id="btnPause">Pause</button>
+            <button id="btnReset" class="danger">Reset 8:00</button>
+          </div>
+        </label>
+        <label>Period
+          <input id="quarter" placeholder="1st">
+        </label>
+        <label>Away Score
+          <input id="awayScore" type="number" min="0" inputmode="numeric">
+        </label>
+        <label>Home Score
+          <input id="homeScore" type="number" min="0" inputmode="numeric">
+        </label>
+        <label>Away TOs
+          <input id="awayTOs" type="number" min="0" inputmode="numeric">
+        </label>
+        <label>Home TOs
+          <input id="homeTOs" type="number" min="0" inputmode="numeric">
+        </label>
+        <label>Away Fouls
+          <input id="awayFouls" type="number" min="0" inputmode="numeric">
+        </label>
+        <label>Home Fouls
+          <input id="homeFouls" type="number" min="0" inputmode="numeric">
+        </label>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="panel" id="awayPanel">
+        <div class="team-header">
+          <div class="team-title">
+            Away Team
+            <input id="awayName" placeholder="Away">
+          </div>
+          <div class="team-metrics">
+            <label>Fouls
+              <input id="awayFoulsTeam" type="number" min="0" inputmode="numeric">
+            </label>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>PTS</th>
+                <th>FG</th>
+                <th>3PT</th>
+                <th>FT</th>
+                <th>OFF</th>
+                <th>DEF</th>
+                <th>REB</th>
+                <th>AST</th>
+                <th>STL</th>
+                <th>BLK</th>
+                <th>TO</th>
+                <th>PF</th>
+                <th>MIN</th>
+                <th>+/-</th>
+              </tr>
+            </thead>
+            <tbody id="awayBody"></tbody>
+          </table>
+        </div>
+        <div class="totals" id="awayTotals"></div>
+        <div class="actions">
+          <button data-team="away" class="addPlayer">Add Player Row</button>
+        </div>
+      </section>
+
+      <section class="panel" id="homePanel">
+        <div class="team-header">
+          <div class="team-title">
+            Home Team
+            <input id="homeName" placeholder="Home">
+          </div>
+          <div class="team-metrics">
+            <label>Fouls
+              <input id="homeFoulsTeam" type="number" min="0" inputmode="numeric">
+            </label>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>PTS</th>
+                <th>FG</th>
+                <th>3PT</th>
+                <th>FT</th>
+                <th>OFF</th>
+                <th>DEF</th>
+                <th>REB</th>
+                <th>AST</th>
+                <th>STL</th>
+                <th>BLK</th>
+                <th>TO</th>
+                <th>PF</th>
+                <th>MIN</th>
+                <th>+/-</th>
+              </tr>
+            </thead>
+            <tbody id="homeBody"></tbody>
+          </table>
+        </div>
+        <div class="totals" id="homeTotals"></div>
+        <div class="actions">
+          <button data-team="home" class="addPlayer">Add Player Row</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="panel">
+      <div class="toggle">
+        <input id="showTotals" type="checkbox">
+        <label for="showTotals">Show team totals block</label>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WS_URL = (location.protocol === 'file:' || location.hostname === 'localhost')
+      ? 'ws://localhost:8765'
+      : 'ws://' + location.host.replace(/:\\d+$/,'') + ':8765';
+
+    let ws=null;
+    let bugState=null;
+    let statsState=null;
+
+    let clockMs=0;
+    let clockRunning=false;
+    let clockTimer=null;
+    let clockStartPerf=0;
+    let clockStartMs=0;
+    let lastClockText=null;
+    const nowMs = ()=> (window.performance && performance.now) ? performance.now() : Date.now();
+
+    const statInputs = new Set([
+      'fgm','fga','t3m','t3a','ftm','fta','off','def','ast','stl','blk','to','pf','min','pm'
+    ]);
+
+    const emptyPlayer = ()=>({
+      num:'', name:'', fgm:0, fga:0, t3m:0, t3a:0, ftm:0, fta:0,
+      off:0, def:0, ast:0, stl:0, blk:0, to:0, pf:0, min:0, pm:0
+    });
+    const emptyTeam = ()=>({ name:'', fouls:0, players:[...Array(12)].map(()=>emptyPlayer()) });
+
+    const $ = (id)=>document.getElementById(id);
+
+    function connect(){
+      ws = new WebSocket(WS_URL);
+      ws.onopen = ()=> ws.send(JSON.stringify({type:'get_state'}));
+      ws.onmessage = (evt)=>{
+        const msg = JSON.parse(evt.data);
+        if(msg.type==='snapshot' || msg.type==='state'){
+          bugState = msg.data.bug || bugState;
+          statsState = msg.data.stats || statsState || buildDefaultStats();
+          renderAll();
+        }
+      };
+      ws.onclose = ()=> setTimeout(connect, 1000);
+    }
+
+    function buildDefaultStats(){
+      return {
+        meta:{eventTitle:'WCAC', gameDate:'', gameStatus:''},
+        settings:{showTeamTotals:true},
+        away: emptyTeam(),
+        home: emptyTeam()
+      };
+    }
+
+    function patch(obj){ ws && ws.send(JSON.stringify({type:'patch', ...obj})); }
+    function patchBug(data){ patch({bug: data}); }
+    function patchStats(data){ patch({stats: data}); }
+
+    function parseClock(str){
+      const parts=String(str||'0:00').split(':');
+      const m=parseInt(parts[0],10)||0;
+      const s=parseInt(parts[1],10)||0;
+      return (m*60+s)*1000;
+    }
+    function fmtClock(ms){
+      ms=Math.max(0,ms|0);
+      const m=Math.floor(ms/60000);
+      const s=Math.floor((ms%60000)/1000);
+      return `${m}:${s<10?'0':''}${s}`;
+    }
+    function setClockRunning(run){
+      if(run===clockRunning) return;
+      if(clockRunning){
+        const elapsed = nowMs() - clockStartPerf;
+        clockMs = Math.max(0, clockStartMs - elapsed);
+      }
+      clockRunning=run;
+      if(clockTimer){ clearInterval(clockTimer); clockTimer=null; }
+      if(clockRunning){
+        clockStartPerf = nowMs();
+        clockStartMs = clockMs;
+        clockTimer = setInterval(()=>{
+          const elapsed = nowMs() - clockStartPerf;
+          clockMs = Math.max(0, clockStartMs - elapsed);
+          const input=$('clock');
+          if(input && document.activeElement!==input){ input.value = fmtClock(clockMs); }
+          const liveClockEl = document.getElementById('liveClockDisplay');
+          if(liveClockEl) liveClockEl.textContent = fmtClock(clockMs);
+          if(clockMs<=0){ setClockRunning(false); }
+        }, 100);
+      }
+    }
+    function syncClockFromBug(){
+      const text = bugState && bugState.clock != null ? bugState.clock : '0:00';
+      const running = !!(bugState && bugState.clockRunning);
+      const clockChanged = text !== lastClockText;
+      lastClockText = text;
+      if(!running || clockChanged){ clockMs = parseClock(text); }
+      setClockRunning(running);
+    }
+
+    function safeInt(val){
+      const n = parseInt(val,10);
+      return Number.isNaN(n) ? 0 : n;
+    }
+
+    function computePoints(p){
+      const fgm = safeInt(p.fgm);
+      const t3m = safeInt(p.t3m);
+      const ftm = safeInt(p.ftm);
+      const two = Math.max(0, fgm - t3m);
+      return two * 2 + t3m * 3 + ftm;
+    }
+    function computeTotals(team){
+      const totals = {
+        fgm:0,fga:0,t3m:0,t3a:0,ftm:0,fta:0,
+        off:0,def:0,ast:0,stl:0,blk:0,to:0,pf:0,min:0,pm:0
+      };
+      team.players.forEach(p=>{
+        Object.keys(totals).forEach(k=>{ totals[k] += safeInt(p[k]); });
+      });
+      totals.pts = computePoints(totals);
+      totals.reb = totals.off + totals.def;
+      return totals;
+    }
+    function pct(m,a){ return a>0 ? Math.round((m/a)*100) : 0; }
+
+    function buildRows(teamKey){
+      const tbody = $(teamKey+'Body');
+      tbody.innerHTML = '';
+      const team = statsState[teamKey];
+      team.players.forEach((p, idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="num" value="${p.num||''}"></td>
+          <td><input class="name" data-team="${teamKey}" data-idx="${idx}" data-field="name" value="${p.name||''}"></td>
+          <td class="calc" data-team="${teamKey}" data-idx="${idx}" data-calc="pts">0</td>
+          <td>
+            <div class="stat-pair">
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="fgm" type="number" inputmode="numeric" min="0">
+              <span>-</span>
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="fga" type="number" inputmode="numeric" min="0">
+            </div>
+          </td>
+          <td>
+            <div class="stat-pair">
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="t3m" type="number" inputmode="numeric" min="0">
+              <span>-</span>
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="t3a" type="number" inputmode="numeric" min="0">
+            </div>
+          </td>
+          <td>
+            <div class="stat-pair">
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="ftm" type="number" inputmode="numeric" min="0">
+              <span>-</span>
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="fta" type="number" inputmode="numeric" min="0">
+            </div>
+          </td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="off" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="def" type="number" inputmode="numeric" min="0"></td>
+          <td class="calc" data-team="${teamKey}" data-idx="${idx}" data-calc="reb">0</td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="ast" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="stl" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="blk" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="to" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="pf" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="min" type="number" inputmode="numeric" min="0"></td>
+          <td><input data-team="${teamKey}" data-idx="${idx}" data-field="pm" type="number" inputmode="numeric"></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateRows(teamKey){
+      const team = statsState[teamKey];
+      const tbody = $(teamKey+'Body');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.forEach((tr, idx)=>{
+        const p = team.players[idx] || emptyPlayer();
+        tr.querySelectorAll('input').forEach(input=>{
+          if(document.activeElement===input) return;
+          const field = input.getAttribute('data-field');
+          const val = p[field];
+          input.value = (val !== undefined && val !== null) ? val : '';
+        });
+        const ptsCell = tr.querySelector('[data-calc="pts"]');
+        const rebCell = tr.querySelector('[data-calc="reb"]');
+        if(ptsCell) ptsCell.textContent = computePoints(p);
+        if(rebCell) rebCell.textContent = safeInt(p.off) + safeInt(p.def);
+      });
+    }
+
+    function renderTotals(teamKey){
+      const totals = computeTotals(statsState[teamKey]);
+      const container = $(teamKey+'Totals');
+      container.style.display = statsState.settings.showTeamTotals ? 'flex' : 'none';
+      if(!statsState.settings.showTeamTotals){ container.innerHTML=''; return; }
+      container.innerHTML = `
+        <div class="totals-row">
+          <strong>${teamKey.toUpperCase()} TOTAL</strong>
+          <div class="totals-chip">PTS ${totals.pts}</div>
+          <div class="totals-chip">FG ${totals.fgm}-${totals.fga}<span class="totals-perc">${pct(totals.fgm, totals.fga)}%</span></div>
+          <div class="totals-chip">3PT ${totals.t3m}-${totals.t3a}<span class="totals-perc">${pct(totals.t3m, totals.t3a)}%</span></div>
+          <div class="totals-chip">FT ${totals.ftm}-${totals.fta}<span class="totals-perc">${pct(totals.ftm, totals.fta)}%</span></div>
+          <div class="totals-chip">OFF ${totals.off}</div>
+          <div class="totals-chip">DEF ${totals.def}</div>
+          <div class="totals-chip">REB ${totals.reb}</div>
+          <div class="totals-chip">AST ${totals.ast}</div>
+          <div class="totals-chip">STL ${totals.stl}</div>
+          <div class="totals-chip">BLK ${totals.blk}</div>
+          <div class="totals-chip">TO ${totals.to}</div>
+          <div class="totals-chip">PF ${totals.pf}</div>
+          <div class="totals-chip">MIN ${totals.min}</div>
+        </div>
+      `;
+    }
+
+    function setInputValue(id, val){
+      const el = $(id);
+      if(!el || document.activeElement===el) return;
+      el.value = val;
+    }
+
+    function renderAll(){
+      if(!statsState) statsState = buildDefaultStats();
+      if(!bugState) bugState = {};
+
+      if(!window._rowsBuilt){
+        buildRows('away');
+        buildRows('home');
+        window._rowsBuilt = true;
+      }else{
+        if(($('awayBody').children.length || 0) !== statsState.away.players.length){ buildRows('away'); }
+        if(($('homeBody').children.length || 0) !== statsState.home.players.length){ buildRows('home'); }
+      }
+
+      setInputValue('eventTitle', statsState.meta.eventTitle || '');
+      setInputValue('gameDate', statsState.meta.gameDate || '');
+      setInputValue('gameStatus', statsState.meta.gameStatus || '');
+
+      setInputValue('awayName', statsState.away.name || bugState.awayName || '');
+      setInputValue('homeName', statsState.home.name || bugState.homeName || '');
+      setInputValue('awayFoulsTeam', statsState.away.fouls || 0);
+      setInputValue('homeFoulsTeam', statsState.home.fouls || 0);
+
+      setInputValue('awayScore', bugState.awayScore != null ? bugState.awayScore : 0);
+      setInputValue('homeScore', bugState.homeScore != null ? bugState.homeScore : 0);
+      setInputValue('awayTOs', bugState.awayTOs != null ? bugState.awayTOs : 0);
+      setInputValue('homeTOs', bugState.homeTOs != null ? bugState.homeTOs : 0);
+
+      setInputValue('awayFouls', statsState.away.fouls || 0);
+      setInputValue('homeFouls', statsState.home.fouls || 0);
+
+      setInputValue('quarter', bugState.quarter || '');
+
+      $('showTotals').checked = !!statsState.settings.showTeamTotals;
+
+      updateRows('away');
+      updateRows('home');
+      renderTotals('away');
+      renderTotals('home');
+      syncClockFromBug();
+      updateLivePanel();
+    }
+
+    document.addEventListener('input', (e)=>{
+      const target = e.target;
+      if(!target || !target.dataset) return;
+      const teamKey = target.dataset.team;
+      const idx = parseInt(target.dataset.idx,10);
+      const field = target.dataset.field;
+      if(!teamKey || Number.isNaN(idx) || !field) return;
+      const team = statsState[teamKey];
+      if(!team || !team.players[idx]) return;
+      const val = statInputs.has(field) ? safeInt(target.value) : target.value;
+      team.players[idx][field] = val;
+      patchStats({ [teamKey]: team });
+      updateRows(teamKey);
+      renderTotals(teamKey);
+    });
+
+    $('eventTitle').addEventListener('change', ()=>{
+      statsState.meta.eventTitle = $('eventTitle').value;
+      patchStats({ meta: statsState.meta });
+    });
+    $('gameDate').addEventListener('change', ()=>{
+      statsState.meta.gameDate = $('gameDate').value;
+      patchStats({ meta: statsState.meta });
+    });
+    $('gameStatus').addEventListener('change', ()=>{
+      statsState.meta.gameStatus = $('gameStatus').value;
+      patchStats({ meta: statsState.meta });
+    });
+
+    $('awayName').addEventListener('change', ()=>{
+      statsState.away.name = $('awayName').value;
+      patchStats({ away: statsState.away });
+    });
+    $('homeName').addEventListener('change', ()=>{
+      statsState.home.name = $('homeName').value;
+      patchStats({ home: statsState.home });
+    });
+
+    $('awayFoulsTeam').addEventListener('change', ()=>{
+      statsState.away.fouls = safeInt($('awayFoulsTeam').value);
+      patchStats({ away: statsState.away });
+      $('awayFouls').value = statsState.away.fouls;
+    });
+    $('homeFoulsTeam').addEventListener('change', ()=>{
+      statsState.home.fouls = safeInt($('homeFoulsTeam').value);
+      patchStats({ home: statsState.home });
+      $('homeFouls').value = statsState.home.fouls;
+    });
+    $('awayFouls').addEventListener('change', ()=>{
+      statsState.away.fouls = safeInt($('awayFouls').value);
+      patchStats({ away: statsState.away });
+      $('awayFoulsTeam').value = statsState.away.fouls;
+    });
+    $('homeFouls').addEventListener('change', ()=>{
+      statsState.home.fouls = safeInt($('homeFouls').value);
+      patchStats({ home: statsState.home });
+      $('homeFoulsTeam').value = statsState.home.fouls;
+    });
+
+    $('awayScore').addEventListener('change', ()=>{
+      patchBug({ awayScore: safeInt($('awayScore').value) });
+    });
+    $('homeScore').addEventListener('change', ()=>{
+      patchBug({ homeScore: safeInt($('homeScore').value) });
+    });
+    $('awayTOs').addEventListener('change', ()=>{
+      patchBug({ awayTOs: safeInt($('awayTOs').value) });
+    });
+    $('homeTOs').addEventListener('change', ()=>{
+      patchBug({ homeTOs: safeInt($('homeTOs').value) });
+    });
+    $('quarter').addEventListener('change', ()=>{
+      patchBug({ quarter: $('quarter').value });
+    });
+
+    $('btnStart').onclick = ()=>{
+      const input=$('clock');
+      clockMs = parseClock(input ? input.value : '0:00');
+      patchBug({ clock: fmtClock(clockMs), clockRunning: true });
+    };
+    $('btnPause').onclick = ()=>{
+      patchBug({ clock: fmtClock(clockMs), clockRunning: false });
+    };
+    $('btnReset').onclick = ()=>{
+      clockMs = parseClock('8:00');
+      const input=$('clock');
+      if(input) input.value = '8:00';
+      patchBug({ clock: '8:00', clockRunning: false });
+    };
+
+    document.querySelectorAll('.addPlayer').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const teamKey = btn.dataset.team;
+        const team = statsState[teamKey];
+        team.players.push(emptyPlayer());
+        patchStats({ [teamKey]: team });
+        buildRows(teamKey);
+        updateRows(teamKey);
+        renderTotals(teamKey);
+      });
+    });
+
+    $('showTotals').addEventListener('change', ()=>{
+      statsState.settings.showTeamTotals = $('showTotals').checked;
+      patchStats({ settings: statsState.settings });
+      renderTotals('away');
+      renderTotals('home');
+    });
+
+    // ── LIVE PANEL ──
+    function updateLivePanel(){
+      if(!bugState) return;
+      const el = (id)=>document.getElementById(id);
+      el('liveAwayName').textContent = (bugState.awayName || 'AWAY').toUpperCase();
+      el('liveHomeName').textContent = (bugState.homeName || 'HOME').toUpperCase();
+      el('liveAwayScore').textContent = bugState.awayScore != null ? bugState.awayScore : 0;
+      el('liveHomeScore').textContent = bugState.homeScore != null ? bugState.homeScore : 0;
+      el('liveAwayFouls').textContent = (statsState && statsState.away) ? (statsState.away.fouls || 0) : 0;
+      el('liveHomeFouls').textContent = (statsState && statsState.home) ? (statsState.home.fouls || 0) : 0;
+      el('liveAwayTOs').textContent = bugState.awayTOs != null ? bugState.awayTOs : 5;
+      el('liveHomeTOs').textContent = bugState.homeTOs != null ? bugState.homeTOs : 5;
+      el('liveClockDisplay').textContent = fmtClock(clockMs);
+      const period = el('livePeriod');
+      if(period && document.activeElement !== period) period.value = bugState.quarter || '1st';
+    }
+
+    function addScore(team, delta){
+      const key = team === 'away' ? 'awayScore' : 'homeScore';
+      if(!bugState) bugState = {};
+      const current = bugState[key] != null ? bugState[key] : 0;
+      const newVal = Math.max(0, current + delta);
+      bugState[key] = newVal;
+      patchBug({ [key]: newVal });
+      document.getElementById(team === 'away' ? 'awayScore' : 'homeScore').value = newVal;
+      updateLivePanel();
+    }
+
+    function addFouls(team, delta){
+      if(!statsState) return;
+      const t = statsState[team];
+      if(!t) return;
+      t.fouls = Math.max(0, (t.fouls || 0) + delta);
+      patchStats({ [team]: t });
+      const foulInputId = team === 'away' ? 'awayFouls' : 'homeFouls';
+      const foulTeamInputId = team === 'away' ? 'awayFoulsTeam' : 'homeFoulsTeam';
+      const foulEl = document.getElementById(foulInputId);
+      const foulTeamEl = document.getElementById(foulTeamInputId);
+      if(foulEl) foulEl.value = t.fouls;
+      if(foulTeamEl) foulTeamEl.value = t.fouls;
+      updateLivePanel();
+    }
+
+    function addTO(team, delta){
+      if(!bugState) bugState = {};
+      const key = team === 'away' ? 'awayTOs' : 'homeTOs';
+      const current = bugState[key] != null ? bugState[key] : 5;
+      const newVal = Math.max(0, Math.min(5, current + delta));
+      bugState[key] = newVal;
+      patchBug({ [key]: newVal });
+      const toEl = document.getElementById(team === 'away' ? 'awayTOs' : 'homeTOs');
+      if(toEl) toEl.value = newVal;
+      updateLivePanel();
+    }
+
+    document.getElementById('livePeriod').addEventListener('change', ()=>{
+      const val = document.getElementById('livePeriod').value;
+      if(!bugState) bugState = {};
+      bugState.quarter = val;
+      patchBug({ quarter: val });
+      const quarterEl = document.getElementById('quarter');
+      if(quarterEl) quarterEl.value = val;
+    });
+
+    document.getElementById('liveBtnStart').onclick = ()=>{
+      const clockInput = $('clock');
+      clockMs = parseClock(clockInput ? clockInput.value : fmtClock(clockMs));
+      patchBug({ clock: fmtClock(clockMs), clockRunning: true });
+    };
+    document.getElementById('liveBtnPause').onclick = ()=>{
+      patchBug({ clock: fmtClock(clockMs), clockRunning: false });
+    };
+    document.getElementById('liveBtnReset').onclick = ()=>{
+      clockMs = parseClock('8:00');
+      const clockInput = $('clock');
+      if(clockInput) clockInput.value = '8:00';
+      document.getElementById('liveClockDisplay').textContent = '8:00';
+      patchBug({ clock: '8:00', clockRunning: false });
+    };
+
+    connect();
+  </script>
+</body>
+</html>

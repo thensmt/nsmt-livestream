@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NSMT Broadcast Overlay v2 — 1920×1080</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   NSMT BROADCAST OVERLAY v2
+   1920 × 1080 transparent canvas
+   OBS: width=1920 height=1080 ✓ Transparent BG ✓
+   Place ABOVE all other sources in scene
+═══════════════════════════════════════════════════════ */
+:root {
+  --gold:   #F5C518;
+  --blue:   #1877F2;
+  --red:    #e53f3f;
+  --green:  #22c55e;
+  --orange: #f97316;
+  --cyan:   #06b6d4;
+  --dark:   rgba(18,20,24,0.96);
+  --dark2:  rgba(10,11,14,0.98);
+  --bug-h:  52px;
+  --ticker-h: 24px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html,body {
+  width:1920px; height:1080px;
+  overflow:hidden; background:transparent;
+  font-family:'Barlow',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ════════════════════════════════════════
+   AD ZONES — 4 corners
+   Each: 280×180 transparent unless ad loaded
+════════════════════════════════════════ */
+.ad-zone {
+  position:absolute;
+  width:280px; height:160px;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  opacity:0;
+  transition:opacity 0.6s ease;
+  pointer-events:none;
+}
+.ad-zone.loaded { opacity:1; }
+.ad-zone img {
+  max-width:100%; max-height:100%;
+  object-fit:contain;
+}
+
+#adTL { top:20px;  left:20px;  }
+#adTR { top:20px;  right:20px; }
+#adBL { bottom:calc(var(--bug-h) + var(--ticker-h) + 16px); left:20px;  }
+#adBR { bottom:calc(var(--bug-h) + var(--ticker-h) + 16px); right:20px; }
+
+/* ════════════════════════════════════════
+   SCORE POP CARD — bottom left above bug
+════════════════════════════════════════ */
+#scorePop {
+  position:absolute;
+  bottom:calc(var(--bug-h) + var(--ticker-h) + 14px);
+  left:50px;
+  width:390px;
+  display:flex; align-items:stretch;
+  border-radius:5px; overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.05);
+  opacity:0; transform:translateY(20px);
+  pointer-events:none;
+}
+#scorePop.in  { animation:popIn  0.4s cubic-bezier(.22,1.5,.36,1) forwards; }
+#scorePop.out { animation:popOut 0.3s cubic-bezier(.55,0,1,.45)  forwards; }
+@keyframes popIn  { from{opacity:0;transform:translateY(28px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes popOut { from{opacity:1;transform:translateY(0)}  to{opacity:0;transform:translateY(-14px)} }
+
+.pop-photo {
+  width:100px; flex-shrink:0;
+  background:#090909; position:relative; overflow:hidden;
+}
+.pop-photo img { width:100%;height:100%;object-fit:cover;object-position:top center;display:block; }
+.pop-photo-fb {
+  width:100%;height:100%; display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',cursive; font-size:44px;
+  color:rgba(245,197,24,.25);
+  background:linear-gradient(160deg,#111 0%,#08080f 100%);
+}
+.pop-num-tag {
+  position:absolute;bottom:0;left:0;right:0;text-align:center;
+  padding:14px 4px 5px;
+  background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);
+  font-family:'Bebas Neue',cursive; font-size:18px;
+  color:rgba(255,255,255,.6); letter-spacing:1px;
+}
+.pop-info {
+  flex:1; background:#0c0c10;
+  display:flex;flex-direction:column;
+  position:relative; overflow:hidden;
+}
+.pop-topbar {
+  background:var(--gold); padding:4px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pop-event-type { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#000; }
+.pop-team-tag   { font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:2px;color:rgba(0,0,0,.5); }
+.pop-main       { flex:1;padding:8px 12px 6px 13px;display:flex;flex-direction:column;justify-content:center; }
+.pop-name { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;line-height:.95;color:#fff;text-transform:uppercase;letter-spacing:.5px; }
+.pop-name .last { color:var(--gold); }
+.pop-pts-row { display:flex;align-items:baseline;gap:4px;margin-top:6px; }
+.pop-pts-big  { font-family:'Bebas Neue',cursive;font-size:44px;line-height:1;color:#fff;letter-spacing:-1px; }
+.pop-pts-meta { display:flex;flex-direction:column; }
+.pop-pts-plus  { font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold); }
+.pop-pts-label { font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3); }
+.pop-footer {
+  padding:4px 12px 6px 13px;
+  border-top:1px solid rgba(255,255,255,.04);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pop-footer-info { font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.2); }
+.pop-nsmt { font-family:'Bebas Neue',cursive;font-size:12px;letter-spacing:3px;color:rgba(255,255,255,.15); }
+
+/* progress drain */
+#popBar {
+  position:absolute;
+  bottom:calc(var(--bug-h) + var(--ticker-h) + 10px);
+  left:50px; width:390px; height:2px;
+  background:rgba(255,255,255,.05); border-radius:1px; overflow:hidden;
+  opacity:0; transition:opacity .2s;
+}
+#popBar.show { opacity:1; }
+#popBarFill { height:100%;background:var(--gold);transform-origin:left; }
+#popBarFill.drain { animation:drain linear forwards; }
+@keyframes drain { from{transform:scaleX(1)} to{transform:scaleX(0)} }
+
+/* ════════════════════════════════════════
+   STAT FEED CHIPS — right side
+════════════════════════════════════════ */
+#statFeed {
+  position:absolute;
+  top:100px; right:50px;
+  width:250px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.stat-chip {
+  background:rgba(10,11,14,.88);
+  border-left:3px solid var(--gold);
+  border-radius:0 5px 5px 0;
+  padding:7px 11px;
+  display:flex;align-items:center;gap:7px;
+  backdrop-filter:blur(6px);
+  box-shadow:0 2px 10px rgba(0,0,0,.5);
+  animation:chipIn .3s ease forwards;
+}
+.stat-chip.ns { border-left-color:rgba(255,255,255,.18); }
+@keyframes chipIn { from{transform:translateX(28px);opacity:0} to{transform:translateX(0);opacity:1} }
+.chip-icon { font-size:13px;flex-shrink:0; }
+.chip-text { flex:1;font-size:11px;font-weight:600;color:rgba(255,255,255,.85);line-height:1.3; }
+.chip-pts  { font-family:'Bebas Neue',cursive;font-size:16px;color:var(--gold);flex-shrink:0; }
+
+/* ════════════════════════════════════════
+   FOUL TROUBLE BADGE — top right
+════════════════════════════════════════ */
+#foulBadges {
+  position:absolute;
+  top:20px; right:50px;
+  display:flex;flex-direction:column;gap:5px;
+  opacity:0; transition:opacity .4s;
+}
+#foulBadges.show { opacity:1; }
+.trouble-chip {
+  background:rgba(229,63,63,.18);
+  border:1px solid rgba(229,63,63,.4);
+  border-radius:4px; padding:4px 10px;
+  display:flex;align-items:center;gap:7px;
+  backdrop-filter:blur(6px);
+}
+.tc-num  { font-family:'Bebas Neue',cursive;font-size:15px;color:var(--gold); }
+.tc-name { font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.5px; }
+.tc-fouls{ margin-left:auto;font-family:'Bebas Neue',cursive;font-size:13px;color:var(--red); }
+
+/* ════════════════════════════════════════
+   TIMEOUT GRAPHIC — centered lower third
+════════════════════════════════════════ */
+#toGraphic {
+  position:absolute;
+  bottom:calc(var(--bug-h) + var(--ticker-h) + 12px);
+  left:0;right:0;
+  display:flex;justify-content:center;
+  opacity:0; pointer-events:none;
+}
+#toGraphic.in  { animation:ltIn  .5s cubic-bezier(.22,1,.36,1) forwards; }
+#toGraphic.out { animation:ltOut .35s cubic-bezier(.55,0,1,.45) forwards; }
+@keyframes ltIn  { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ltOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-16px)} }
+
+.to-banner {
+  background:var(--dark2);
+  border-top:4px solid var(--gold);
+  border-radius:4px;
+  padding:16px 52px;
+  display:flex;align-items:center;gap:28px;
+  box-shadow:0 -6px 36px rgba(0,0,0,.7);
+  width:860px;
+}
+.to-icon { font-size:44px; }
+.to-text { flex:1; }
+.to-team { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:#fff;letter-spacing:1px;text-transform:uppercase;line-height:1; }
+.to-type { font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;color:var(--gold);margin-top:2px; }
+.to-meta { font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:3px; }
+.to-rem  { text-align:center; }
+.to-rem-n { font-family:'Bebas Neue',cursive;font-size:44px;color:#fff;line-height:1; }
+.to-rem-l { font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3); }
+
+/* ════════════════════════════════════════
+   SUBSTITUTION GRAPHIC
+════════════════════════════════════════ */
+#subGraphic {
+  position:absolute;
+  bottom:calc(var(--bug-h) + var(--ticker-h) + 12px);
+  left:50px; width:440px;
+  opacity:0; pointer-events:none;
+}
+#subGraphic.in  { animation:ltIn  .4s cubic-bezier(.22,1,.36,1) forwards; }
+#subGraphic.out { animation:ltOut .3s cubic-bezier(.55,0,1,.45) forwards; }
+
+.sub-banner { background:var(--dark2);border-left:4px solid var(--cyan);border-radius:5px;overflow:hidden;box-shadow:0 6px 28px rgba(0,0,0,.7); }
+.sub-hdr { background:rgba(6,182,212,.12);padding:5px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(6,182,212,.18); }
+.sub-hdr-label { font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:3px;color:var(--cyan); }
+.sub-team  { font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35); }
+.sub-rows  { padding:10px 13px;display:flex;flex-direction:column;gap:7px; }
+.sub-row   { display:flex;align-items:center;gap:9px; }
+.sub-dir   { font-size:16px;width:20px;text-align:center;flex-shrink:0; }
+.sub-num   { font-family:'Bebas Neue',cursive;font-size:22px;color:var(--gold);min-width:34px;line-height:1; }
+.sub-name  { font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:#fff;text-transform:uppercase;letter-spacing:.5px;flex:1; }
+.sub-dir-l { font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase; }
+.sub-dir-l.in { color:var(--green); } .sub-dir-l.out { color:var(--red); }
+.sub-div   { height:1px;background:rgba(255,255,255,.05); }
+
+/* ════════════════════════════════════════
+   FOUL GRAPHIC
+════════════════════════════════════════ */
+#foulGraphic {
+  position:absolute;
+  bottom:calc(var(--bug-h) + var(--ticker-h) + 12px);
+  left:50px; width:360px;
+  opacity:0; pointer-events:none;
+}
+#foulGraphic.in  { animation:ltIn  .4s cubic-bezier(.22,1,.36,1) forwards; }
+#foulGraphic.out { animation:ltOut .3s cubic-bezier(.55,0,1,.45) forwards; }
+
+.foul-banner { background:var(--dark2);border-left:4px solid var(--orange);border-radius:5px;overflow:hidden;box-shadow:0 6px 28px rgba(0,0,0,.7); }
+.foul-hdr { background:rgba(249,115,22,.12);padding:5px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(249,115,22,.18); }
+.foul-hdr-l { font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:3px;color:var(--orange); }
+.foul-body  { padding:10px 13px;display:flex;align-items:center;gap:12px; }
+.foul-pnum  { font-family:'Bebas Neue',cursive;font-size:34px;color:var(--gold);line-height:1; }
+.foul-info  { flex:1; }
+.foul-pname { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:#fff;text-transform:uppercase;letter-spacing:.5px;line-height:1; }
+.foul-count-row { display:flex;align-items:center;gap:5px;margin-top:4px; }
+.foul-pips  { display:flex;gap:2px; }
+.fpip       { width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.1); }
+.fpip.on    { background:var(--orange); }
+.fpip.red   { background:var(--red);animation:fpulse .8s infinite; }
+@keyframes fpulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.foul-trouble-badge { font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(229,63,63,.25);color:var(--red); }
+.foul-meta  { font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:2px; }
+
+/* ════════════════════════════════════════
+   SPECIAL GRAPHIC — halftime / final
+════════════════════════════════════════ */
+#specialGraphic {
+  position:absolute;
+  bottom:calc(var(--bug-h) + var(--ticker-h) + 12px);
+  left:0;right:0;
+  display:flex;justify-content:center;
+  opacity:0; pointer-events:none;
+}
+#specialGraphic.in  { animation:spIn  .6s cubic-bezier(.22,1,.36,1) forwards; }
+#specialGraphic.out { animation:spOut .45s cubic-bezier(.55,0,1,.45) forwards; }
+@keyframes spIn  { from{opacity:0;transform:scale(.9) translateY(28px)} to{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes spOut { from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(.95)} }
+
+.special-banner {
+  background:var(--dark2);
+  border:1px solid rgba(245,197,24,.2);
+  border-top:4px solid var(--gold);
+  border-radius:6px; padding:18px 56px;
+  text-align:center;
+  box-shadow:0 14px 56px rgba(0,0,0,.85);
+  min-width:680px;
+}
+.sp-title { font-family:'Bebas Neue',cursive;font-size:48px;letter-spacing:5px;color:var(--gold);line-height:1; }
+.sp-scores { display:flex;align-items:center;justify-content:center;gap:22px;margin-top:8px; }
+.sp-team   { text-align:center; }
+.sp-code   { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.55); }
+.sp-score  { font-family:'Bebas Neue',cursive;font-size:56px;color:#fff;line-height:1;letter-spacing:-2px; }
+.sp-sep    { font-family:'Bebas Neue',cursive;font-size:32px;color:rgba(255,255,255,.18); }
+.sp-meta   { font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:7px; }
+
+/* ════════════════════════════════════════
+   ESPN-STYLE SCOREBUG
+   Compact, centered, sits directly above ticker
+════════════════════════════════════════ */
+#bugWrap {
+  position:absolute;
+  bottom:var(--ticker-h);
+  left:0; right:0;
+  display:flex; justify-content:center;
+  transform:translateY(calc(100% + var(--ticker-h)));
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+  filter:drop-shadow(0 -4px 22px rgba(0,0,0,.8));
+  pointer-events:none;
+}
+#bugWrap.visible { transform:translateY(0); }
+
+#bugMain {
+  display:flex; align-items:stretch;
+  height:var(--bug-h);
+  background:#1a1c20;
+  border-radius:5px 5px 0 0;
+  overflow:hidden;
+  min-width:760px;
+}
+
+/* NSMT logo block — left edge */
+.bug-brand {
+  width:72px; flex-shrink:0;
+  background:#CC0000;
+  display:flex; align-items:center; justify-content:center;
+  padding:4px 8px;
+  border-right:1px solid rgba(255,255,255,.08);
+  overflow:hidden;
+}
+.bug-brand img   { width:100%;height:100%;object-fit:contain; }
+.bug-brand-text  { font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:#fff;white-space:nowrap;line-height:1; }
+
+.bug-sep { width:1px;background:rgba(255,255,255,.09);flex-shrink:0;align-self:stretch; }
+
+/* Team block */
+.bug-team {
+  display:flex; align-items:center;
+  gap:0; padding:0 14px 0 12px;
+  background:#1a1c20; flex-shrink:0;
+}
+
+/* Team logo circle */
+.bug-logo {
+  width:30px; height:30px; border-radius:50%;
+  background:#2a2d33; border:1.5px solid rgba(255,255,255,.09);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',cursive; font-size:11px; color:var(--gold);
+  flex-shrink:0; overflow:hidden; margin-right:9px;
+}
+.bug-logo img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+
+.bug-code {
+  font-family:'Barlow Condensed',sans-serif; font-weight:800;
+  font-size:19px; color:#fff; letter-spacing:1px; text-transform:uppercase;
+  line-height:1; margin-right:10px; white-space:nowrap;
+}
+
+.bug-score-col { display:flex;flex-direction:column;align-items:center; }
+.bug-score {
+  font-family:'Bebas Neue',cursive; font-size:25px;
+  color:#fff; letter-spacing:.5px; min-width:26px; text-align:center;
+  transition:color .2s; line-height:1;
+}
+.bug-score.flash { animation:scoreFlash 1s ease forwards; }
+@keyframes scoreFlash {
+  0%,100%{color:#fff} 25%{color:var(--gold);transform:scale(1.1)} 55%{color:#fff}
+}
+.bug-to-pips { display:flex;gap:2px;justify-content:center;margin-top:2px; }
+.tp { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .2s; }
+.tp.on { background:var(--gold); }
+.bug-fouls { display:flex;gap:2px;justify-content:center;margin-top:1px; }
+.bf { width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.1); }
+.bf.on { background:var(--orange); }
+.bf.bonus { background:var(--red); }
+
+/* Center */
+.bug-center {
+  display:flex; align-items:center;
+  gap:0; background:#1a1c20; flex-shrink:0; padding:0 4px;
+}
+.bug-period-box, .bug-clock-box {
+  background:#2c2f36; border-radius:3px;
+  padding:5px 10px; display:flex; align-items:center; justify-content:center;
+  margin:0 5px;
+}
+.bug-period {
+  font-family:'Barlow Condensed',sans-serif; font-weight:800;
+  font-size:14px; letter-spacing:1.5px; text-transform:uppercase; color:#fff; line-height:1;
+}
+.bug-clock-box { min-width:84px; }
+.bug-clock {
+  font-family:'Bebas Neue',cursive; font-size:21px;
+  color:#fff; letter-spacing:1.5px; line-height:1; transition:color .2s;
+}
+.bug-clock.running { color:#fff; }
+.bug-clock.paused  { color:var(--gold);animation:ckBlink 1s infinite; }
+.bug-clock.expired { color:var(--red); }
+@keyframes ckBlink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* Ticker strip */
+#bugTicker {
+  background:#111316;
+  height:var(--ticker-h);
+  position:absolute;
+  bottom:0; left:0; right:0;
+  display:flex; align-items:center;
+  overflow:hidden;
+  border-top:1px solid rgba(255,255,255,.04);
+  transform:translateY(100%);
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+#bugTicker.visible { transform:translateY(0); }
+
+.ticker-label {
+  background:var(--gold);
+  height:100%; padding:0 12px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',cursive; font-size:13px; letter-spacing:2px; color:#000;
+  flex-shrink:0; white-space:nowrap;
+}
+.ticker-scroll {
+  flex:1; overflow:hidden; position:relative; height:100%;
+}
+.ticker-inner {
+  display:inline-flex; align-items:center;
+  height:100%; white-space:nowrap;
+  animation:tickerScroll linear infinite;
+}
+.ticker-inner.slow   { animation-duration:60s; }
+.ticker-inner.normal { animation-duration:40s; }
+.ticker-inner.fast   { animation-duration:22s; }
+@keyframes tickerScroll {
+  from { transform:translateX(0); }
+  to   { transform:translateX(-50%); }
+}
+.ticker-text {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:13px; letter-spacing:.5px; color:rgba(255,255,255,.75);
+  padding-right:4px;
+}
+.ticker-sep { color:var(--gold); padding:0 10px; font-size:13px; font-weight:800; }
+.ticker-score { font-family:'Bebas Neue',cursive; font-size:15px; letter-spacing:1px; color:#fff; }
+.ticker-status { font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-left:4px; }
+
+/* ════════════════════════════════════════
+   DEMO CONTROLS
+════════════════════════════════════════ */
+#demo {
+  position:fixed; top:10px; left:10px;
+  display:none; flex-direction:column; gap:5px; z-index:9999;
+}
+#demoLabel {
+  position:fixed; top:10px; right:10px;
+  background:rgba(229,63,63,.9); color:#fff;
+  font-family:'Bebas Neue',cursive; font-size:12px; letter-spacing:2px;
+  padding:3px 10px; border-radius:3px; z-index:9999; display:none;
+}
+.dbtn {
+  background:rgba(245,197,24,.88); color:#000; border:none;
+  border-radius:4px; padding:6px 12px;
+  font-family:'Bebas Neue',cursive; font-size:12px; letter-spacing:1px;
+  cursor:pointer; white-space:nowrap; opacity:.85;
+}
+.dbtn:hover { opacity:1; }
+.dbtn.g { background:rgba(255,255,255,.12); color:rgba(255,255,255,.7); }
+</style>
+</head>
+<body>
+
+<!-- ══ DEMO ══ -->
+<div id="demoLabel">DEMO MODE</div>
+<div id="demo">
+  <button class="dbtn" onclick="d_score(2)">🏀 2PT</button>
+  <button class="dbtn" onclick="d_score(3)">🎯 3PT</button>
+  <button class="dbtn" onclick="d_timeout()">⏱ Timeout</button>
+  <button class="dbtn" onclick="d_sub()">🔄 Sub</button>
+  <button class="dbtn" onclick="d_foul()">🚨 Foul</button>
+  <button class="dbtn" onclick="d_halftime()">🏀 Halftime</button>
+  <button class="dbtn" onclick="d_final()">🏆 Final</button>
+  <button class="dbtn g" onclick="d_ticker()">📊 Ticker</button>
+  <button class="dbtn g" onclick="d_ads()">📢 Ads</button>
+</div>
+
+<!-- ══ AD ZONES ══ -->
+<div class="ad-zone" id="adTL"><img id="adTLImg" src="" alt=""></div>
+<div class="ad-zone" id="adTR"><img id="adTRImg" src="" alt=""></div>
+<div class="ad-zone" id="adBL"><img id="adBLImg" src="" alt=""></div>
+<div class="ad-zone" id="adBR"><img id="adBRImg" src="" alt=""></div>
+
+<!-- ══ SCORE POP ══ -->
+<div id="scorePop">
+  <div class="pop-photo">
+    <img id="popPhotoImg" src="" alt="" style="display:none">
+    <div class="pop-photo-fb" id="popPhotoFb">?</div>
+    <div class="pop-num-tag" id="popNum">#0</div>
+  </div>
+  <div class="pop-info">
+    <div class="pop-topbar">
+      <div class="pop-event-type" id="popType">FIELD GOAL</div>
+      <div class="pop-team-tag"  id="popTeam">NSMT</div>
+    </div>
+    <div class="pop-main">
+      <div class="pop-name">
+        <span id="popFirst">PLAYER</span><br>
+        <span class="last" id="popLast">NAME</span>
+      </div>
+      <div class="pop-pts-row">
+        <div class="pop-pts-big"  id="popTotal">0</div>
+        <div class="pop-pts-meta">
+          <div class="pop-pts-plus"  id="popPlus">+2</div>
+          <div class="pop-pts-label">PTS THIS GAME</div>
+        </div>
+      </div>
+    </div>
+    <div class="pop-footer">
+      <div class="pop-footer-info" id="popFooter">LIVE</div>
+      <div class="pop-nsmt">NSMT</div>
+    </div>
+  </div>
+</div>
+<div id="popBar"><div id="popBarFill"></div></div>
+
+<!-- ══ STAT FEED ══ -->
+<div id="statFeed"></div>
+
+<!-- ══ FOUL TROUBLE BADGES ══ -->
+<div id="foulBadges"></div>
+
+<!-- ══ TIMEOUT GRAPHIC ══ -->
+<div id="toGraphic">
+  <div class="to-banner">
+    <div class="to-icon">⏱️</div>
+    <div class="to-text">
+      <div class="to-team" id="toTeam">TEAM</div>
+      <div class="to-type" id="toType">FULL TIMEOUT</div>
+      <div class="to-meta" id="toMeta">Q1 • 4:32</div>
+    </div>
+    <div class="to-rem">
+      <div class="to-rem-n" id="toRemN">3</div>
+      <div class="to-rem-l">Timeouts Left</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUBSTITUTION GRAPHIC ══ -->
+<div id="subGraphic">
+  <div class="sub-banner">
+    <div class="sub-hdr">
+      <div class="sub-hdr-label">SUBSTITUTION</div>
+      <div class="sub-team" id="subTeamBadge">TEAM</div>
+    </div>
+    <div class="sub-rows">
+      <div class="sub-row">
+        <div class="sub-dir">⬆️</div>
+        <div class="sub-num"  id="subInNum">#0</div>
+        <div class="sub-name" id="subInName">PLAYER IN</div>
+        <div class="sub-dir-l in">ENTERING</div>
+      </div>
+      <div class="sub-div"></div>
+      <div class="sub-row">
+        <div class="sub-dir">⬇️</div>
+        <div class="sub-num"  id="subOutNum">#0</div>
+        <div class="sub-name" id="subOutName">PLAYER OUT</div>
+        <div class="sub-dir-l out">EXITING</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOUL GRAPHIC ══ -->
+<div id="foulGraphic">
+  <div class="foul-banner">
+    <div class="foul-hdr">
+      <div class="foul-hdr-l">🚨 PERSONAL FOUL</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3)" id="foulTeamBadge">TEAM</div>
+    </div>
+    <div class="foul-body">
+      <div class="foul-pnum"  id="foulPNum">#0</div>
+      <div class="foul-info">
+        <div class="foul-pname" id="foulPName">PLAYER NAME</div>
+        <div class="foul-count-row">
+          <div class="foul-pips" id="foulPips"></div>
+          <div class="foul-trouble-badge" id="foulTroubleTag" style="display:none">FOUL TROUBLE</div>
+        </div>
+        <div class="foul-meta" id="foulMeta">PERSONAL FOUL #1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SPECIAL GRAPHIC ══ -->
+<div id="specialGraphic">
+  <div class="special-banner">
+    <div class="sp-title" id="spTitle">HALFTIME</div>
+    <div class="sp-scores">
+      <div class="sp-team"><div class="sp-code" id="spAwayCode">AWAY</div><div class="sp-score" id="spAwayScore">0</div></div>
+      <div class="sp-sep">—</div>
+      <div class="sp-team"><div class="sp-score" id="spHomeScore">0</div><div class="sp-code" id="spHomeCode">HOME</div></div>
+    </div>
+    <div class="sp-meta" id="spMeta">NSMT BASKETBALL</div>
+  </div>
+</div>
+
+<!-- ══ SCOREBUG ══ -->
+<div id="bugWrap">
+  <div id="bugMain">
+
+    <!-- NSMT Logo Brand Block -->
+    <div class="bug-brand" id="bugBrand">
+      <img id="bugBrandImg" src="" alt="" style="display:none">
+      <div class="bug-brand-text" id="bugBrandText">NSMT</div>
+    </div>
+
+    <div class="bug-sep"></div>
+
+    <!-- AWAY: [logo] [CODE] [score+pips] -->
+    <div class="bug-team">
+      <div class="bug-logo" id="bugAwayLogo">
+        <img id="bugAwayLogoImg" src="" alt="" style="display:none">
+        <span id="bugAwayLogoFb">A</span>
+      </div>
+      <div class="bug-code" id="bugAwayCode">AWAY</div>
+      <div class="bug-score-col">
+        <div class="bug-score" id="bugAwayScore">0</div>
+        <div class="bug-to-pips" id="bugAwayTOs"></div>
+        <div class="bug-fouls"   id="bugAwayFouls"></div>
+      </div>
+    </div>
+
+    <div class="bug-sep"></div>
+
+    <!-- CENTER: period + clock -->
+    <div class="bug-center">
+      <div class="bug-period-box"><div class="bug-period" id="bugPeriod">Q1</div></div>
+      <div class="bug-clock-box"> <div class="bug-clock"  id="bugClock">8:00</div></div>
+    </div>
+
+    <div class="bug-sep"></div>
+
+    <!-- HOME: [score+pips] [CODE] [logo] -->
+    <div class="bug-team">
+      <div class="bug-score-col">
+        <div class="bug-score" id="bugHomeScore">0</div>
+        <div class="bug-to-pips" id="bugHomeTOs"></div>
+        <div class="bug-fouls"   id="bugHomeFouls"></div>
+      </div>
+      <div class="bug-code" id="bugHomeCode" style="margin-left:10px;margin-right:0">HOME</div>
+      <div class="bug-logo" id="bugHomeLogo" style="margin-left:9px;margin-right:0">
+        <img id="bugHomeLogoImg" src="" alt="" style="display:none">
+        <span id="bugHomeLogoFb">H</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCORE TICKER ══ -->
+<div id="bugTicker">
+  <div class="ticker-label">SCORES</div>
+  <div class="ticker-scroll">
+    <div class="ticker-inner normal" id="tickerInner">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ════════════════════════════════════════════════════════
+// NSMT BROADCAST OVERLAY v2
+// Firebase listener → renders all graphics on 1920×1080
+// ════════════════════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ── PASTE YOUR FIREBASE CONFIG HERE ──
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+// ── SETTINGS (overridden by producer in real-time) ──
+let DUR = { graphic:5000, pop:4500, special:8000 };
+
+// ── STATE ──
+let state = {};
+let lastUpdatedAt = null;
+let popTimer = null, graphicTimer = null, specialTimer = null;
+let feedItems = [];
+let troublePlayers = [];
+let clockInterval = null, clockSecs = 480, clockRunning = false;
+const PHOTO_MAP = {}; // pid → Google Drive file ID (optional)
+
+// ── BOOT ──
+if (firebaseConfig.apiKey === 'YOUR_API_KEY') {
+  // Demo mode
+  el('demoLabel').style.display = 'block';
+  el('demo').style.display = 'flex';
+  setTimeout(demoInit, 300);
+} else {
+  el('demo').style.display = 'none';
+  startFirebase();
+  el('bugWrap').classList.add('visible');
+  el('bugTicker').classList.add('visible');
+}
+
+function startFirebase() {
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  onSnapshot(doc(db, 'overlay', 'active'), snap => {
+    if (!snap.exists()) return;
+    handleUpdate(snap.data());
+  });
+}
+
+// ════════════════════════════════════════
+// MAIN UPDATE HANDLER
+// ════════════════════════════════════════
+function handleUpdate(data) {
+  // Durations
+  if (data.durations) {
+    DUR.graphic = data.durations.graphic || 5000;
+    DUR.pop     = data.durations.pop     || 4500;
+    DUR.special = data.durations.special || 8000;
+  }
+
+  // Scorebug visibility
+  el('bugWrap').classList.toggle('visible', data.showScorebug !== false);
+
+  // Ticker visibility
+  el('bugTicker').classList.toggle('visible', data.showTicker !== false);
+
+  // Ad zones visibility
+  el('adTL').parentElement; // just reference
+  ['tl','tr','bl','br'].forEach(z => {
+    const az = el('ad'+z.toUpperCase());
+    if (az) az.style.display = data.showAds !== false ? 'flex' : 'none';
+  });
+
+  // NSMT branding logo
+  if (data.nsmtLogo) updateBrandLogo(data.nsmtLogo);
+
+  // Ad zones
+  if (data.adZones) updateAdZones(data.adZones);
+
+  // Scorebug content
+  updateScorebug(data);
+
+  // Clock sync
+  syncClock(data);
+
+  // Ticker
+  if (data.tickerGames !== undefined) updateTicker(data);
+
+  // Graphics — only fire on new updatedAt
+  if (data.updatedAt && data.updatedAt !== lastUpdatedAt) {
+    lastUpdatedAt = data.updatedAt;
+    if (data.graphic) handleGraphic(data.graphic, data);
+    if (data.lastEvent && data.showPops !== false) maybeFireScorePop(data.lastEvent, data);
+  }
+}
+
+// ════════════════════════════════════════
+// NSMT BRAND LOGO
+// ════════════════════════════════════════
+function updateBrandLogo(src) {
+  if (!src) return;
+  const img  = el('bugBrandImg');
+  const txt  = el('bugBrandText');
+  img.src = src; img.style.display = 'block'; txt.style.display = 'none';
+  img.onerror = () => { img.style.display = 'none'; txt.style.display = 'block'; };
+}
+
+// ════════════════════════════════════════
+// AD ZONES
+// ════════════════════════════════════════
+function updateAdZones(zones) {
+  const map = { tl:'TL', tr:'TR', bl:'BL', br:'BR' };
+  Object.entries(map).forEach(([k,K]) => {
+    const src = zones[k];
+    const zone = el('ad'+K);
+    const img  = el('ad'+K+'Img');
+    if (src) {
+      img.src = src;
+      img.style.display = 'block';
+      zone.classList.add('loaded');
+    } else {
+      img.style.display = 'none';
+      zone.classList.remove('loaded');
+    }
+  });
+}
+
+// ════════════════════════════════════════
+// SCOREBUG
+// ════════════════════════════════════════
+function updateScorebug(data) {
+  const prev = state;
+  state = { ...state, ...data };
+
+  // Away
+  el('bugAwayCode').textContent = data.awayCode || 'AWAY';
+  el('bugAwayLogoFb').textContent = (data.awayCode || 'A').charAt(0);
+  setTeamLogo('bugAwayLogoImg', 'bugAwayLogoFb', data.awayLogoUrl);
+
+  // Home
+  el('bugHomeCode').textContent = data.homeCode || 'HOME';
+  el('bugHomeLogoFb').textContent = (data.homeCode || 'H').charAt(0);
+  setTeamLogo('bugHomeLogoImg', 'bugHomeLogoFb', data.homeLogoUrl);
+
+  // Scores
+  const newA = data.awayScore ?? 0, newH = data.homeScore ?? 0;
+  if (newA !== (prev.awayScore ?? 0)) flashScore('bugAwayScore', newA);
+  else el('bugAwayScore').textContent = newA;
+  if (newH !== (prev.homeScore ?? 0)) flashScore('bugHomeScore', newH);
+  else el('bugHomeScore').textContent = newH;
+
+  // Period + clock
+  el('bugPeriod').textContent = data.period || 'Q1';
+
+  // Foul pips
+  renderFoulPips('bugAwayFouls', data.awayFouls || 0);
+  renderFoulPips('bugHomeFouls', data.homeFouls || 0);
+
+  // Timeout pips
+  renderTOPips('bugAwayTOs', data.awayTimeouts ?? 4);
+  renderTOPips('bugHomeTOs', data.homeTimeouts ?? 4);
+}
+
+function setTeamLogo(imgId, fbId, src) {
+  if (!src) return;
+  const img = el(imgId), fb = el(fbId);
+  img.src = src;
+  img.style.display = 'block'; fb.style.display = 'none';
+  img.onerror = () => { img.style.display = 'none'; fb.style.display = 'flex'; };
+}
+
+function flashScore(id2, val) {
+  const e2 = el(id2);
+  e2.textContent = val;
+  e2.classList.remove('flash'); void e2.offsetWidth; e2.classList.add('flash');
+}
+
+function renderFoulPips(id2, count) {
+  let h='';
+  for (let i=1;i<=6;i++) {
+    const on = i<=count, bonus = count>=7&&i===6;
+    h += `<div class="bf${on?(bonus?' bonus':' on'):''}"></div>`;
+  }
+  el(id2).innerHTML = h;
+}
+
+function renderTOPips(id2, remaining) {
+  let h='';
+  for (let i=1;i<=4;i++) h += `<div class="tp${i<=remaining?' on':''}"></div>`;
+  el(id2).innerHTML = h;
+}
+
+// ════════════════════════════════════════
+// CLOCK (local countdown synced from producer)
+// ════════════════════════════════════════
+function syncClock(data) {
+  const display = data.clockDisplay || '8:00';
+  if (!data.clockRunning) {
+    stopLocalClock();
+    setClockDisplay(display);
+  } else if (data.clockRunning && !clockRunning) {
+    setClockDisplay(display);
+    startLocalClock();
+  }
+  el('bugClock').className = 'bug-clock ' + (data.clockRunning ? 'running' : clockSecs===0 ? 'expired' : 'paused');
+}
+
+function setClockDisplay(s) {
+  const parts = s.split(':');
+  clockSecs = parts.length===2 ? parseInt(parts[0])*60 + parseInt(parts[1]) : parseInt(s)||0;
+  el('bugClock').textContent = s;
+}
+
+function startLocalClock() {
+  if (clockRunning) return;
+  clockRunning = true;
+  clockInterval = setInterval(() => {
+    if (clockSecs > 0) {
+      clockSecs--;
+      const m = Math.floor(clockSecs/60), s = clockSecs%60;
+      el('bugClock').textContent = m + ':' + String(s).padStart(2,'0');
+      if (clockSecs===0) { stopLocalClock(); el('bugClock').className='bug-clock expired'; }
+    }
+  }, 1000);
+}
+
+function stopLocalClock() {
+  clearInterval(clockInterval); clockInterval = null; clockRunning = false;
+}
+
+// ════════════════════════════════════════
+// TICKER
+// ════════════════════════════════════════
+function updateTicker(data) {
+  const games = data.tickerGames || [];
+  const sep   = data.tickerSep  || ' ● ';
+  const speed = data.tickerSpeed || 'normal';
+
+  if (!games.length) {
+    el('tickerInner').innerHTML = '';
+    return;
+  }
+
+  const chunks = games.filter(g=>g.away&&g.home).map(g => {
+    const statusLabel = g.status==='final' ? 'FINAL' : g.status==='upcoming' ? 'UPCOMING' : g.period||'LIVE';
+    return `<span class="ticker-text">${g.away}</span>
+            <span class="ticker-score">${g.awayScore}</span>
+            <span class="ticker-sep">–</span>
+            <span class="ticker-score">${g.homeScore}</span>
+            <span class="ticker-text">${g.home}</span>
+            <span class="ticker-status">(${statusLabel})</span>
+            <span class="ticker-sep">${sep.trim()}</span>`;
+  }).join('');
+
+  // Duplicate for seamless loop
+  el('tickerInner').innerHTML = chunks + chunks;
+  el('tickerInner').className = 'ticker-inner ' + speed;
+}
+
+// ════════════════════════════════════════
+// GRAPHIC DISPATCHER
+// ════════════════════════════════════════
+function handleGraphic(g, data) {
+  switch(g.type) {
+    case 'TIMEOUT':      fireTimeout(g);          break;
+    case 'SUBSTITUTION': fireSub(g);               break;
+    case 'FOUL':         fireFoulGraphic(g, data); break;
+    case 'HALFTIME':
+    case 'END OF GAME':
+    case 'MEDIA TIMEOUT':
+    case 'OFFICIALS TIMEOUT': fireSpecial(g, data); break;
+    default: fireSpecial(g, data); break;
+  }
+}
+
+function maybeFireScorePop(e, data) {
+  const scoring = ['SHOT_2PT','SHOT_3PT','FT'];
+  if (scoring.includes(e.evt) && e.result==='made') {
+    const pts = e.pts || (e.evt==='SHOT_3PT'?3:e.evt==='FT'?1:2);
+    fireScorePop({
+      pid:e.pid, playerName:e.playerName, playerNum:e.playerNum,
+      ptsGame:e.ptsGame, ptsAdded:pts,
+      teamCode:e.team==='away'?data.awayCode:data.homeCode,
+      eventLabel:pts===3?'3-POINTER':pts===1?'FREE THROW':'FIELD GOAL',
+      period:data.period, eventName:data.eventName
+    });
+  }
+}
+
+// ════════════════════════════════════════
+// SCORE POP
+// ════════════════════════════════════════
+function fireScorePop(p) {
+  clearTimeout(popTimer);
+  const pop = el('scorePop');
+  pop.className=''; void pop.offsetWidth;
+
+  const parts = (p.playerName||'Player').trim().split(' ');
+  const last = parts.pop(), first = parts.join(' ');
+  el('popFirst').textContent  = first.toUpperCase();
+  el('popLast').textContent   = last.toUpperCase();
+  el('popNum').textContent    = p.playerNum ? '#'+p.playerNum : '';
+  el('popTotal').textContent  = p.ptsGame || p.ptsAdded;
+  el('popPlus').textContent   = '+'+p.ptsAdded;
+  el('popType').textContent   = p.eventLabel || 'FIELD GOAL';
+  el('popTeam').textContent   = p.teamCode || '';
+  el('popFooter').textContent = [p.period, p.eventName].filter(Boolean).join(' • ') || 'LIVE';
+
+  const photoId = PHOTO_MAP[p.pid];
+  const imgEl = el('popPhotoImg'), fbEl = el('popPhotoFb');
+  if (photoId) {
+    imgEl.src = `https://drive.google.com/thumbnail?id=${photoId}&sz=w400`;
+    imgEl.style.display='block'; fbEl.style.display='none';
+    imgEl.onerror=()=>{ imgEl.style.display='none'; fbEl.style.display='flex'; fbEl.textContent=p.playerNum||'?'; };
+  } else { imgEl.style.display='none'; fbEl.style.display='flex'; fbEl.textContent=p.playerNum||'?'; }
+
+  pop.classList.add('in');
+
+  // Progress bar
+  const fill = el('popBarFill');
+  fill.classList.remove('drain'); el('popBar').classList.add('show');
+  fill.style.animationDuration = DUR.pop + 'ms';
+  void fill.offsetWidth; fill.classList.add('drain');
+
+  popTimer = setTimeout(() => {
+    pop.classList.remove('in'); pop.classList.add('out');
+    el('popBar').classList.remove('show');
+    setTimeout(()=>pop.className='', 350);
+  }, DUR.pop);
+}
+
+// ════════════════════════════════════════
+// TIMEOUT GRAPHIC
+// ════════════════════════════════════════
+function fireTimeout(g) {
+  clearTimeout(graphicTimer);
+  const gEl = el('toGraphic'); gEl.className=''; void gEl.offsetWidth;
+  el('toTeam').textContent = g.teamName || g.teamCode || 'TEAM';
+  el('toType').textContent = (g.timeoutType||'TIMEOUT').toUpperCase();
+  el('toMeta').textContent = [g.period, g.clockAt].filter(Boolean).join(' • ');
+  el('toRemN').textContent = g.timeoutsLeft ?? '—';
+  gEl.classList.add('in');
+  graphicTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(()=>gEl.className='', 400);
+  }, DUR.graphic);
+}
+
+// ════════════════════════════════════════
+// SUBSTITUTION GRAPHIC
+// ════════════════════════════════════════
+function fireSub(g) {
+  clearTimeout(graphicTimer);
+  const gEl = el('subGraphic'); gEl.className=''; void gEl.offsetWidth;
+  el('subTeamBadge').textContent = g.teamCode||'TEAM';
+  el('subInNum').textContent     = g.playerIn  ? '#'+g.playerIn.num  : '#?';
+  el('subInName').textContent    = g.playerIn  ? g.playerIn.name.toUpperCase()  : 'PLAYER IN';
+  el('subOutNum').textContent    = g.playerOut ? '#'+g.playerOut.num : '#?';
+  el('subOutName').textContent   = g.playerOut ? g.playerOut.name.toUpperCase() : 'PLAYER OUT';
+  gEl.classList.add('in');
+  graphicTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(()=>gEl.className='', 380);
+  }, DUR.graphic);
+}
+
+// ════════════════════════════════════════
+// FOUL GRAPHIC
+// ════════════════════════════════════════
+function fireFoulGraphic(g, data) {
+  clearTimeout(graphicTimer);
+  const gEl = el('foulGraphic'); gEl.className=''; void gEl.offsetWidth;
+  const p = g.player||{};
+  el('foulTeamBadge').textContent = g.teamCode||'TEAM';
+  el('foulPNum').textContent      = p.num ? '#'+p.num : '#?';
+  el('foulPName').textContent     = p.name ? p.name.toUpperCase() : 'PLAYER';
+  el('foulMeta').textContent      = `PERSONAL FOUL #${p.fouls||1} • ${[g.period,g.clockAt].filter(Boolean).join(' • ')}`;
+
+  let pips='';
+  for (let i=1;i<=5;i++) {
+    const on=i<=(p.fouls||0), trouble=on&&(p.fouls||0)>=4;
+    pips+=`<div class="fpip${on?(trouble?' red':' on'):''}"></div>`;
+  }
+  el('foulPips').innerHTML = pips;
+  el('foulTroubleTag').style.display = (p.fouls||0)>=4 ? 'flex' : 'none';
+
+  if (g.inTrouble) addTroubleBadge({ num:p.num, name:p.name, fouls:p.fouls, teamCode:g.teamCode });
+
+  gEl.classList.add('in');
+  graphicTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(()=>gEl.className='', 380);
+  }, DUR.graphic);
+}
+
+// ════════════════════════════════════════
+// SPECIAL GRAPHIC
+// ════════════════════════════════════════
+function fireSpecial(g, data) {
+  clearTimeout(specialTimer);
+  const gEl = el('specialGraphic'); gEl.className=''; void gEl.offsetWidth;
+  el('spTitle').textContent     = g.type||'';
+  el('spAwayCode').textContent  = g.awayCode  || data.awayCode  || 'AWAY';
+  el('spHomeCode').textContent  = g.homeCode  || data.homeCode  || 'HOME';
+  el('spAwayScore').textContent = g.awayScore ?? data.awayScore ?? 0;
+  el('spHomeScore').textContent = g.homeScore ?? data.homeScore ?? 0;
+  el('spMeta').textContent      = g.event || data.eventName || 'NSMT BASKETBALL';
+  gEl.classList.add('in');
+  specialTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(()=>gEl.className='', 480);
+  }, DUR.special);
+}
+
+// ════════════════════════════════════════
+// FOUL TROUBLE BADGES
+// ════════════════════════════════════════
+function addTroubleBadge(p) {
+  troublePlayers = troublePlayers.filter(x=>x.num!==p.num);
+  troublePlayers.unshift(p);
+  if (troublePlayers.length>4) troublePlayers.pop();
+  const c = el('foulBadges');
+  c.innerHTML = troublePlayers.map(t=>`
+    <div class="trouble-chip">
+      <div class="tc-num">#${t.num}</div>
+      <div class="tc-name">${t.name?t.name.split(' ').pop().toUpperCase():'PLAYER'}</div>
+      <div class="tc-fouls">${t.fouls}PF</div>
+    </div>`).join('');
+  c.classList.add('show');
+}
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+function el(id) { return document.getElementById(id); }
+
+// ════════════════════════════════════════
+// DEMO MODE
+// ════════════════════════════════════════
+const dPlayers = [
+  {name:'Jymin Veney',       num:'11',pid:'d1',team:'away',code:'SJC',pts:18},
+  {name:'Jordan Taylor',     num:'21',pid:'d2',team:'away',code:'SJC',pts:12},
+  {name:'Jordan Smith',      num:'23',pid:'d3',team:'home',code:'PVI',pts:15},
+  {name:'Brian Mitchell Jr', num:'22',pid:'d4',team:'home',code:'PVI',pts:9 },
+];
+let di=0, dA=0, dH=0;
+
+function demoInit() {
+  updateScorebug({ awayCode:'SJC', awayName:"St. John's", awayScore:0,
+    homeCode:'PVI', homeName:'Paul VI', homeScore:0,
+    awayFouls:2, homeFouls:3, awayTimeouts:3, homeTimeouts:2,
+    period:'Q3', eventName:'WCAC CHAMPIONSHIP', clockDisplay:'4:32', clockRunning:false });
+  el('bugWrap').classList.add('visible');
+  el('bugTicker').classList.add('visible');
+}
+
+window.d_score = function(pts) {
+  const p=dPlayers[di%dPlayers.length]; di++;
+  p.pts+=pts;
+  if(p.team==='away') dA+=pts; else dH+=pts;
+  updateScorebug({ awayCode:'SJC',awayScore:dA,homeCode:'PVI',homeScore:dH,
+    awayFouls:2,homeFouls:3,awayTimeouts:3,homeTimeouts:2,period:'Q3',
+    clockDisplay:'4:32',clockRunning:false });
+  fireScorePop({ pid:p.pid,playerName:p.name,playerNum:p.num,
+    ptsGame:p.pts,ptsAdded:pts,teamCode:p.code,
+    eventLabel:pts===3?'3-POINTER':'FIELD GOAL',period:'Q3',eventName:'WCAC' });
+};
+window.d_timeout = ()=>fireTimeout({teamName:"St. John's",teamCode:'SJC',timeoutType:'Full Timeout',timeoutsLeft:2,period:'Q3',clockAt:'4:32'});
+window.d_sub = ()=>fireSub({teamCode:'PVI',playerIn:{num:'5',name:'Marcus Johnson'},playerOut:{num:'22',name:'Brian Mitchell Jr'},period:'Q3',clockAt:'4:32'});
+window.d_foul = ()=>{fireFoulGraphic({teamCode:'SJC',player:{num:'11',name:'Jymin Veney',fouls:4},inTrouble:true,period:'Q3',clockAt:'4:32'},{awayCode:'SJC',homeCode:'PVI'});};
+window.d_halftime = ()=>fireSpecial({type:'HALFTIME',awayCode:'SJC',homeCode:'PVI',awayScore:dA,homeScore:dH,event:'WCAC CHAMPIONSHIP'},{});
+window.d_final = ()=>fireSpecial({type:'FINAL',awayCode:'SJC',homeCode:'PVI',awayScore:48,homeScore:52,event:'WCAC CHAMPIONSHIP'},{});
+window.d_ticker = ()=>updateTicker({tickerGames:[
+  {away:'SJC',home:'PVI',awayScore:dA,homeScore:dH,period:'Q3',status:'live'},
+  {away:'DEM',home:'OLN',awayScore:61,homeScore:58,period:'Q4',status:'live'},
+  {away:'GEO',home:'SHA',awayScore:44,homeScore:44,period:'H2',status:'live'},
+  {away:'BCC',home:'WLA',awayScore:72,homeScore:68,period:'',status:'final'},
+],tickerSep:' ● ',tickerSpeed:'normal'});
+window.d_ads = ()=>{
+  // Demo with placeholder colored blocks
+  ['TL','TR','BL','BR'].forEach(z=>{
+    const img = el('ad'+z+'Img');
+    // Use a simple colored SVG as placeholder
+    img.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='160'><rect width='280' height='160' fill='%23F5C51822' rx='8'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%23F5C518' font-weight='bold'>AD ZONE - ${z}</text></svg>`;
+    img.style.display='block';
+    el('ad'+z).classList.add('loaded');
+  });
+};
+</script>
+</body>
+</html>

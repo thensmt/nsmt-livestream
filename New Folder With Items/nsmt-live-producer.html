@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NSMT Live Producer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   NSMT LIVE PRODUCER — Broadcast Control Center
+   Aesthetic: Dark broadcast booth. Dense, precise.
+   ESPN production truck meets modern dashboard.
+═══════════════════════════════════════════════ */
+:root {
+  --bg:      #07080a;
+  --surf:    #0e1014;
+  --surf2:   #141619;
+  --surf3:   #1a1d21;
+  --border:  #22252b;
+  --border2: #2a2e35;
+  --text:    #e8eaed;
+  --muted:   #5a606b;
+  --muted2:  #3d4249;
+  --gold:    #F5C518;
+  --gold2:   #c9a010;
+  --red:     #e53f3f;
+  --green:   #22c55e;
+  --blue:    #3b82f6;
+  --cyan:    #06b6d4;
+  --orange:  #f97316;
+  --live:    #ef4444;
+  --r:       6px;
+  --r2:      10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ══════════════════════
+   TOP BAR
+══════════════════════ */
+.topbar {
+  background: #000;
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 48px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.tb-logo {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: #1877F2;
+  margin-right: 6px;
+}
+
+.tb-app-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 20px;
+}
+
+.tb-game-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--text);
+  flex: 1;
+}
+
+/* LIVE INDICATOR */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.3);
+  border-radius: 4px;
+  padding: 5px 12px;
+  margin-left: 12px;
+}
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 0 rgba(239,68,68,.4);
+  animation: livePulse 2s infinite;
+}
+@keyframes livePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+.live-label {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--live);
+}
+
+.tb-firebase-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: rgba(34,197,94,.08);
+  border: 1px solid rgba(34,197,94,.2);
+  color: var(--green);
+}
+.tb-firebase-status.offline {
+  background: rgba(90,96,107,.08);
+  border-color: var(--border);
+  color: var(--muted);
+}
+.fb-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ══════════════════════
+   MAIN LAYOUT — 3 columns
+══════════════════════ */
+.main-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr 260px;
+  gap: 0;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+.col:last-child { border-right: none; }
+
+.col-header {
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.col-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.col-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+}
+.col-body::-webkit-scrollbar { width: 3px; }
+.col-body::-webkit-scrollbar-track { background: transparent; }
+.col-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ══════════════════════
+   SCOREBOARD WIDGET (center top)
+══════════════════════ */
+.score-widget {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.score-widget-header {
+  background: linear-gradient(90deg, #000 0%, var(--surf2) 100%);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.sw-event {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.sw-period-badge {
+  background: var(--gold);
+  color: #000;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 2px 10px;
+  border-radius: 3px;
+}
+
+.score-display {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.sd-team {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sd-team-code {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sd-team-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.sd-score {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 64px;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: -2px;
+  cursor: pointer;
+  transition: color .15s;
+  position: relative;
+}
+.sd-score:hover { color: var(--gold); }
+.sd-score.right { text-align: right; }
+
+.sd-mid { text-align: center; }
+.sd-sep {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 36px;
+  color: var(--border2);
+}
+
+.sd-team-fouls {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+.foul-pip {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--border2);
+  transition: background .15s;
+}
+.foul-pip.active { background: var(--orange); }
+.foul-pip.bonus { background: var(--red); }
+
+/* score adjust buttons */
+.score-adjust {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.adj-btn {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .1s;
+  letter-spacing: .5px;
+}
+.adj-btn:hover { border-color: var(--gold); color: var(--gold); }
+.adj-btn:active { transform: scale(.94); }
+.adj-btn.minus { color: var(--red); border-color: transparent; }
+.adj-btn.minus:hover { border-color: var(--red); }
+
+/* ══════════════════════
+   GAME CLOCK
+══════════════════════ */
+.clock-widget {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.clock-display {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 72px;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  letter-spacing: -1px;
+  cursor: pointer;
+  transition: color .2s;
+  position: relative;
+}
+.clock-display:hover { color: var(--gold); }
+.clock-display.running { color: var(--green); }
+.clock-display.paused  { color: var(--gold); animation: clockBlink 1s infinite; }
+.clock-display.expired { color: var(--red); }
+
+@keyframes clockBlink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .5; }
+}
+
+.clock-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.clock-btn {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 11px 6px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .12s;
+  text-align: center;
+}
+.clock-btn:active { transform: scale(.96); }
+.clock-btn.start  { background: rgba(34,197,94,.15); border-color: rgba(34,197,94,.4); color: var(--green); }
+.clock-btn.start:hover { background: rgba(34,197,94,.25); }
+.clock-btn.pause  { background: rgba(245,197,24,.12); border-color: rgba(245,197,24,.35); color: var(--gold); }
+.clock-btn.pause:hover { background: rgba(245,197,24,.22); }
+.clock-btn.reset  { background: rgba(229,63,63,.1); border-color: rgba(229,63,63,.3); color: var(--red); }
+.clock-btn.reset:hover { background: rgba(229,63,63,.2); }
+
+.clock-set-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.clock-input {
+  flex: 1;
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 7px 10px;
+  border-radius: var(--r);
+  outline: none;
+  transition: border-color .2s;
+}
+.clock-input:focus { border-color: var(--gold); }
+.clock-set-btn {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 7px 12px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.clock-set-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ══════════════════════
+   PERIOD CONTROLS
+══════════════════════ */
+.period-widget {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.period-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.period-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.period-pills {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.period-pill {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.period-pill:hover { border-color: var(--gold); color: var(--gold); }
+.period-pill.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.period-pill.ot { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.3); color: var(--blue); }
+.period-pill.ot.active { background: var(--blue); color: #fff; }
+
+.period-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.period-act-btn {
+  flex: 1;
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 9px 8px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .12s;
+  text-align: center;
+  text-transform: uppercase;
+}
+.period-act-btn:hover { border-color: var(--gold); color: var(--gold); }
+.period-act-btn:active { transform: scale(.96); }
+
+/* ══════════════════════
+   BROADCAST ACTIONS
+══════════════════════ */
+.bcast-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.bcast-btn {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.bcast-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.bcast-btn:hover::before { opacity: 1; }
+.bcast-btn:active { transform: scale(.96); }
+
+.bcast-btn.timeout { border-color: rgba(245,197,24,.25); }
+.bcast-btn.timeout::before { background: rgba(245,197,24,.06); }
+.bcast-btn.timeout:hover { border-color: rgba(245,197,24,.5); }
+
+.bcast-btn.foul { border-color: rgba(249,115,22,.25); }
+.bcast-btn.foul::before { background: rgba(249,115,22,.06); }
+.bcast-btn.foul:hover { border-color: rgba(249,115,22,.5); }
+
+.bcast-btn.sub { border-color: rgba(6,182,212,.25); }
+.bcast-btn.sub::before { background: rgba(6,182,212,.06); }
+.bcast-btn.sub:hover { border-color: rgba(6,182,212,.5); }
+
+.bcast-btn.score-override { border-color: rgba(229,63,63,.25); }
+.bcast-btn.score-override::before { background: rgba(229,63,63,.06); }
+.bcast-btn.score-override:hover { border-color: rgba(229,63,63,.5); }
+
+.bcast-btn.custom { border-color: rgba(59,130,246,.25); }
+.bcast-btn.custom::before { background: rgba(59,130,246,.06); }
+.bcast-btn.custom:hover { border-color: rgba(59,130,246,.5); }
+
+.bcast-icon { font-size: 24px; line-height: 1; }
+.bcast-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1.2;
+}
+.bcast-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .5px;
+}
+
+/* TIMEOUT TRACKER */
+.timeout-tracker {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.tt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.tt-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tt-team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+.tt-team:last-child { margin-bottom: 0; }
+.tt-team-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--text);
+  min-width: 50px;
+}
+.tt-dots {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.tt-dot {
+  flex: 1;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  transition: all .15s;
+  max-width: 28px;
+}
+.tt-dot.used { background: var(--gold); border-color: var(--gold); }
+.tt-dot.full { background: var(--red); border-color: var(--red); }
+.tt-to-btn {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.tt-to-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ══════════════════════
+   EVENT LOG (right col)
+══════════════════════ */
+.event-log { display: flex; flex-direction: column; gap: 0; }
+.log-item {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 12px;
+  transition: background .15s;
+}
+.log-item:hover { background: var(--surf2); }
+.log-item:last-child { border-bottom: none; }
+.log-time {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 11px;
+  color: var(--muted);
+  min-width: 38px;
+  letter-spacing: .5px;
+  margin-top: 1px;
+}
+.log-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.log-text { flex: 1; color: var(--text); line-height: 1.4; }
+.log-pts {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 16px;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.log-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.log-tag.broadcast { background: rgba(59,130,246,.15); color: var(--blue); }
+.log-tag.game      { background: rgba(34,197,94,.15);  color: var(--green); }
+.log-tag.warn      { background: rgba(249,115,22,.15); color: var(--orange); }
+
+/* ══════════════════════
+   FOUL TROUBLE PANEL
+══════════════════════ */
+.foul-trouble {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.ft-header {
+  background: rgba(249,115,22,.1);
+  border-bottom: 1px solid rgba(249,115,22,.2);
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ft-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.ft-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.ft-player:last-child { border-bottom: none; }
+.ft-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 18px;
+  color: var(--gold);
+  min-width: 28px;
+}
+.ft-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ft-fouls {
+  display: flex;
+  gap: 3px;
+}
+.ft-foul-pip {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--border2);
+}
+.ft-foul-pip.on { background: var(--orange); }
+.ft-foul-pip.red { background: var(--red); }
+.ft-team-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 5px 12px 3px;
+  background: var(--surf2);
+}
+
+/* ══════════════════════
+   GAME SETUP (left col)
+══════════════════════ */
+.setup-section {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.setup-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--border);
+}
+
+label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+input, select {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: 'Barlow', sans-serif;
+  border-radius: var(--r);
+  outline: none;
+  width: 100%;
+  transition: border-color .2s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus { border-color: var(--gold); }
+.field { margin-bottom: 10px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; cursor: pointer; font-family: 'Barlow', sans-serif; font-weight: 700;
+  border-radius: var(--r); transition: transform .1s, opacity .15s; font-size: 13px;
+  padding: 10px 16px;
+}
+.btn:active { transform: scale(.96); opacity: .85; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-surf { background: var(--surf3); color: var(--text); border: 1px solid var(--border2); }
+.btn-red  { background: var(--red);  color: #fff; }
+.btn-full { width: 100%; }
+
+/* OVERLAY TOGGLE */
+.overlay-control {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.oc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.oc-row:last-child { border-bottom: none; padding-bottom: 0; }
+.oc-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+.toggle {
+  position: relative;
+  width: 38px; height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.toggle input { display: none; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--border2);
+  border-radius: 10px;
+  transition: background .2s;
+}
+.toggle input:checked ~ .toggle-track { background: var(--gold); }
+.toggle-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(18px); }
+
+/* ══════════════════════
+   MODAL (sub/foul/override)
+══════════════════════ */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 800;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-backdrop.hidden { display: none; }
+.modal-box {
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,.7);
+}
+.modal-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+/* PLAYER LIST in modal */
+.player-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.player-pick {
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .12s;
+}
+.player-pick:hover { border-color: var(--gold); }
+.player-pick.sel { background: rgba(245,197,24,.15); border-color: var(--gold); }
+.pp-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  color: var(--gold);
+  line-height: 1;
+}
+.pp-name {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.3;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--surf3); border: 1px solid var(--border2);
+  color: var(--text); padding: 9px 18px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; z-index: 9999;
+  opacity: 0; transition: opacity .25s; pointer-events: none;
+  white-space: nowrap; max-width: 90vw;
+}
+.toast.show { opacity: 1; }
+
+/* Divider */
+.divider {
+  height: 1px; background: var(--border);
+  margin: 10px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="topbar">
+  <div class="tb-logo">NSMT</div>
+  <div class="tb-app-name">LIVE PRODUCER</div>
+  <div class="tb-game-name" id="tbGameName">No game loaded — configure left panel</div>
+  <div class="live-indicator" id="liveIndicator" style="display:none">
+    <div class="live-dot"></div>
+    <div class="live-label">LIVE</div>
+  </div>
+  <div class="tb-firebase-status offline" id="fbStatus">
+    <div class="fb-dot"></div>
+    <span id="fbStatusText">OFFLINE</span>
+  </div>
+</div>
+
+<!-- ═══ MAIN 3-COLUMN LAYOUT ═══ -->
+<div class="main-layout">
+
+  <!-- ══════════ LEFT COL: GAME SETUP ══════════ -->
+  <div class="col">
+    <div class="col-header">
+      <span class="col-title">Game Setup</span>
+      <button class="btn btn-gold" style="padding:5px 12px;font-size:11px" onclick="goLive()">▶ GO LIVE</button>
+    </div>
+    <div class="col-body">
+
+      <div class="setup-section">
+        <div class="setup-title">Game Info</div>
+        <div class="field"><label>Event Name</label><input id="cfgEvent" placeholder="WCAC Championship" oninput="updateHeader()"></div>
+        <div class="field"><label>Venue</label><input id="cfgVenue" placeholder="DeMatha Catholic"></div>
+        <div class="two-col">
+          <div class="field"><label>Date</label><input type="date" id="cfgDate"></div>
+          <div class="field"><label>Time</label><input type="time" id="cfgTime"></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Format</label>
+            <select id="cfgPeriods" onchange="buildPeriodPills()">
+              <option value="4">4 Quarters</option>
+              <option value="2">2 Halves</option>
+            </select>
+          </div>
+          <div class="field"><label>Period Length (min)</label><input type="number" id="cfgPeriodLen" value="8" min="1" max="30"></div>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="setup-title">Away Team</div>
+        <div class="two-col">
+          <div class="field"><label>Team Name</label><input id="cfgAwayName" placeholder="St. John's" oninput="updateScoreboard()"></div>
+          <div class="field"><label>Code</label><input id="cfgAwayCode" placeholder="SJC" maxlength="4" oninput="updateScoreboard()"></div>
+        </div>
+        <div id="awayPlayerList"></div>
+        <button class="btn btn-surf btn-full" style="margin-top:6px;font-size:11px" onclick="addPlayerRow('away')">+ Add Player</button>
+      </div>
+
+      <div class="setup-section">
+        <div class="setup-title">Home Team</div>
+        <div class="two-col">
+          <div class="field"><label>Team Name</label><input id="cfgHomeName" placeholder="Paul VI" oninput="updateScoreboard()"></div>
+          <div class="field"><label>Code</label><input id="cfgHomeCode" placeholder="PVI" maxlength="4" oninput="updateScoreboard()"></div>
+        </div>
+        <div id="homePlayerList"></div>
+        <button class="btn btn-surf btn-full" style="margin-top:6px;font-size:11px" onclick="addPlayerRow('home')">+ Add Player</button>
+      </div>
+
+      <!-- Overlay Controls -->
+      <div class="setup-section">
+        <div class="setup-title">Overlay Visibility</div>
+        <div class="overlay-control" style="padding:0;background:transparent;border:none;margin-bottom:0">
+          <div class="oc-row">
+            <span class="oc-label">Scorebug</span>
+            <label class="toggle"><input type="checkbox" id="togScoreBug" checked onchange="pushOverlayState()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="oc-row">
+            <span class="oc-label">Game Clock</span>
+            <label class="toggle"><input type="checkbox" id="togClock" checked onchange="pushOverlayState()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="oc-row">
+            <span class="oc-label">Score Pop Cards</span>
+            <label class="toggle"><input type="checkbox" id="togScorePops" checked onchange="pushOverlayState()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="oc-row">
+            <span class="oc-label">Event Feed</span>
+            <label class="toggle"><input type="checkbox" id="togFeed" checked onchange="pushOverlayState()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="setup-title">Firebase Config</div>
+        <div class="field"><label>API Key</label><input id="fbApiKey" placeholder="AIzaSy..."></div>
+        <div class="field"><label>Project ID</label><input id="fbProjectId" placeholder="yourproject-id"></div>
+        <div class="field"><label>Auth Domain</label><input id="fbAuthDomain" placeholder="yourproject.firebaseapp.com"></div>
+        <div class="field"><label>App ID</label><input id="fbAppId" placeholder="1:123:web:abc..."></div>
+        <button class="btn btn-gold btn-full" onclick="initFirebase()">Connect Firebase</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ CENTER COL: BROADCAST CONTROL ══════════ -->
+  <div class="col">
+    <div class="col-header">
+      <span class="col-title">Broadcast Control</span>
+      <span id="centerStatus" style="font-size:11px;color:var(--muted)">Configure game first</span>
+    </div>
+    <div class="col-body">
+
+      <!-- SCOREBOARD WIDGET -->
+      <div class="score-widget">
+        <div class="score-widget-header">
+          <div class="sw-event" id="swEvent">NSMT BASKETBALL</div>
+          <div class="sw-period-badge" id="swPeriod">Q1</div>
+        </div>
+        <div class="score-display">
+          <!-- AWAY -->
+          <div class="sd-team">
+            <div class="sd-team-code" id="swAwayCode">AWAY</div>
+            <div class="sd-team-name" id="swAwayName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Away Team</div>
+            <div class="sd-score" id="swAwayScore" onclick="openScoreOverride('away')" title="Click to override">0</div>
+            <div class="score-adjust">
+              <button class="adj-btn" onclick="adjustScore('away',3)">+3</button>
+              <button class="adj-btn" onclick="adjustScore('away',2)">+2</button>
+              <button class="adj-btn" onclick="adjustScore('away',1)">+1</button>
+              <button class="adj-btn minus" onclick="adjustScore('away',-1)">-1</button>
+            </div>
+            <div style="margin-top:6px">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Team Fouls</div>
+              <div class="sd-team-fouls" id="awayFoulPips"></div>
+            </div>
+          </div>
+
+          <div class="sd-mid">
+            <div class="sd-sep">–</div>
+          </div>
+
+          <!-- HOME -->
+          <div class="sd-team" style="align-items:flex-end">
+            <div class="sd-team-code" id="swHomeCode" style="text-align:right">HOME</div>
+            <div class="sd-team-name" id="swHomeName" style="text-align:right;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Home Team</div>
+            <div class="sd-score right" id="swHomeScore" onclick="openScoreOverride('home')" title="Click to override">0</div>
+            <div class="score-adjust" style="justify-content:flex-end">
+              <button class="adj-btn minus" onclick="adjustScore('home',-1)">-1</button>
+              <button class="adj-btn" onclick="adjustScore('home',1)">+1</button>
+              <button class="adj-btn" onclick="adjustScore('home',2)">+2</button>
+              <button class="adj-btn" onclick="adjustScore('home',3)">+3</button>
+            </div>
+            <div style="margin-top:6px;text-align:right">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Team Fouls</div>
+              <div class="sd-team-fouls" id="homeFoulPips" style="justify-content:flex-end"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME CLOCK -->
+      <div class="clock-widget">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)">Game Clock</div>
+          <div id="clockPushStatus" style="font-size:10px;font-weight:700;color:var(--muted)">Not synced</div>
+        </div>
+        <div class="clock-display" id="clockDisplay" onclick="editClock()">8:00</div>
+        <div class="clock-controls">
+          <button class="clock-btn start" id="clockStartBtn" onclick="clockStart()">▶ Start</button>
+          <button class="clock-btn pause" id="clockPauseBtn" onclick="clockPause()">⏸ Pause</button>
+          <button class="clock-btn reset" onclick="clockReset()">↺ Reset</button>
+        </div>
+        <div class="clock-set-row">
+          <input class="clock-input" id="clockSetInput" type="text" placeholder="8:00" title="Type MM:SS and press Set">
+          <button class="clock-set-btn" onclick="clockSetManual()">Set Time</button>
+        </div>
+      </div>
+
+      <!-- PERIOD CONTROL -->
+      <div class="period-widget">
+        <div class="period-header">
+          <div class="period-label">Period</div>
+          <button class="btn btn-surf" style="padding:4px 10px;font-size:11px" onclick="addOT()">+ OT</button>
+        </div>
+        <div class="period-pills" id="periodPills"></div>
+        <div class="period-actions">
+          <button class="period-act-btn" onclick="endPeriod()">⏱ End Period</button>
+          <button class="period-act-btn" onclick="resetFouls()">Reset Fouls</button>
+        </div>
+      </div>
+
+      <!-- TIMEOUT TRACKER -->
+      <div class="timeout-tracker">
+        <div class="tt-header">
+          <div class="tt-title">Timeouts Remaining</div>
+          <button class="btn btn-surf" style="padding:4px 10px;font-size:10px" onclick="resetTimeouts()">Reset All</button>
+        </div>
+        <div class="tt-team" id="ttAway">
+          <div class="tt-team-name" id="ttAwayName">AWAY</div>
+          <div class="tt-dots" id="ttAwayDots"></div>
+          <button class="tt-to-btn" onclick="useTimeout('away')">USE TO</button>
+        </div>
+        <div class="tt-team" id="ttHome">
+          <div class="tt-team-name" id="ttHomeName">HOME</div>
+          <div class="tt-dots" id="ttHomeDots"></div>
+          <button class="tt-to-btn" onclick="useTimeout('home')">USE TO</button>
+        </div>
+      </div>
+
+      <!-- BROADCAST ACTIONS -->
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Fire Overlay Graphics</div>
+      <div class="bcast-grid">
+        <button class="bcast-btn timeout" onclick="openTimeoutModal('away')">
+          <div class="bcast-icon">⏱️</div>
+          <div class="bcast-label">AWAY Timeout</div>
+          <div class="bcast-sub">Fires on stream</div>
+        </button>
+        <button class="bcast-btn timeout" onclick="openTimeoutModal('home')">
+          <div class="bcast-icon">⏱️</div>
+          <div class="bcast-label">HOME Timeout</div>
+          <div class="bcast-sub">Fires on stream</div>
+        </button>
+        <button class="bcast-btn sub" onclick="openSubModal()">
+          <div class="bcast-icon">🔄</div>
+          <div class="bcast-label">Substitution</div>
+          <div class="bcast-sub">In / out graphic</div>
+        </button>
+        <button class="bcast-btn foul" onclick="openFoulModal()">
+          <div class="bcast-icon">🚨</div>
+          <div class="bcast-label">Foul Called</div>
+          <div class="bcast-sub">Player + total</div>
+        </button>
+        <button class="bcast-btn custom" onclick="fireCustomGraphic('HALFTIME')">
+          <div class="bcast-icon">🏀</div>
+          <div class="bcast-label">Halftime</div>
+          <div class="bcast-sub">Halftime graphic</div>
+        </button>
+        <button class="bcast-btn custom" onclick="fireCustomGraphic('END OF GAME')">
+          <div class="bcast-icon">🏆</div>
+          <div class="bcast-label">End of Game</div>
+          <div class="bcast-sub">Final score graphic</div>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ RIGHT COL: LIVE FEED ══════════ -->
+  <div class="col">
+    <div class="col-header">
+      <span class="col-title">Live Event Log</span>
+      <button class="btn btn-surf" style="padding:4px 10px;font-size:10px" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="col-body" style="padding:0">
+
+      <!-- FOUL TROUBLE PANEL -->
+      <div class="foul-trouble" style="margin:10px 10px 0;border-radius:var(--r2)">
+        <div class="ft-header">
+          <span style="font-size:16px">⚠️</span>
+          <div class="ft-title">Foul Trouble</div>
+          <span id="ftCount" style="font-size:10px;color:var(--muted);margin-left:auto">0 players</span>
+        </div>
+        <div id="foulTroubleList">
+          <div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No foul trouble</div>
+        </div>
+      </div>
+
+      <!-- EVENT LOG -->
+      <div style="padding:10px 10px 0;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Event Log</div>
+      <div class="event-log" id="eventLog">
+        <div class="log-item">
+          <div class="log-time">—:——</div>
+          <div class="log-icon">📋</div>
+          <div class="log-text" style="color:var(--muted)">Configure game and press Go Live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- SCORE OVERRIDE -->
+<div class="modal-backdrop hidden" id="scoreOverrideModal">
+  <div class="modal-box">
+    <div class="modal-title">Override Score</div>
+    <div class="field"><label id="overrideTeamLabel">Team Score</label><input type="number" id="overrideInput" min="0" placeholder="0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-full" onclick="applyScoreOverride()">Apply</button>
+      <button class="btn btn-surf" onclick="closeModal('scoreOverrideModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIMEOUT -->
+<div class="modal-backdrop hidden" id="timeoutModal">
+  <div class="modal-box">
+    <div class="modal-title" id="timeoutModalTitle">Timeout — AWAY</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">This will fire the TIMEOUT graphic on the stream overlay and pause the game clock.</div>
+    <div class="field"><label>Timeout Type</label>
+      <select id="timeoutType">
+        <option value="full">Full Timeout (60 sec)</option>
+        <option value="30sec">30-Second Timeout</option>
+        <option value="tv">TV / Media Timeout</option>
+        <option value="officials">Officials Timeout</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-full" onclick="fireTimeout()">🎬 Fire Timeout Graphic</button>
+      <button class="btn btn-surf" onclick="closeModal('timeoutModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSTITUTION -->
+<div class="modal-backdrop hidden" id="subModal">
+  <div class="modal-box">
+    <div class="modal-title">Substitution</div>
+    <div class="field"><label>Team</label>
+      <select id="subTeam" onchange="renderSubPlayers()">
+        <option value="away" id="subAwayOpt">Away</option>
+        <option value="home" id="subHomeOpt">Home</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:8px">⬆️ Entering</div>
+        <div class="player-pick-grid" id="subInPlayers"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px">⬇️ Exiting</div>
+        <div class="player-pick-grid" id="subOutPlayers"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-full" onclick="fireSubstitution()">🎬 Fire Sub Graphic</button>
+      <button class="btn btn-surf" onclick="closeModal('subModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOUL -->
+<div class="modal-backdrop hidden" id="foulModal">
+  <div class="modal-box">
+    <div class="modal-title">Personal Foul</div>
+    <div class="field"><label>Team</label>
+      <select id="foulTeam" onchange="renderFoulPlayers()">
+        <option value="away">Away</option>
+        <option value="home">Home</option>
+      </select>
+    </div>
+    <div class="player-pick-grid" id="foulPlayers"></div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-full" onclick="fireFoul()">🎬 Log Foul + Fire Graphic</button>
+      <button class="btn btn-surf" onclick="closeModal('foulModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLOCK EDIT -->
+<div class="modal-backdrop hidden" id="clockEditModal">
+  <div class="modal-box">
+    <div class="modal-title">Set Game Clock</div>
+    <div class="field"><label>Time (MM:SS)</label><input type="text" id="clockEditInput" placeholder="8:00" style="font-family:'Bebas Neue',cursive;font-size:28px;text-align:center;letter-spacing:2px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-full" onclick="applyClockEdit()">Set Clock</button>
+      <button class="btn btn-surf" onclick="closeModal('clockEditModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// ════════════════════════════════════════════════════════
+// NSMT LIVE PRODUCER — Full Broadcast Control Engine
+// ════════════════════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ════════════════════
+// STATE
+// ════════════════════
+const G = {
+  isLive: false,
+  event: '', venue: '', date: '', time: '',
+  periods: 4, periodLen: 8, currentPeriod: 1, totalPeriods: 4,
+  away: { name: 'Away', code: 'AWAY', score: 0, fouls: 0, timeouts: 4, players: [] },
+  home: { name: 'Home', code: 'HOME', score: 0, fouls: 0, timeouts: 4, players: [] },
+  clock: { display: '8:00', seconds: 480, running: false },
+  eventLog: [],
+  overlayFlags: { scorebug: true, clock: true, pops: true, feed: true },
+};
+
+let _clockInterval = null;
+let _db = null;
+let _overrideTeam = 'away';
+let _timeoutTeam  = 'away';
+let _selectedSubIn = null, _selectedSubOut = null;
+let _selectedFoulPlayer = null;
+
+// ════════════════════
+// FIREBASE INIT
+// ════════════════════
+window.initFirebase = function() {
+  const cfg = {
+    apiKey:            document.getElementById('fbApiKey').value.trim(),
+    authDomain:        document.getElementById('fbAuthDomain').value.trim(),
+    projectId:         document.getElementById('fbProjectId').value.trim(),
+    appId:             document.getElementById('fbAppId').value.trim(),
+    storageBucket:     document.getElementById('fbProjectId').value.trim() + '.appspot.com',
+    messagingSenderId: '000000000000',
+  };
+
+  if (!cfg.apiKey || cfg.apiKey === 'YOUR_API_KEY') {
+    // DEMO MODE — no Firebase
+    document.getElementById('fbStatus').className = 'tb-firebase-status';
+    document.getElementById('fbStatusText').textContent = 'DEMO MODE';
+    toast('Running in demo mode — overlay writes simulated');
+    return;
+  }
+
+  try {
+    const app = initializeApp(cfg, 'producer-' + Date.now());
+    _db = getFirestore(app);
+    document.getElementById('fbStatus').className = 'tb-firebase-status';
+    document.getElementById('fbStatusText').textContent = 'CONNECTED';
+    toast('Firebase connected ✓');
+  } catch(e) {
+    toast('Firebase error: ' + e.message);
+    console.error(e);
+  }
+};
+
+// ════════════════════
+// PUSH TO OVERLAY
+// Writes the full overlay state doc to Firestore
+// The OBS overlay listens to this and renders everything
+// ════════════════════
+async function pushOverlayState(extra = {}) {
+  const period = getPeriodLabel(G.currentPeriod);
+
+  const state = {
+    // Scoreboard
+    awayName:   G.away.name,
+    awayCode:   G.away.code,
+    awayScore:  G.away.score,
+    awayFouls:  G.away.fouls,
+    awayTimeouts: G.away.timeouts,
+    homeName:   G.home.name,
+    homeCode:   G.home.code,
+    homeScore:  G.home.score,
+    homeFouls:  G.home.fouls,
+    homeTimeouts: G.home.timeouts,
+    period,
+    periodNum:  G.currentPeriod,
+    eventName:  G.event,
+    venue:      G.venue,
+    // Clock
+    clockDisplay: G.clock.display,
+    clockRunning: G.clock.running,
+    clockSeconds: G.clock.seconds,
+    // Flags
+    showScorebug: document.getElementById('togScoreBug').checked,
+    showClock:    document.getElementById('togClock').checked,
+    showPops:     document.getElementById('togScorePops').checked,
+    showFeed:     document.getElementById('togFeed').checked,
+    // Latest event
+    lastEvent: G.eventLog.length > 0 ? G.eventLog[0] : null,
+    updatedAt: Date.now(),
+    ...extra
+  };
+
+  document.getElementById('clockPushStatus').textContent = '↑ Synced ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  if (_db) {
+    try {
+      await setDoc(doc(_db, 'overlay', 'active'), state);
+    } catch(e) { console.warn('Push failed:', e); }
+  }
+}
+
+window.pushOverlayState = pushOverlayState;
+
+// ════════════════════
+// GO LIVE
+// ════════════════════
+window.goLive = function() {
+  G.event       = document.getElementById('cfgEvent').value.trim() || 'Basketball';
+  G.venue       = document.getElementById('cfgVenue').value.trim();
+  G.date        = document.getElementById('cfgDate').value;
+  G.time        = document.getElementById('cfgTime').value;
+  G.periods     = parseInt(document.getElementById('cfgPeriods').value);
+  G.periodLen   = parseInt(document.getElementById('cfgPeriodLen').value) || 8;
+  G.totalPeriods = G.periods;
+  G.currentPeriod = 1;
+  G.away.name   = document.getElementById('cfgAwayName').value.trim() || 'Away';
+  G.away.code   = document.getElementById('cfgAwayCode').value.trim() || 'AWAY';
+  G.home.name   = document.getElementById('cfgHomeName').value.trim() || 'Home';
+  G.home.code   = document.getElementById('cfgHomeCode').value.trim() || 'HOME';
+  G.away.players = collectPlayers('away');
+  G.home.players = collectPlayers('home');
+  G.away.score   = 0; G.home.score   = 0;
+  G.away.fouls   = 0; G.home.fouls   = 0;
+  G.away.timeouts = 4; G.home.timeouts = 4;
+  G.clock.seconds = G.periodLen * 60;
+  G.clock.display = formatClock(G.clock.seconds);
+  G.isLive = true;
+
+  document.getElementById('liveIndicator').style.display = 'flex';
+  document.getElementById('centerStatus').textContent = G.event + ' • LIVE';
+  document.getElementById('tbGameName').textContent = G.away.name + ' vs ' + G.home.name + ' — ' + G.event;
+
+  buildPeriodPills();
+  updateScoreboard();
+  renderFoulPips();
+  renderTimeoutDots();
+  clockReset();
+  pushOverlayState();
+  addLog('🎬', 'Broadcast started — ' + G.event, 'broadcast');
+  toast('LIVE — pushing to overlay');
+};
+
+// ════════════════════
+// SCOREBOARD
+// ════════════════════
+window.updateScoreboard = function() {
+  const an = document.getElementById('cfgAwayName').value || G.away.name;
+  const ac = document.getElementById('cfgAwayCode').value || G.away.code;
+  const hn = document.getElementById('cfgHomeName').value || G.home.name;
+  const hc = document.getElementById('cfgHomeCode').value || G.home.code;
+  document.getElementById('swAwayCode').textContent = ac;
+  document.getElementById('swAwayName').textContent = an;
+  document.getElementById('swHomeCode').textContent = hc;
+  document.getElementById('swHomeName').textContent = hn;
+  document.getElementById('swAwayScore').textContent = G.away.score;
+  document.getElementById('swHomeScore').textContent = G.home.score;
+  document.getElementById('swEvent').textContent = document.getElementById('cfgEvent').value || 'NSMT BASKETBALL';
+  document.getElementById('swPeriod').textContent = G.isLive ? getPeriodLabel(G.currentPeriod) : 'PRE';
+  document.getElementById('ttAwayName').textContent = ac || 'AWAY';
+  document.getElementById('ttHomeName').textContent = hc || 'HOME';
+};
+
+window.adjustScore = function(team, delta) {
+  if (!G.isLive) { toast('Go Live first'); return; }
+  G[team].score = Math.max(0, G[team].score + delta);
+  document.getElementById('sw' + (team === 'away' ? 'Away' : 'Home') + 'Score').textContent = G[team].score;
+  const icon = delta > 0 ? '🏀' : '↩';
+  const pts  = delta > 0 ? '+' + delta : delta;
+  addLog(icon, G[team].code + ' score adjusted (' + pts + ')', 'game', Math.abs(delta));
+  pushOverlayState({ lastScoreEvent: { team, pts: delta > 0 ? delta : 0, score: G[team].score } });
+};
+
+window.updateHeader = function() { updateScoreboard(); };
+
+// ════════════════════
+// SCORE OVERRIDE
+// ════════════════════
+window.openScoreOverride = function(team) {
+  _overrideTeam = team;
+  document.getElementById('overrideTeamLabel').textContent = G[team].name + ' Score';
+  document.getElementById('overrideInput').value = G[team].score;
+  openModal('scoreOverrideModal');
+  setTimeout(() => document.getElementById('overrideInput').select(), 50);
+};
+
+window.applyScoreOverride = function() {
+  const val = parseInt(document.getElementById('overrideInput').value);
+  if (isNaN(val) || val < 0) return;
+  const old = G[_overrideTeam].score;
+  G[_overrideTeam].score = val;
+  document.getElementById('sw' + (_overrideTeam === 'away' ? 'Away' : 'Home') + 'Score').textContent = val;
+  closeModal('scoreOverrideModal');
+  addLog('✏️', G[_overrideTeam].code + ' score overridden: ' + old + ' → ' + val, 'broadcast');
+  pushOverlayState();
+  toast('Score corrected to ' + val);
+};
+
+// ════════════════════
+// GAME CLOCK ENGINE
+// ════════════════════
+function formatClock(secs) {
+  const m = Math.floor(Math.max(0, secs) / 60);
+  const s = Math.max(0, secs) % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function parseClock(str) {
+  const parts = str.trim().split(':');
+  if (parts.length === 2) return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  return parseInt(str) || 0;
+}
+
+function renderClock() {
+  const el = document.getElementById('clockDisplay');
+  el.textContent = G.clock.display;
+  el.className = 'clock-display' + (G.clock.running ? ' running' : G.clock.seconds === 0 ? ' expired' : ' paused');
+}
+
+window.clockStart = function() {
+  if (G.clock.running) return;
+  if (G.clock.seconds <= 0) { toast('Clock at 0 — reset first'); return; }
+  G.clock.running = true;
+  renderClock();
+  pushOverlayState();
+  _clockInterval = setInterval(() => {
+    if (G.clock.seconds > 0) {
+      G.clock.seconds--;
+      G.clock.display = formatClock(G.clock.seconds);
+      renderClock();
+      // Push clock update every 5 seconds to avoid Firebase rate limiting
+      if (G.clock.seconds % 5 === 0) pushOverlayState();
+      if (G.clock.seconds === 30) { addLog('⏰', '30 seconds remaining in ' + getPeriodLabel(G.currentPeriod), 'game'); }
+      if (G.clock.seconds === 0)  { clockExpired(); }
+    }
+  }, 1000);
+};
+
+window.clockPause = function() {
+  if (!G.clock.running) return;
+  clearInterval(_clockInterval);
+  _clockInterval = null;
+  G.clock.running = false;
+  renderClock();
+  pushOverlayState();
+  addLog('⏸', 'Clock paused at ' + G.clock.display, 'game');
+};
+
+window.clockReset = function() {
+  clearInterval(_clockInterval);
+  _clockInterval = null;
+  G.clock.running = false;
+  G.clock.seconds = G.periodLen * 60;
+  G.clock.display = formatClock(G.clock.seconds);
+  renderClock();
+  if (G.isLive) pushOverlayState();
+};
+
+window.clockSetManual = function() {
+  const val = document.getElementById('clockSetInput').value.trim();
+  if (!val) return;
+  const secs = parseClock(val);
+  clearInterval(_clockInterval);
+  _clockInterval = null;
+  G.clock.running = false;
+  G.clock.seconds = secs;
+  G.clock.display = formatClock(secs);
+  renderClock();
+  document.getElementById('clockSetInput').value = '';
+  if (G.isLive) { pushOverlayState(); toast('Clock set to ' + G.clock.display); }
+};
+
+window.editClock = function() {
+  if (G.clock.running) return;
+  document.getElementById('clockEditInput').value = G.clock.display;
+  openModal('clockEditModal');
+  setTimeout(() => document.getElementById('clockEditInput').select(), 50);
+};
+
+window.applyClockEdit = function() {
+  const val = document.getElementById('clockEditInput').value.trim();
+  const secs = parseClock(val);
+  G.clock.seconds = secs;
+  G.clock.display = formatClock(secs);
+  G.clock.running = false;
+  renderClock();
+  closeModal('clockEditModal');
+  if (G.isLive) { pushOverlayState(); toast('Clock set to ' + G.clock.display); }
+};
+
+function clockExpired() {
+  clearInterval(_clockInterval);
+  _clockInterval = null;
+  G.clock.running = false;
+  G.clock.display = '0:00';
+  renderClock();
+  addLog('⏰', 'END OF ' + getPeriodLabel(G.currentPeriod), 'game');
+  pushOverlayState({ clockExpired: true });
+  toast('End of ' + getPeriodLabel(G.currentPeriod));
+}
+
+// ════════════════════
+// PERIOD MANAGEMENT
+// ════════════════════
+function buildPeriodPills() {
+  const n = parseInt(document.getElementById('cfgPeriods').value) || G.periods;
+  G.periods = n;
+  if (!G.isLive) G.totalPeriods = n;
+  const el = document.getElementById('periodPills');
+  let html = '';
+  for (let i = 1; i <= G.totalPeriods; i++) {
+    const isOT = i > G.periods;
+    const label = getPeriodLabel(i);
+    html += `<button class="period-pill ${isOT ? 'ot' : ''} ${i === G.currentPeriod ? 'active' : ''}" onclick="setPeriod(${i})">${label}</button>`;
+  }
+  el.innerHTML = html;
+}
+
+window.setPeriod = function(n) {
+  G.currentPeriod = n;
+  buildPeriodPills();
+  document.getElementById('swPeriod').textContent = getPeriodLabel(n);
+  addLog('🏀', 'Period set to ' + getPeriodLabel(n), 'game');
+  if (G.isLive) pushOverlayState();
+};
+
+window.endPeriod = function() {
+  clockPause();
+  if (G.currentPeriod < G.totalPeriods) {
+    G.currentPeriod++;
+    clockReset();
+    G.away.fouls = 0; G.home.fouls = 0;
+    renderFoulPips();
+    buildPeriodPills();
+    document.getElementById('swPeriod').textContent = getPeriodLabel(G.currentPeriod);
+    addLog('🏁', 'End of period — now ' + getPeriodLabel(G.currentPeriod), 'game');
+    if (G.isLive) pushOverlayState({ periodChange: true });
+    toast('Advancing to ' + getPeriodLabel(G.currentPeriod));
+  } else {
+    addLog('🏆', 'FINAL — ' + G.away.code + ' ' + G.away.score + ' — ' + G.home.code + ' ' + G.home.score, 'game');
+    pushOverlayState({ gameOver: true });
+    toast('Game over — final score pushed to overlay');
+  }
+};
+
+window.addOT = function() {
+  G.totalPeriods++;
+  buildPeriodPills();
+  toast('OT added');
+};
+
+window.resetFouls = function() {
+  G.away.fouls = 0; G.home.fouls = 0;
+  renderFoulPips();
+  if (G.isLive) pushOverlayState();
+  toast('Team fouls reset');
+};
+
+function getPeriodLabel(n) {
+  if (G.periods === 2) return n <= 2 ? `H${n}` : `OT${n - 2}`;
+  return n <= 4 ? `Q${n}` : `OT${n - 4}`;
+}
+
+// ════════════════════
+// TIMEOUTS
+// ════════════════════
+function renderTimeoutDots() {
+  const MAX = 4;
+  ['away','home'].forEach(t => {
+    const el = document.getElementById('tt' + (t === 'away' ? 'Away' : 'Home') + 'Dots');
+    let html = '';
+    for (let i = 0; i < MAX; i++) {
+      const remaining = G[t].timeouts;
+      const isUsed = i >= remaining;
+      const isFull = remaining === 0 && i === MAX - 1;
+      html += `<div class="tt-dot ${isUsed ? (isFull ? 'full' : 'used') : ''}"></div>`;
+    }
+    el.innerHTML = html;
+  });
+}
+
+window.useTimeout = function(team) {
+  if (!G.isLive) { openTimeoutModal(team); return; }
+  openTimeoutModal(team);
+};
+
+window.resetTimeouts = function() {
+  G.away.timeouts = 4; G.home.timeouts = 4;
+  renderTimeoutDots();
+  if (G.isLive) pushOverlayState();
+  toast('Timeouts reset');
+};
+
+// ════════════════════
+// TIMEOUT GRAPHIC
+// ════════════════════
+window.openTimeoutModal = function(team) {
+  _timeoutTeam = team;
+  document.getElementById('timeoutModalTitle').textContent = 'Timeout — ' + G[team].name.toUpperCase();
+  openModal('timeoutModal');
+};
+
+window.fireTimeout = function() {
+  if (!G.isLive) { toast('Go Live first'); return; }
+  const type = document.getElementById('timeoutType').value;
+  const team = _timeoutTeam;
+  clockPause();
+  if (G[team].timeouts > 0) G[team].timeouts--;
+  renderTimeoutDots();
+  closeModal('timeoutModal');
+
+  const typeLabel = { full: 'Full Timeout', '30sec': '30-Sec Timeout', tv: 'Media Timeout', officials: 'Officials Timeout' }[type];
+  addLog('⏱️', G[team].name + ' — ' + typeLabel + ' (' + G[team].timeouts + ' remaining)', 'broadcast');
+
+  pushOverlayState({
+    graphic: {
+      type: 'TIMEOUT',
+      team,
+      teamName: G[team].name,
+      teamCode: G[team].code,
+      timeoutType: typeLabel,
+      timeoutsLeft: G[team].timeouts,
+      clockAt: G.clock.display,
+      period: getPeriodLabel(G.currentPeriod)
+    }
+  });
+  toast('TIMEOUT fired on stream 📡');
+};
+
+// ════════════════════
+// SUBSTITUTION
+// ════════════════════
+window.openSubModal = function() {
+  if (!G.isLive) { toast('Go Live first'); return; }
+  document.getElementById('subAwayOpt').textContent = G.away.name;
+  document.getElementById('subHomeOpt').textContent = G.home.name;
+  _selectedSubIn = null; _selectedSubOut = null;
+  renderSubPlayers();
+  openModal('subModal');
+};
+
+window.renderSubPlayers = function() {
+  const team = document.getElementById('subTeam').value;
+  const players = G[team].players;
+  const mkGrid = (containerId, selectedId) => {
+    const el = document.getElementById(containerId);
+    el.innerHTML = players.map(p => `
+      <div class="player-pick ${selectedId === p.id ? 'sel' : ''}" onclick="selectSub('${containerId}','${p.id}')">
+        <div class="pp-num">${p.num || '—'}</div>
+        <div class="pp-name">${p.name.split(' ').pop()}</div>
+      </div>`).join('');
+  };
+  mkGrid('subInPlayers', _selectedSubIn);
+  mkGrid('subOutPlayers', _selectedSubOut);
+};
+
+window.selectSub = function(container, id) {
+  if (container === 'subInPlayers')  _selectedSubIn  = id;
+  if (container === 'subOutPlayers') _selectedSubOut = id;
+  renderSubPlayers();
+};
+
+window.fireSubstitution = function() {
+  const team = document.getElementById('subTeam').value;
+  const pIn  = G[team].players.find(p => p.id === _selectedSubIn);
+  const pOut = G[team].players.find(p => p.id === _selectedSubOut);
+  if (!pIn || !pOut) { toast('Select a player in AND out'); return; }
+  closeModal('subModal');
+  addLog('🔄', `${G[team].code} SUB: #${pIn.num} ${pIn.name} IN / #${pOut.num} ${pOut.name} OUT`, 'broadcast');
+  pushOverlayState({
+    graphic: {
+      type: 'SUBSTITUTION',
+      team, teamCode: G[team].code, teamName: G[team].name,
+      playerIn:  { id: pIn.id,  num: pIn.num,  name: pIn.name  },
+      playerOut: { id: pOut.id, num: pOut.num, name: pOut.name },
+      period: getPeriodLabel(G.currentPeriod), clockAt: G.clock.display
+    }
+  });
+  toast('Sub fired on stream 📡');
+};
+
+// ════════════════════
+// FOUL
+// ════════════════════
+window.openFoulModal = function() {
+  if (!G.isLive) { toast('Go Live first'); return; }
+  _selectedFoulPlayer = null;
+  renderFoulPlayers();
+  openModal('foulModal');
+};
+
+window.renderFoulPlayers = function() {
+  const team = document.getElementById('foulTeam').value;
+  document.getElementById('foulPlayers').innerHTML = G[team].players.map(p => {
+    const fouls = p.fouls || 0;
+    return `<div class="player-pick ${_selectedFoulPlayer === p.id ? 'sel' : ''}" onclick="selectFoulPlayer('${p.id}','${team}')">
+      <div class="pp-num">${p.num || '—'}</div>
+      <div class="pp-name">${p.name.split(' ').pop()}</div>
+      <div style="font-size:9px;color:${fouls >= 4 ? 'var(--red)' : 'var(--muted)'};margin-top:2px">${fouls} fouls</div>
+    </div>`;
+  }).join('');
+};
+
+window.selectFoulPlayer = function(id, team) {
+  _selectedFoulPlayer = id;
+  renderFoulPlayers();
+};
+
+window.fireFoul = function() {
+  const team = document.getElementById('foulTeam').value;
+  const player = G[team].players.find(p => p.id === _selectedFoulPlayer);
+  if (!player) { toast('Select a player'); return; }
+  player.fouls = (player.fouls || 0) + 1;
+  G[team].fouls++;
+  renderFoulPips();
+  updateFoulTrouble();
+  closeModal('foulModal');
+  const isTrouble = player.fouls >= 4;
+  addLog('🚨', `FOUL: ${G[team].code} #${player.num} ${player.name} (${player.fouls} PF)${isTrouble ? ' ⚠️ TROUBLE' : ''}`, isTrouble ? 'warn' : 'game');
+  pushOverlayState({
+    graphic: {
+      type: 'FOUL',
+      team, teamCode: G[team].code,
+      player: { id: player.id, num: player.num, name: player.name, fouls: player.fouls },
+      teamFouls: G[team].fouls,
+      inTrouble: isTrouble,
+      period: getPeriodLabel(G.currentPeriod), clockAt: G.clock.display
+    }
+  });
+  toast(`Foul logged — #${player.num} now has ${player.fouls} PF`);
+};
+
+// ════════════════════
+// FOUL PIPS & TROUBLE
+// ════════════════════
+function renderFoulPips() {
+  ['away', 'home'].forEach(t => {
+    const el = document.getElementById(t + 'FoulPips');
+    let html = '';
+    for (let i = 1; i <= 7; i++) {
+      const active = i <= G[t].fouls;
+      const bonus  = i >= 7;
+      html += `<div class="foul-pip ${active ? (bonus ? 'bonus' : 'active') : ''}"></div>`;
+    }
+    el.innerHTML = html;
+  });
+}
+
+function updateFoulTrouble() {
+  const troubled = [];
+  ['away', 'home'].forEach(t => {
+    G[t].players.forEach(p => {
+      if ((p.fouls || 0) >= 4) troubled.push({ ...p, team: t, teamCode: G[t].code });
+    });
+  });
+
+  document.getElementById('ftCount').textContent = troubled.length + ' player' + (troubled.length !== 1 ? 's' : '');
+  const el = document.getElementById('foulTroubleList');
+
+  if (!troubled.length) {
+    el.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center">No foul trouble</div>';
+    return;
+  }
+
+  const awayTroubled = troubled.filter(p => p.team === 'away');
+  const homeTroubled = troubled.filter(p => p.team === 'home');
+
+  let html = '';
+  if (awayTroubled.length) {
+    html += `<div class="ft-team-label">${G.away.code}</div>`;
+    html += awayTroubled.map(p => foulTroubleRow(p)).join('');
+  }
+  if (homeTroubled.length) {
+    html += `<div class="ft-team-label">${G.home.code}</div>`;
+    html += homeTroubled.map(p => foulTroubleRow(p)).join('');
+  }
+  el.innerHTML = html;
+}
+
+function foulTroubleRow(p) {
+  const pips = [1,2,3,4,5].map(i => `<div class="ft-foul-pip ${i <= p.fouls ? (p.fouls >= 5 ? 'red' : 'on') : ''}"></div>`).join('');
+  return `<div class="ft-player">
+    <div class="ft-num">#${p.num}</div>
+    <div class="ft-name">${p.name}</div>
+    <div class="ft-fouls">${pips}</div>
+  </div>`;
+}
+
+// ════════════════════
+// CUSTOM GRAPHICS
+// ════════════════════
+window.fireCustomGraphic = function(type) {
+  if (!G.isLive) { toast('Go Live first'); return; }
+  addLog('🎬', type + ' graphic fired', 'broadcast');
+  pushOverlayState({
+    graphic: {
+      type,
+      awayScore: G.away.score, homeScore: G.home.score,
+      awayName: G.away.name, homeName: G.home.name,
+      awayCode: G.away.code, homeCode: G.home.code,
+      period: getPeriodLabel(G.currentPeriod), clockAt: G.clock.display,
+      event: G.event
+    }
+  });
+  toast(type + ' fired on stream 📡');
+};
+
+// ════════════════════
+// PLAYER ROWS IN SETUP
+// ════════════════════
+window.addPlayerRow = function(team) {
+  const el = document.getElementById(team + 'PlayerList');
+  const row = document.createElement('div');
+  row.className = 'two-col';
+  row.style.cssText = 'gap:6px;margin-bottom:6px';
+  row.innerHTML = `
+    <input type="text" placeholder="#" style="text-align:center" maxlength="3">
+    <input type="text" placeholder="Player name">`;
+  el.appendChild(row);
+};
+
+function collectPlayers(team) {
+  const rows = document.querySelectorAll('#' + team + 'PlayerList .two-col');
+  const players = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const name = inputs[1].value.trim();
+    if (name) players.push({ id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2), num: inputs[0].value.trim(), name, fouls: 0 });
+  });
+  return players;
+}
+
+// ════════════════════
+// EVENT LOG
+// ════════════════════
+function addLog(icon, text, type = 'game', pts = 0) {
+  const entry = { icon, text, type, pts, time: G.clock.display, ts: Date.now() };
+  G.eventLog.unshift(entry);
+  if (G.eventLog.length > 100) G.eventLog.pop();
+  renderLog();
+}
+
+function renderLog() {
+  const el = document.getElementById('eventLog');
+  el.innerHTML = G.eventLog.slice(0, 40).map(e => `
+    <div class="log-item">
+      <div class="log-time">${e.time || '—:——'}</div>
+      <div class="log-icon">${e.icon}</div>
+      <div class="log-text">${e.text}</div>
+      ${e.pts > 0 ? `<div class="log-pts">+${e.pts}</div>` : ''}
+      <div class="log-tag ${e.type}">${e.type}</div>
+    </div>`).join('');
+}
+
+window.clearLog = function() { G.eventLog = []; renderLog(); };
+
+// ════════════════════
+// MODALS
+// ════════════════════
+window.openModal  = id => document.getElementById(id).classList.remove('hidden');
+window.closeModal = id => document.getElementById(id).classList.add('hidden');
+document.querySelectorAll('.modal-backdrop').forEach(el =>
+  el.addEventListener('click', e => { if (e.target === el) el.classList.add('hidden'); })
+);
+
+// ════════════════════
+// TOAST
+// ════════════════════
+let _tt;
+window.toast = function(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 2500);
+};
+
+// ════════════════════
+// INIT
+// ════════════════════
+document.getElementById('cfgDate').value = new Date().toISOString().split('T')[0];
+buildPeriodPills();
+renderClock();
+renderTimeoutDots();
+
+// Add default player rows
+['away','home'].forEach(t => { for(let i = 0; i < 5; i++) window.addPlayerRow(t); });
+
+// Demo mode startup
+setTimeout(() => {
+  if (!_db) {
+    document.getElementById('fbStatus').className = 'tb-firebase-status';
+    document.getElementById('fbStatusText').textContent = 'DEMO MODE';
+  }
+}, 1000);
+</script>
+</body>
+</html>

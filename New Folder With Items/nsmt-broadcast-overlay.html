@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NSMT Broadcast Overlay — 1920×1080</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   NSMT BROADCAST OVERLAY
+   Canvas: 1920 × 1080 — transparent background
+   OBS Browser Source: width=1920, height=1080, transparent BG ✓
+   Place ABOVE all sources in OBS scene
+═══════════════════════════════════════════════════════ */
+
+:root {
+  --gold:    #F5C518;
+  --gold2:   #e6b800;
+  --blue:    #1565C0;
+  --blue2:   #1877F2;
+  --dark:    rgba(6, 7, 10, 0.94);
+  --dark2:   rgba(10, 12, 16, 0.97);
+  --white:   #ffffff;
+  --red:     #e53f3f;
+  --green:   #22c55e;
+  --orange:  #f97316;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;
+  font-family: 'Barlow', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════
+   1. ESPN-ACCURATE BOTTOM SCOREBUG
+   Pixel-matched to ESPN broadcast style.
+   Two-row bar: main bug row + event ticker row.
+   Sits at bottom: 0. Centered horizontally,
+   auto-width so it never spans full 1920px.
+═══════════════════════════════════════ */
+
+/* Outer wrapper — centers the compact bug */
+#scorebug-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(100%);
+  transition: transform 0.45s cubic-bezier(.22,1,.36,1);
+  filter: drop-shadow(0 -6px 28px rgba(0,0,0,0.85));
+  pointer-events: none;
+}
+#scorebug-wrap.visible { transform: translateY(0); }
+
+/* Alias: the old #scorebug id now points to wrap */
+#scorebug { display: contents; }
+
+/* ── MAIN ROW ── */
+#scorebug-main {
+  display: flex;
+  align-items: stretch;
+  height: 52px;
+  background: #1a1c20;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  /* ESPN uses a fixed-width compact bug, not full 1920 */
+  min-width: 780px;
+}
+
+/* ── NSMT LOGO BLOCK (replaces ESPN logo) ── */
+.bug-brand {
+  background: #CC0000; /* NSMT red/blue — change to your brand color */
+  width: 68px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.bug-brand-text {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 17px;
+  letter-spacing: 2px;
+  color: #fff;
+  white-space: nowrap;
+  line-height: 1;
+}
+/* swap to image logo: .bug-brand-logo { height:28px; width:auto; } */
+
+/* ── SEPARATOR ── */
+.bug-sep {
+  width: 1px;
+  background: rgba(255,255,255,0.10);
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+/* ── TEAM BLOCK ── */
+/* Layout: [LOGO] [CODE] [score] */
+.bug-team {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 16px 0 14px;
+  background: #1a1c20;
+  flex-shrink: 0;
+}
+
+/* Team logo circle */
+.bug-team-logo {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #2a2d33;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 11px;
+  color: var(--gold);
+  flex-shrink: 0;
+  overflow: hidden;
+  margin-right: 10px;
+}
+.bug-team-logo img {
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 50%;
+}
+
+/* Team abbreviation — ESPN uses bold condensed white caps */
+.bug-team-code {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+/* Score — large, right of code */
+.bug-score {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 26px;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  min-width: 28px;
+  text-align: center;
+  transition: color 0.25s;
+}
+.bug-score.just-scored {
+  animation: scoreFlash 1.0s ease forwards;
+}
+@keyframes scoreFlash {
+  0%,100% { color: #fff; }
+  25%      { color: var(--gold); transform: scale(1.12); }
+  55%      { color: #fff; }
+}
+
+/* Timeout pips sit directly below score in ESPN */
+.bug-to-pips {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: 3px;
+}
+.bug-to-pip {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+.bug-to-pip.on { background: var(--gold); }
+
+/* Fouls row below team block — tiny orange dots */
+.bug-team-fouls {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  margin-top: 2px;
+}
+.bug-foul-pip {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  transition: background 0.25s;
+}
+.bug-foul-pip.on    { background: var(--orange); }
+.bug-foul-pip.bonus { background: var(--red); }
+
+/* Stacked layout for score + timeout/foul pips */
+.bug-score-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── CENTER: PERIOD + CLOCK ── */
+/* ESPN style: [1st] [7:32] side-by-side in a slightly lighter box */
+.bug-center {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #1a1c20;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+/* Period pill — matches ESPN's "1st" label box */
+.bug-period-box {
+  background: #2c2f36;
+  border-radius: 3px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 6px;
+}
+.bug-period {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  line-height: 1;
+}
+
+/* Clock box — slightly brighter, ESPN's time display */
+.bug-clock-box {
+  background: #2c2f36;
+  border-radius: 3px;
+  padding: 4px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  min-width: 90px;
+}
+.bug-clock {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  transition: color 0.2s;
+}
+.bug-clock.running { color: #ffffff; }
+.bug-clock.paused  { color: var(--gold); animation: bugClockBlink 1s infinite; }
+.bug-clock.expired { color: var(--red); }
+@keyframes bugClockBlink {
+  0%,100% { opacity:1; } 50% { opacity:0.35; }
+}
+
+/* ── TICKER ROW (below main bug) ── */
+/* ESPN has "NBA WEDNESDAY" in a slightly different dark bar */
+#scorebug-ticker {
+  background: #111316;
+  height: 20px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 5px 5px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.bug-ticker-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+
+/* ═══════════════════════════════════════
+   2. SCORE POP CARD (bottom-left)
+   Fires when player scores
+═══════════════════════════════════════ */
+#scorePop {
+  position: absolute;
+  bottom: 90px;
+  left: 56px;
+  width: 400px;
+  display: flex;
+  align-items: stretch;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+#scorePop.in  { animation: popCardIn  0.4s cubic-bezier(.22,1.5,.36,1) forwards; }
+#scorePop.out { animation: popCardOut 0.3s cubic-bezier(.55,0,1,.45) forwards; }
+
+@keyframes popCardIn {
+  from { opacity:0; transform:translateY(30px) scale(0.96); }
+  to   { opacity:1; transform:translateY(0)    scale(1);    }
+}
+@keyframes popCardOut {
+  from { opacity:1; transform:translateY(0);     }
+  to   { opacity:0; transform:translateY(-16px); }
+}
+
+.pop-photo-col {
+  width: 110px;
+  flex-shrink: 0;
+  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+}
+.pop-photo-img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: top center;
+  display: block;
+}
+.pop-photo-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 48px;
+  color: rgba(245,197,24,0.3);
+  background: linear-gradient(160deg, #111 0%, #08080f 100%);
+}
+.pop-num-tag {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  text-align: center;
+  padding: 12px 4px 6px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 1px;
+}
+
+.pop-info-col {
+  flex: 1;
+  background: #0c0c10;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.pop-topbar {
+  background: var(--gold);
+  padding: 5px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pop-event-type {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 12px;
+  letter-spacing: 2.5px; text-transform: uppercase; color: #000;
+}
+.pop-team-tag {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px; letter-spacing: 2px; color: rgba(0,0,0,0.5);
+}
+.pop-main { flex: 1; padding: 10px 12px 8px 14px; display: flex; flex-direction: column; justify-content: center; }
+.pop-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 26px; line-height: 0.95;
+  color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pop-name .last { color: var(--gold); }
+.pop-pts-row { display: flex; align-items: baseline; gap: 5px; margin-top: 7px; }
+.pop-pts-big {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 48px; line-height: 1; color: #fff; letter-spacing: -1px;
+}
+.pop-pts-meta { display: flex; flex-direction: column; }
+.pop-pts-plus { font-family: 'Bebas Neue', cursive; font-size: 20px; color: var(--gold); }
+.pop-pts-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.pop-footer {
+  padding: 5px 12px 7px 14px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pop-footer-info { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+.pop-nsmt { font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 3px; color: rgba(255,255,255,0.18); }
+
+/* Progress drain bar */
+#popProgress {
+  position: absolute;
+  bottom: 86px; left: 56px;
+  width: 400px; height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  opacity: 0; transition: opacity 0.2s;
+}
+#popProgress.show { opacity: 1; }
+#popProgressBar {
+  height: 100%; background: var(--gold);
+  border-radius: 2px; transform-origin: left;
+}
+#popProgressBar.drain { animation: drain linear forwards; }
+@keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+
+/* ═══════════════════════════════════════
+   3. TIMEOUT GRAPHIC (full-screen takeover, lower third style)
+═══════════════════════════════════════ */
+#timeoutGraphic {
+  position: absolute;
+  bottom: 80px; left: 0; right: 0;
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; pointer-events: none;
+}
+#timeoutGraphic.in  { animation: lowerThirdIn  0.5s cubic-bezier(.22,1,.36,1) forwards; }
+#timeoutGraphic.out { animation: lowerThirdOut 0.4s cubic-bezier(.55,0,1,.45) forwards; }
+
+@keyframes lowerThirdIn {
+  from { opacity:0; transform:translateY(40px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes lowerThirdOut {
+  from { opacity:1; transform:translateY(0); }
+  to   { opacity:0; transform:translateY(-20px); }
+}
+
+.timeout-banner {
+  background: var(--dark2);
+  border-top: 4px solid var(--gold);
+  padding: 18px 60px;
+  display: flex; align-items: center; gap: 32px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.7);
+  width: 900px; border-radius: 4px;
+}
+.to-icon { font-size: 48px; }
+.to-text { flex: 1; }
+.to-team {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 36px;
+  color: #fff; letter-spacing: 1px; text-transform: uppercase; line-height: 1;
+}
+.to-type {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px; letter-spacing: 3px;
+  color: var(--gold); margin-top: 2px;
+}
+.to-meta { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-top: 4px; }
+.to-remaining {
+  text-align: center;
+}
+.to-rem-num { font-family: 'Bebas Neue', cursive; font-size: 48px; color: #fff; line-height: 1; }
+.to-rem-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+
+
+/* ═══════════════════════════════════════
+   4. SUBSTITUTION GRAPHIC
+═══════════════════════════════════════ */
+#subGraphic {
+  position: absolute;
+  bottom: 80px; left: 56px;
+  width: 460px;
+  opacity: 0; pointer-events: none;
+}
+#subGraphic.in  { animation: lowerThirdIn  0.4s cubic-bezier(.22,1,.36,1) forwards; }
+#subGraphic.out { animation: lowerThirdOut 0.35s cubic-bezier(.55,0,1,.45) forwards; }
+
+.sub-banner {
+  background: var(--dark2);
+  border-left: 4px solid var(--cyan, #06b6d4);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+}
+.sub-header {
+  background: rgba(6,182,212,0.15);
+  padding: 6px 14px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(6,182,212,0.2);
+}
+.sub-header-label {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px; letter-spacing: 3px; color: #06b6d4;
+}
+.sub-team-badge {
+  margin-left: auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 12px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.4); text-transform: uppercase;
+}
+.sub-players {
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sub-player-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.sub-dir {
+  font-size: 18px; width: 22px; text-align: center; flex-shrink: 0;
+}
+.sub-player-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 24px; color: var(--gold); min-width: 36px;
+  line-height: 1;
+}
+.sub-player-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 18px;
+  color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.sub-direction-label {
+  margin-left: auto;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.sub-direction-label.in  { color: var(--green); }
+.sub-direction-label.out { color: var(--red); }
+.sub-divider { height: 1px; background: rgba(255,255,255,0.06); }
+
+
+/* ═══════════════════════════════════════
+   5. FOUL GRAPHIC
+═══════════════════════════════════════ */
+#foulGraphic {
+  position: absolute;
+  bottom: 80px; left: 56px;
+  width: 380px;
+  opacity: 0; pointer-events: none;
+}
+#foulGraphic.in  { animation: lowerThirdIn  0.4s cubic-bezier(.22,1,.36,1) forwards; }
+#foulGraphic.out { animation: lowerThirdOut 0.35s cubic-bezier(.55,0,1,.45) forwards; }
+
+.foul-banner {
+  background: var(--dark2);
+  border-left: 4px solid var(--orange);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+}
+.foul-header {
+  background: rgba(249,115,22,0.15);
+  padding: 6px 14px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(249,115,22,0.2);
+}
+.foul-header-label {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px; letter-spacing: 3px; color: var(--orange);
+}
+.foul-body { padding: 12px 14px; display: flex; align-items: center; gap: 14px; }
+.foul-num { font-family: 'Bebas Neue', cursive; font-size: 36px; color: var(--gold); line-height: 1; }
+.foul-info { flex: 1; }
+.foul-player-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 22px; color: #fff;
+  text-transform: uppercase; line-height: 1; letter-spacing: 0.5px;
+}
+.foul-count-row {
+  display: flex; align-items: center; gap: 6px; margin-top: 5px;
+}
+.foul-pips { display: flex; gap: 3px; }
+.foul-pip-circle {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); transition: background 0.2s;
+}
+.foul-pip-circle.on { background: var(--orange); }
+.foul-pip-circle.trouble { background: var(--red); animation: troublePulse 0.8s infinite; }
+@keyframes troublePulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.foul-trouble-badge {
+  font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+  background: rgba(229,63,63,0.25); color: var(--red);
+}
+.foul-meta { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+
+/* ═══════════════════════════════════════
+   6. SPECIAL EVENT GRAPHICS
+   Halftime, End of Game banners
+═══════════════════════════════════════ */
+#specialGraphic {
+  position: absolute;
+  bottom: 80px; left: 0; right: 0;
+  display: flex; justify-content: center;
+  opacity: 0; pointer-events: none;
+}
+#specialGraphic.in  { animation: specialIn  0.6s cubic-bezier(.22,1,.36,1) forwards; }
+#specialGraphic.out { animation: specialOut 0.5s cubic-bezier(.55,0,1,.45) forwards; }
+
+@keyframes specialIn {
+  from { opacity:0; transform: scale(0.9) translateY(30px); }
+  to   { opacity:1; transform: scale(1)   translateY(0); }
+}
+@keyframes specialOut {
+  from { opacity:1; transform: scale(1); }
+  to   { opacity:0; transform: scale(0.95); }
+}
+
+.special-banner {
+  background: var(--dark2);
+  border: 1px solid rgba(245,197,24,0.2);
+  border-top: 4px solid var(--gold);
+  border-radius: 6px;
+  padding: 20px 60px;
+  text-align: center;
+  box-shadow: 0 16px 64px rgba(0,0,0,0.8);
+  min-width: 700px;
+}
+.special-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 52px; letter-spacing: 5px;
+  color: var(--gold); line-height: 1;
+}
+.special-scores {
+  display: flex; align-items: center; justify-content: center;
+  gap: 24px; margin-top: 10px;
+}
+.special-team-block { text-align: center; }
+.special-team-code {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 18px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.6);
+}
+.special-score-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 60px; color: #fff; line-height: 1; letter-spacing: -2px;
+}
+.special-sep {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 36px; color: rgba(255,255,255,0.2);
+}
+.special-meta {
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 8px;
+}
+
+
+/* ═══════════════════════════════════════
+   7. STAT POP (right side — secondary events)
+═══════════════════════════════════════ */
+#statFeed {
+  position: absolute;
+  top: 110px; right: 50px;
+  width: 260px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.stat-chip {
+  background: rgba(6,7,10,0.85);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 5px 5px 0;
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 8px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  animation: chipIn 0.3s ease forwards;
+}
+.stat-chip.non-score { border-left-color: rgba(255,255,255,0.18); }
+@keyframes chipIn {
+  from { transform: translateX(30px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.chip-icon { font-size: 14px; flex-shrink: 0; }
+.chip-text { flex: 1; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); line-height: 1.3; }
+.chip-pts  { font-family: 'Bebas Neue', cursive; font-size: 17px; color: var(--gold); flex-shrink: 0; }
+
+
+/* ═══════════════════════════════════════
+   8. FOUL TROUBLE BADGE (top-right)
+   Persistent when player in trouble
+═══════════════════════════════════════ */
+#foulTroubleBadge {
+  position: absolute;
+  top: 20px; right: 50px;
+  display: flex; flex-direction: column; gap: 5px;
+  opacity: 0; transition: opacity 0.4s;
+}
+#foulTroubleBadge.show { opacity: 1; }
+.trouble-chip {
+  background: rgba(229,63,63,0.18);
+  border: 1px solid rgba(229,63,63,0.4);
+  border-radius: 4px;
+  padding: 5px 10px;
+  display: flex; align-items: center; gap: 7px;
+  backdrop-filter: blur(6px);
+}
+.trouble-chip-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 16px; color: var(--gold);
+}
+.trouble-chip-name {
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.trouble-chip-fouls {
+  margin-left: auto;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px; color: var(--red);
+}
+
+/* ═══════════════════════════════════════
+   DEMO CONTROLS (browser preview only)
+   Hidden in OBS via CSS
+═══════════════════════════════════════ */
+#demoControls {
+  position: fixed;
+  top: 12px; left: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  z-index: 9999;
+}
+.demo-btn {
+  background: rgba(245,197,24,0.88);
+  color: #000; border: none;
+  border-radius: 5px; padding: 7px 12px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 13px; letter-spacing: 1px;
+  cursor: pointer; white-space: nowrap;
+  opacity: 0.85;
+}
+.demo-btn:hover { opacity: 1; }
+.demo-btn.ghost {
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7);
+}
+#demoLabel {
+  position: fixed; top: 12px; right: 12px;
+  background: rgba(229,63,63,0.9); color: #fff;
+  font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 2px;
+  padding: 4px 12px; border-radius: 4px; z-index: 9999; display: none;
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+  DEMO MODE LABEL
+════════════════════════════════ -->
+<div id="demoLabel">DEMO MODE</div>
+
+<!-- ════════════════════════════════
+  1. SCOREBUG — ESPN-accurate style
+  Two rows: [main bug] + [ticker]
+  Centered horizontally, compact width
+════════════════════════════════ -->
+<div id="scorebug-wrap">
+  <div id="scorebug"> <!-- kept for JS compatibility -->
+
+  <div id="scorebug-main">
+
+    <!-- NSMT BRAND (replaces ESPN logo) -->
+    <div class="bug-brand">
+      <div class="bug-brand-text">NSMT</div>
+    </div>
+
+    <div class="bug-sep"></div>
+
+    <!-- AWAY TEAM: [logo] [CODE] | [score + TO pips + foul pips] -->
+    <div class="bug-team">
+      <!-- Logo circle — swap src for real logo image -->
+      <div class="bug-team-logo" id="bugAwayLogo">
+        <img id="bugAwayLogoImg" src="" alt="" style="display:none">
+        <span id="bugAwayLogoFallback">A</span>
+      </div>
+      <!-- Team code -->
+      <div class="bug-team-code" id="bugAwayCode">AWAY</div>
+      <!-- Score + pips stacked -->
+      <div class="bug-score-col">
+        <div class="bug-score" id="bugAwayScore">0</div>
+        <div class="bug-to-pips" id="bugAwayTOs"></div>
+        <div class="bug-team-fouls" id="bugAwayFouls"></div>
+      </div>
+    </div>
+
+    <div class="bug-sep"></div>
+
+    <!-- CENTER: Period pill + Clock box -->
+    <div class="bug-center">
+      <div class="bug-period-box">
+        <div class="bug-period" id="bugPeriod">Q1</div>
+      </div>
+      <div class="bug-clock-box">
+        <div class="bug-clock" id="bugClock">8:00</div>
+      </div>
+    </div>
+
+    <div class="bug-sep"></div>
+
+    <!-- HOME TEAM: [score + pips] [CODE] [logo] -->
+    <div class="bug-team">
+      <!-- Score + pips stacked -->
+      <div class="bug-score-col">
+        <div class="bug-score" id="bugHomeScore">0</div>
+        <div class="bug-to-pips" id="bugHomeTOs"></div>
+        <div class="bug-team-fouls" id="bugHomeFouls"></div>
+      </div>
+      <!-- Team code -->
+      <div class="bug-team-code" id="bugHomeCode" style="margin-left:10px;margin-right:0">HOME</div>
+      <!-- Logo circle -->
+      <div class="bug-team-logo" id="bugHomeLogo" style="margin-left:10px;margin-right:0">
+        <img id="bugHomeLogoImg" src="" alt="" style="display:none">
+        <span id="bugHomeLogoFallback">H</span>
+      </div>
+    </div>
+
+  </div><!-- /#scorebug-main -->
+
+  <!-- TICKER ROW -->
+  <div id="scorebug-ticker">
+    <div class="bug-ticker-text" id="bugTickerText">NSMT SPORTS MEDIA</div>
+  </div>
+
+  </div><!-- /#scorebug (compat) -->
+</div><!-- /#scorebug-wrap -->
+
+<!-- ════════════════════════════════
+  2. SCORE POP CARD
+════════════════════════════════ -->
+<div id="scorePop">
+  <div class="pop-photo-col">
+    <img class="pop-photo-img" id="popPhoto" src="" style="display:none">
+    <div class="pop-photo-fallback" id="popFallback">?</div>
+    <div class="pop-num-tag" id="popNum">#0</div>
+  </div>
+  <div class="pop-info-col">
+    <div class="pop-topbar">
+      <div class="pop-event-type" id="popEventType">FIELD GOAL</div>
+      <div class="pop-team-tag" id="popTeamTag">NSMT</div>
+    </div>
+    <div class="pop-main">
+      <div class="pop-name">
+        <span id="popFirst">PLAYER</span><br>
+        <span class="last" id="popLast">NAME</span>
+      </div>
+      <div class="pop-pts-row">
+        <div class="pop-pts-big" id="popPtsTotal">0</div>
+        <div class="pop-pts-meta">
+          <div class="pop-pts-plus" id="popPtsPlus">+2</div>
+          <div class="pop-pts-label">PTS THIS GAME</div>
+        </div>
+      </div>
+    </div>
+    <div class="pop-footer">
+      <div class="pop-footer-info" id="popFooterInfo">LIVE</div>
+      <div class="pop-nsmt">NSMT</div>
+    </div>
+  </div>
+</div>
+<div id="popProgress"><div id="popProgressBar"></div></div>
+
+<!-- ════════════════════════════════
+  3. TIMEOUT GRAPHIC
+════════════════════════════════ -->
+<div id="timeoutGraphic">
+  <div class="timeout-banner">
+    <div class="to-icon">⏱️</div>
+    <div class="to-text">
+      <div class="to-team" id="toTeamName">TEAM NAME</div>
+      <div class="to-type" id="toType">FULL TIMEOUT</div>
+      <div class="to-meta" id="toMeta">Q1 • 4:32 • NSMT BASKETBALL</div>
+    </div>
+    <div class="to-remaining">
+      <div class="to-rem-num" id="toRemNum">3</div>
+      <div class="to-rem-label">Timeouts Left</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+  4. SUBSTITUTION GRAPHIC
+════════════════════════════════ -->
+<div id="subGraphic">
+  <div class="sub-banner">
+    <div class="sub-header">
+      <div class="sub-header-label">SUBSTITUTION</div>
+      <div class="sub-team-badge" id="subTeamBadge">TEAM</div>
+    </div>
+    <div class="sub-players">
+      <div class="sub-player-row">
+        <div class="sub-dir">⬆️</div>
+        <div class="sub-player-num" id="subInNum">#0</div>
+        <div class="sub-player-name" id="subInName">PLAYER IN</div>
+        <div class="sub-direction-label in">ENTERING</div>
+      </div>
+      <div class="sub-divider"></div>
+      <div class="sub-player-row">
+        <div class="sub-dir">⬇️</div>
+        <div class="sub-player-num" id="subOutNum">#0</div>
+        <div class="sub-player-name" id="subOutName">PLAYER OUT</div>
+        <div class="sub-direction-label out">EXITING</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+  5. FOUL GRAPHIC
+════════════════════════════════ -->
+<div id="foulGraphic">
+  <div class="foul-banner">
+    <div class="foul-header">
+      <div class="foul-header-label">🚨 PERSONAL FOUL</div>
+      <div style="margin-left:auto;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3)" id="foulTeamBadge">TEAM</div>
+    </div>
+    <div class="foul-body">
+      <div class="foul-num" id="foulPlayerNum">#0</div>
+      <div class="foul-info">
+        <div class="foul-player-name" id="foulPlayerName">PLAYER NAME</div>
+        <div class="foul-count-row">
+          <div class="foul-pips" id="foulPips"></div>
+          <div class="foul-trouble-badge" id="foulTroubleBadge2" style="display:none">FOUL TROUBLE</div>
+        </div>
+        <div class="foul-meta" id="foulMeta">PERSONAL FOUL #1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+  6. SPECIAL EVENT GRAPHIC
+════════════════════════════════ -->
+<div id="specialGraphic">
+  <div class="special-banner">
+    <div class="special-title" id="specialTitle">HALFTIME</div>
+    <div class="special-scores">
+      <div class="special-team-block">
+        <div class="special-team-code" id="specialAwayCode">AWAY</div>
+        <div class="special-score-num" id="specialAwayScore">0</div>
+      </div>
+      <div class="special-sep">—</div>
+      <div class="special-team-block">
+        <div class="special-score-num" id="specialHomeScore">0</div>
+        <div class="special-team-code" id="specialHomeCode">HOME</div>
+      </div>
+    </div>
+    <div class="special-meta" id="specialMeta">NSMT BASKETBALL</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+  7. STAT FEED (right side)
+════════════════════════════════ -->
+<div id="statFeed"></div>
+
+<!-- ════════════════════════════════
+  8. FOUL TROUBLE BADGE (top right)
+════════════════════════════════ -->
+<div id="foulTroubleBadge"></div>
+
+<!-- ════════════════════════════════
+  DEMO CONTROLS
+════════════════════════════════ -->
+<div id="demoControls">
+  <button class="demo-btn" onclick="demo_score(2)">🏀 2PT Score</button>
+  <button class="demo-btn" onclick="demo_score(3)">🎯 3PT Score</button>
+  <button class="demo-btn" onclick="demo_timeout()">⏱ Timeout</button>
+  <button class="demo-btn" onclick="demo_sub()">🔄 Sub</button>
+  <button class="demo-btn" onclick="demo_foul()">🚨 Foul</button>
+  <button class="demo-btn" onclick="demo_halftime()">🏀 Halftime</button>
+  <button class="demo-btn" onclick="demo_endgame()">🏆 Final</button>
+  <button class="demo-btn ghost" onclick="toggleClock()">⏸ Clock</button>
+</div>
+
+<script type="module">
+// ════════════════════════════════════════════════════════
+// NSMT BROADCAST OVERLAY ENGINE
+// Listens to Firebase overlay/active document
+// Renders ESPN-style graphics on the 1920×1080 canvas
+// ════════════════════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ══════════════════
+// FIREBASE CONFIG
+// Replace with your project config
+// ══════════════════
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+// ══════════════════
+// SETTINGS
+// ══════════════════
+const SETTINGS = {
+  popDuration:    4500,   // ms score pop stays
+  graphicDuration: 5000,  // ms timeout/sub/foul graphic stays
+  specialDuration: 8000,  // ms halftime/final stays
+  feedMaxItems:   4,
+  photoMap: {}  // pid -> Google Drive file ID — paste from Photo Manager
+};
+
+// ══════════════════
+// STATE
+// ══════════════════
+let state = {
+  awayScore: 0, homeScore: 0,
+  awayCode: 'AWAY', homeName: 'Away', awayName: 'Away',
+  homeCode: 'HOME', homeCode2: 'HOME',
+  awayFouls: 0, homeFouls: 0,
+  awayTimeouts: 4, homeTimeouts: 4,
+  period: 'Q1', eventName: 'NSMT BASKETBALL',
+  clockDisplay: '8:00', clockRunning: false,
+  showScorebug: true, showClock: true, showPops: true, showFeed: true,
+};
+let lastGraphicId = null;
+let popTimer = null, graphicTimer = null, specialTimer = null;
+let feedItems = [];
+let clockInterval = null;
+let clockSeconds = 480;
+let clockRunning = false;
+let troublePlayers = [];
+
+// ══════════════════
+// FIREBASE LISTENER
+// ══════════════════
+function startListening() {
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  onSnapshot(doc(db, 'overlay', 'active'), snap => {
+    if (!snap.exists()) return;
+    const data = snap.data();
+    handleStateUpdate(data);
+  });
+}
+
+function handleStateUpdate(data) {
+  // Scoreboard
+  updateScorebug(data);
+
+  // Clock sync from producer
+  if (!data.clockRunning) {
+    stopClock();
+    setClockDisplay(data.clockDisplay || '8:00');
+  } else if (data.clockRunning && !clockRunning) {
+    setClockDisplay(data.clockDisplay || '8:00');
+    startClock();
+  }
+
+  // Overlay visibility toggles
+  if (data.showScorebug !== undefined) document.getElementById('scorebug-wrap').classList.toggle('visible', data.showScorebug);
+  if (data.showFeed !== undefined) document.getElementById('statFeed').style.display = data.showFeed ? 'flex' : 'none';
+
+  // Handle new graphic if present
+  const g = data.graphic;
+  if (g && data.updatedAt !== lastGraphicId) {
+    lastGraphicId = data.updatedAt;
+    if (data.showPops !== false) handleGraphic(g, data);
+  }
+
+  // Add to feed if new score event
+  if (data.lastScoreEvent && data.showFeed !== false) {
+    addToFeed(data.lastScoreEvent, data);
+  }
+}
+
+// ══════════════════
+// SCOREBUG UPDATE
+// ══════════════════
+function updateScorebug(data) {
+  const prevAway = state.awayScore;
+  const prevHome = state.homeScore;
+
+  state = { ...state, ...data };
+
+  // Team codes
+  el('bugAwayCode').textContent       = data.awayCode || 'AWAY';
+  el('bugHomeCode').textContent       = data.homeCode || 'HOME';
+
+  // Logo fallback letters
+  el('bugAwayLogoFallback').textContent = (data.awayCode || 'A').charAt(0);
+  el('bugHomeLogoFallback').textContent = (data.homeCode || 'H').charAt(0);
+
+  // Scores with flash
+  const newAway = data.awayScore ?? 0;
+  const newHome = data.homeScore ?? 0;
+  if (newAway !== prevAway) flashScore('bugAwayScore', newAway);
+  else el('bugAwayScore').textContent = newAway;
+  if (newHome !== prevHome) flashScore('bugHomeScore', newHome);
+  else el('bugHomeScore').textContent = newHome;
+
+  // Period + clock
+  el('bugPeriod').textContent  = data.period || 'Q1';
+  el('bugClock').textContent   = data.clockDisplay || '8:00';
+  const clockEl = el('bugClock');
+  clockEl.className = 'bug-clock ' + (data.clockRunning ? 'running' : 'paused');
+
+  // Ticker
+  el('bugTickerText').textContent = data.eventName ? data.eventName.toUpperCase() + ' • NSMT SPORTS MEDIA' : 'NSMT SPORTS MEDIA';
+
+  // Foul pips
+  renderFoulPips('bugAwayFouls', data.awayFouls || 0);
+  renderFoulPips('bugHomeFouls', data.homeFouls || 0);
+
+  // Timeout pips
+  renderTOPips('bugAwayTOs', data.awayTimeouts ?? 4);
+  renderTOPips('bugHomeTOs', data.homeTimeouts ?? 4);
+}
+
+function flashScore(id, value) {
+  const el2 = el(id);
+  el2.textContent = value;
+  el2.classList.remove('just-scored');
+  void el2.offsetWidth;
+  el2.classList.add('just-scored');
+}
+
+function renderFoulPips(id, count) {
+  const MAX = 6;
+  let html = '';
+  for (let i = 1; i <= MAX; i++) {
+    const on    = i <= count;
+    const bonus = count >= 7 && i === MAX;
+    html += `<div class="bug-foul-pip ${on ? (bonus ? 'bonus' : 'on') : ''}"></div>`;
+  }
+  el(id).innerHTML = html;
+}
+
+function renderTOPips(id, remaining) {
+  const MAX = 4;
+  let html = '';
+  for (let i = 1; i <= MAX; i++) {
+    const used = i > remaining;
+    html += `<div class="bug-to-pip ${used ? '' : 'on'}"></div>`;
+  }
+  el(id).innerHTML = html;
+}
+
+// ══════════════════
+// CLOCK ENGINE
+// Runs locally on overlay, synced from producer
+// ══════════════════
+function setClockDisplay(display) {
+  const parts = display.split(':');
+  clockSeconds = parts.length === 2 ? parseInt(parts[0]) * 60 + parseInt(parts[1]) : parseInt(display) || 0;
+  el('bugClock').textContent = display;
+}
+
+function startClock() {
+  if (clockRunning) return;
+  clockRunning = true;
+  el('bugClock').className = 'bug-clock running';
+  clockInterval = setInterval(() => {
+    if (clockSeconds > 0) {
+      clockSeconds--;
+      const m = Math.floor(clockSeconds / 60);
+      const s = clockSeconds % 60;
+      el('bugClock').textContent = m + ':' + String(s).padStart(2, '0');
+      if (clockSeconds === 0) {
+        stopClock();
+        el('bugClock').className = 'bug-clock expired';
+      }
+    }
+  }, 1000);
+}
+
+function stopClock() {
+  clearInterval(clockInterval);
+  clockInterval = null;
+  clockRunning = false;
+  el('bugClock').className = 'bug-clock paused';
+}
+
+// ══════════════════
+// GRAPHIC DISPATCHER
+// ══════════════════
+function handleGraphic(g, data) {
+  switch(g.type) {
+    case 'TIMEOUT':      fireTimeoutGraphic(g);   break;
+    case 'SUBSTITUTION': fireSubGraphic(g);        break;
+    case 'FOUL':         fireFoulGraphic(g, data); break;
+    case 'HALFTIME':     fireSpecialGraphic('HALFTIME', data); break;
+    case 'END OF GAME':  fireSpecialGraphic('FINAL', data);   break;
+    default:
+      if (g.type && g.type.startsWith('Q') || g.type === 'H2' || g.type?.includes('OT')) {
+        fireSpecialGraphic(g.type, data);
+      }
+  }
+
+  // Also handle score pops from lastEvent
+  if (data.lastEvent && data.showPops !== false) {
+    const e = data.lastEvent;
+    const scoring = ['SHOT_2PT','SHOT_3PT','FT'];
+    if (scoring.includes(e.evt) && e.result === 'made') {
+      const pts = e.pts || (e.evt === 'SHOT_3PT' ? 3 : e.evt === 'FT' ? 1 : 2);
+      const team = e.team === 'away' ? data.awayCode : data.homeCode;
+      const label = pts === 3 ? '3-POINTER' : pts === 1 ? 'FREE THROW' : 'FIELD GOAL';
+      fireScorePop({
+        pid: e.pid, playerName: e.playerName, playerNum: e.playerNum,
+        ptsGame: e.ptsGame, ptsAdded: pts,
+        teamCode: team, eventLabel: label,
+        period: data.period, eventName: data.eventName
+      });
+    }
+  }
+}
+
+// ══════════════════
+// SCORE POP
+// ══════════════════
+function fireScorePop(p) {
+  clearTimeout(popTimer);
+  const pop = el('scorePop');
+  pop.className = '';
+  void pop.offsetWidth;
+
+  const parts = (p.playerName || 'Player').trim().split(' ');
+  const last  = parts.pop();
+  const first = parts.join(' ');
+  el('popFirst').textContent     = first.toUpperCase();
+  el('popLast').textContent      = last.toUpperCase();
+  el('popNum').textContent       = p.playerNum ? '#' + p.playerNum : '';
+  el('popPtsTotal').textContent  = p.ptsGame || p.ptsAdded;
+  el('popPtsPlus').textContent   = '+' + p.ptsAdded;
+  el('popEventType').textContent = p.eventLabel || 'FIELD GOAL';
+  el('popTeamTag').textContent   = p.teamCode || '';
+  el('popFooterInfo').textContent = (p.period || '') + (p.eventName ? ' • ' + p.eventName : '') || 'LIVE';
+
+  // Photo
+  const photoId  = SETTINGS.photoMap[p.pid];
+  const photoUrl = photoId ? `https://drive.google.com/thumbnail?id=${photoId}&sz=w400` : null;
+  const imgEl    = el('popPhoto');
+  const fbEl     = el('popFallback');
+  if (photoUrl) {
+    imgEl.src = photoUrl; imgEl.style.display = 'block'; fbEl.style.display = 'none';
+    imgEl.onerror = () => { imgEl.style.display = 'none'; fbEl.style.display = 'flex'; fbEl.textContent = p.playerNum || '?'; };
+  } else {
+    imgEl.style.display = 'none'; fbEl.style.display = 'flex'; fbEl.textContent = p.playerNum || '?';
+  }
+
+  pop.classList.add('in');
+
+  // Progress bar
+  const bar = el('popProgressBar');
+  bar.classList.remove('drain');
+  el('popProgress').classList.add('show');
+  bar.style.animationDuration = SETTINGS.popDuration + 'ms';
+  void bar.offsetWidth;
+  bar.classList.add('drain');
+
+  popTimer = setTimeout(() => {
+    pop.classList.remove('in'); pop.classList.add('out');
+    el('popProgress').classList.remove('show');
+    setTimeout(() => pop.className = '', 350);
+  }, SETTINGS.popDuration);
+}
+
+// ══════════════════
+// TIMEOUT GRAPHIC
+// ══════════════════
+function fireTimeoutGraphic(g) {
+  clearTimeout(graphicTimer);
+  const gEl = el('timeoutGraphic');
+  gEl.className = '';
+  void gEl.offsetWidth;
+
+  el('toTeamName').textContent = g.teamName || g.teamCode || 'TEAM';
+  el('toType').textContent     = (g.timeoutType || 'TIMEOUT').toUpperCase();
+  el('toMeta').textContent     = [g.period, g.clockAt, g.eventName].filter(Boolean).join(' • ');
+  el('toRemNum').textContent   = g.timeoutsLeft ?? '—';
+
+  gEl.classList.add('in');
+  graphicTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(() => gEl.className = '', 450);
+  }, SETTINGS.graphicDuration);
+
+  addToFeed({ icon: '⏱️', code: g.teamCode, desc: (g.teamName || 'Team') + ' Timeout', pts: 0, isScore: false });
+}
+
+// ══════════════════
+// SUBSTITUTION GRAPHIC
+// ══════════════════
+function fireSubGraphic(g) {
+  clearTimeout(graphicTimer);
+  const gEl = el('subGraphic');
+  gEl.className = ''; void gEl.offsetWidth;
+
+  el('subTeamBadge').textContent = g.teamCode || 'TEAM';
+  el('subInNum').textContent     = g.playerIn  ? '#' + g.playerIn.num  : '#?';
+  el('subInName').textContent    = g.playerIn  ? g.playerIn.name.toUpperCase()  : 'PLAYER IN';
+  el('subOutNum').textContent    = g.playerOut ? '#' + g.playerOut.num : '#?';
+  el('subOutName').textContent   = g.playerOut ? g.playerOut.name.toUpperCase() : 'PLAYER OUT';
+
+  gEl.classList.add('in');
+  graphicTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(() => gEl.className = '', 400);
+  }, SETTINGS.graphicDuration);
+}
+
+// ══════════════════
+// FOUL GRAPHIC
+// ══════════════════
+function fireFoulGraphic(g, data) {
+  clearTimeout(graphicTimer);
+  const gEl = el('foulGraphic');
+  gEl.className = ''; void gEl.offsetWidth;
+
+  const p = g.player || {};
+  el('foulTeamBadge').textContent  = g.teamCode || 'TEAM';
+  el('foulPlayerNum').textContent  = p.num ? '#' + p.num : '#?';
+  el('foulPlayerName').textContent = p.name ? p.name.toUpperCase() : 'PLAYER';
+  el('foulMeta').textContent       = `PERSONAL FOUL #${p.fouls || 1} • ${g.period || ''} ${g.clockAt ? '• ' + g.clockAt : ''}`;
+
+  // Foul pips
+  let pipsHtml = '';
+  for (let i = 1; i <= 5; i++) {
+    const on = i <= (p.fouls || 0);
+    const trouble = on && (p.fouls || 0) >= 4;
+    pipsHtml += `<div class="foul-pip-circle ${on ? (trouble ? 'trouble' : 'on') : ''}"></div>`;
+  }
+  el('foulPips').innerHTML = pipsHtml;
+
+  const troubleBadge = el('foulTroubleBadge2');
+  troubleBadge.style.display = (p.fouls || 0) >= 4 ? 'flex' : 'none';
+
+  // Update foul trouble sidebar
+  if (g.inTrouble) {
+    addTroubleBadge({ num: p.num, name: p.name, fouls: p.fouls, teamCode: g.teamCode });
+  }
+
+  gEl.classList.add('in');
+  graphicTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(() => gEl.className = '', 400);
+  }, SETTINGS.graphicDuration);
+}
+
+// ══════════════════
+// SPECIAL GRAPHIC
+// ══════════════════
+function fireSpecialGraphic(type, data) {
+  clearTimeout(specialTimer);
+  const gEl = el('specialGraphic');
+  gEl.className = ''; void gEl.offsetWidth;
+
+  el('specialTitle').textContent     = type;
+  el('specialAwayCode').textContent  = data.awayCode  || 'AWAY';
+  el('specialHomeCode').textContent  = data.homeCode  || 'HOME';
+  el('specialAwayScore').textContent = data.awayScore ?? 0;
+  el('specialHomeScore').textContent = data.homeScore ?? 0;
+  el('specialMeta').textContent      = data.eventName || 'NSMT BASKETBALL';
+
+  gEl.classList.add('in');
+  specialTimer = setTimeout(() => {
+    gEl.classList.remove('in'); gEl.classList.add('out');
+    setTimeout(() => gEl.className = '', 500);
+  }, SETTINGS.specialDuration);
+}
+
+// ══════════════════
+// FOUL TROUBLE SIDEBAR
+// ══════════════════
+function addTroubleBadge(p) {
+  troublePlayers = troublePlayers.filter(x => x.num !== p.num);
+  troublePlayers.unshift(p);
+  if (troublePlayers.length > 4) troublePlayers.pop();
+
+  const container = el('foulTroubleBadge');
+  container.innerHTML = troublePlayers.map(tp => `
+    <div class="trouble-chip">
+      <div class="trouble-chip-num">#${tp.num}</div>
+      <div class="trouble-chip-name">${tp.name ? tp.name.split(' ').pop().toUpperCase() : 'PLAYER'}</div>
+      <div class="trouble-chip-fouls">${tp.fouls}PF</div>
+    </div>`).join('');
+  container.classList.add('show');
+}
+
+// ══════════════════
+// EVENT FEED (right)
+// ══════════════════
+const eventIcons = {
+  SHOT_2PT:'🏀', SHOT_3PT:'🎯', FT:'⭕',
+  OREB:'💪', DREB:'🛡️', AST:'🤝',
+  STL:'⚡', BLK:'✋', TO:'💸', PF:'🚨'
+};
+
+function addToFeed(evt, data) {
+  const isScore = ['SHOT_2PT','SHOT_3PT','FT'].includes(evt.evt) && evt.result === 'made';
+  const code    = data ? (evt.team === 'away' ? data.awayCode : data.homeCode) : evt.code;
+  const icon    = eventIcons[evt.evt] || evt.icon || '📊';
+  const name    = evt.playerName ? evt.playerName.split(' ').pop().toUpperCase() : (evt.desc || 'EVENT');
+
+  feedItems.unshift({ icon, code, name, pts: evt.pts || 0, isScore });
+  if (feedItems.length > SETTINGS.feedMaxItems) feedItems.pop();
+  renderFeed();
+}
+
+function renderFeed() {
+  el('statFeed').innerHTML = feedItems.map((item, i) => `
+    <div class="stat-chip ${item.isScore ? '' : 'non-score'}" style="opacity:${1 - i * 0.18}">
+      <span class="chip-icon">${item.icon}</span>
+      <span class="chip-text">${item.code} — ${item.name}</span>
+      ${item.pts > 0 ? `<span class="chip-pts">+${item.pts}</span>` : ''}
+    </div>`).join('');
+}
+
+// ══════════════════
+// HELPERS
+// ══════════════════
+function el(id) { return document.getElementById(id); }
+
+// ══════════════════
+// DEMO FUNCTIONS
+// ══════════════════
+const demoPlayers = [
+  { name:'Jymin Veney',       num:'11', pid:'d1', team:'away', code:'SJC', pts:18 },
+  { name:'Jordan Taylor',     num:'21', pid:'d2', team:'away', code:'SJC', pts:12 },
+  { name:'Jordan Smith',      num:'23', pid:'d3', team:'home', code:'PVI', pts:15 },
+  { name:'Brian Mitchell Jr', num:'22', pid:'d4', team:'home', code:'PVI', pts: 9 },
+];
+let demoIdx = 0, awayScore = 0, homeScore = 0;
+
+const demoData = () => ({
+  awayName:'St. John\'s', awayCode:'SJC', awayScore,
+  homeName:'Paul VI',     homeCode:'PVI', homeScore,
+  awayFouls:2, homeFouls:3, awayTimeouts:3, homeTimeouts:2,
+  period:'Q3', eventName:'WCAC CHAMPIONSHIP',
+  clockDisplay:'4:32', clockRunning: false,
+  showScorebug:true, showPops:true, showFeed:true,
+});
+
+window.demo_score = function(pts) {
+  document.getElementById('demoLabel').style.display = 'block';
+  document.getElementById('demoControls').style.display = 'flex';
+  const p = demoPlayers[demoIdx % demoPlayers.length]; demoIdx++;
+  p.pts += pts;
+  if (p.team === 'away') awayScore += pts; else homeScore += pts;
+  const d = demoData();
+  updateScorebug(d);
+  el('scorebug-wrap').classList.add('visible');
+  addToFeed({ evt: pts === 3 ? 'SHOT_3PT' : 'SHOT_2PT', result:'made', playerName: p.name, pts, team: p.team }, d);
+  fireScorePop({ pid:p.pid, playerName:p.name, playerNum:p.num, ptsGame:p.pts, ptsAdded:pts, teamCode:p.code, eventLabel: pts===3?'3-POINTER':'FIELD GOAL', period:'Q3', eventName:'WCAC' });
+};
+
+window.demo_timeout = function() {
+  document.getElementById('demoLabel').style.display = 'block';
+  const d = demoData();
+  updateScorebug(d);
+  el('scorebug-wrap').classList.add('visible');
+  fireTimeoutGraphic({ teamName:"St. John's", teamCode:'SJC', timeoutType:'Full Timeout', timeoutsLeft:2, period:'Q3', clockAt:'4:32', eventName:'WCAC CHAMPIONSHIP' });
+};
+
+window.demo_sub = function() {
+  document.getElementById('demoLabel').style.display = 'block';
+  el('scorebug-wrap').classList.add('visible');
+  fireSubGraphic({ teamCode:'PVI', playerIn:{num:'5',name:'Marcus Johnson'}, playerOut:{num:'22',name:'Brian Mitchell Jr'}, period:'Q3', clockAt:'4:32' });
+};
+
+window.demo_foul = function() {
+  document.getElementById('demoLabel').style.display = 'block';
+  el('scorebug-wrap').classList.add('visible');
+  fireFoulGraphic({ teamCode:'SJC', player:{num:'11',name:'Jymin Veney',fouls:4}, inTrouble:true, period:'Q3', clockAt:'4:32' }, demoData());
+};
+
+window.demo_halftime = function() {
+  document.getElementById('demoLabel').style.display = 'block';
+  const d = demoData();
+  updateScorebug(d); el('scorebug-wrap').classList.add('visible');
+  fireSpecialGraphic('HALFTIME', d);
+};
+
+window.demo_endgame = function() {
+  document.getElementById('demoLabel').style.display = 'block';
+  const d = { ...demoData(), awayScore:48, homeScore:52 };
+  updateScorebug(d); el('scorebug-wrap').classList.add('visible');
+  fireSpecialGraphic('FINAL', d);
+};
+
+let clockDemo = false;
+window.toggleClock = function() {
+  clockDemo = !clockDemo;
+  if (clockDemo) { setClockDisplay('4:32'); startClock(); }
+  else stopClock();
+};
+
+// ══════════════════
+// BOOT
+// ══════════════════
+if (firebaseConfig.apiKey === 'YOUR_API_KEY') {
+  // Demo mode
+  document.getElementById('demoLabel').style.display = 'block';
+  document.getElementById('demoControls').style.display = 'flex';
+  // Auto-demo scorebug
+  setTimeout(() => {
+    updateScorebug({ awayName:"St. John's", awayCode:'SJC', awayScore:0, homeName:'Paul VI', homeCode:'PVI', homeScore:0, awayFouls:0, homeFouls:0, awayTimeouts:4, homeTimeouts:4, period:'Q1', eventName:'WCAC CHAMPIONSHIP', clockDisplay:'8:00', clockRunning:false });
+    el('scorebug-wrap').classList.add('visible');
+  }, 300);
+} else {
+  document.getElementById('demoControls').style.display = 'none';
+  startListening();
+  // Always show scorebug when connected (producer controls visibility)
+  el('scorebug-wrap').classList.add('visible');
+}
+</script>
+</body>
+</html>

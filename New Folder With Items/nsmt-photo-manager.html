@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSMT Photo Manager</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #F5C518; --bg: #080809; --surf: #111114; --surf2: #18181c;
+  --border: #26262e; --text: #f0f0f0; --muted: #666674; --green: #2dc653;
+  --red: #e63946; --blue: #1877F2; --r: 10px;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+.header { background: #000; border-bottom: 2px solid var(--gold); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+.header-logo { font-family: 'Bebas Neue', cursive; font-size: 24px; color: var(--blue); letter-spacing: 4px; }
+.header-title { font-family: 'Bebas Neue', cursive; font-size: 20px; color: var(--text); letter-spacing: 1px; }
+.header-badge { background: rgba(245,197,24,.12); border: 1px solid rgba(245,197,24,.2); color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+
+/* LAYOUT */
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+/* TABS */
+.tabs { display: flex; gap: 0; background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 24px; }
+.tab-btn { flex: 1; padding: 12px; text-align: center; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .5px; color: var(--muted); cursor: pointer; background: none; border: none; border-right: 1px solid var(--border); transition: all .15s; }
+.tab-btn:last-child { border-right: none; }
+.tab-btn.active { background: var(--gold); color: #000; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* CARDS */
+.card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; margin-bottom: 16px; }
+.card-title { font-family: 'Bebas Neue', cursive; font-size: 15px; letter-spacing: 2px; color: var(--gold); margin-bottom: 16px; }
+
+/* FORM */
+label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+input, select { background: var(--surf2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; border-radius: var(--r); outline: none; width: 100%; transition: border-color .2s; }
+input:focus, select:focus { border-color: var(--gold); }
+.field { margin-bottom: 14px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 700; border-radius: var(--r); padding: 11px 18px; font-size: 14px; transition: transform .1s, opacity .15s; }
+.btn:active { transform: scale(.97); opacity: .85; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-surf { background: var(--surf2); color: var(--text); border: 1px solid var(--border); }
+.btn-red { background: var(--red); color: #fff; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-full { width: 100%; }
+
+/* PLAYER GRID */
+.player-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.player-card { background: var(--surf2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; transition: border-color .2s; }
+.player-card:hover { border-color: rgba(245,197,24,.3); }
+.player-card.has-photo { border-color: rgba(45,198,83,.3); }
+
+.player-photo-area { aspect-ratio: 3/4; background: #0a0a0a; position: relative; overflow: hidden; }
+.player-photo-img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.player-photo-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+.player-photo-placeholder:hover { background: rgba(245,197,24,.06); }
+.player-num-display { font-family: 'Bebas Neue', cursive; font-size: 56px; color: rgba(245,197,24,.25); line-height: 1; }
+.player-upload-hint { font-size: 11px; color: var(--muted); font-weight: 600; }
+.photo-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; transition: opacity .2s; }
+.player-photo-area:hover .photo-overlay { opacity: 1; }
+.photo-action-btn { background: var(--gold); color: #000; border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.photo-remove-btn { background: var(--red); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+.player-card-info { padding: 10px 12px; }
+.player-card-name { font-weight: 700; font-size: 13px; line-height: 1.2; }
+.player-card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.player-card-drive { margin-top: 8px; }
+.player-card-drive input { font-size: 11px; padding: 7px 9px; }
+.drive-status { font-size: 10px; margin-top: 4px; font-weight: 700; }
+.drive-status.ok { color: var(--green); }
+.drive-status.empty { color: var(--muted); }
+
+/* TEAM FILTER */
+.team-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-btn { background: var(--surf2); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 20px; cursor: pointer; transition: all .15s; }
+.filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+
+/* INFO BOX */
+.info-box { background: rgba(24,119,242,.08); border: 1px solid rgba(24,119,242,.2); border-radius: var(--r); padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: var(--text); line-height: 1.7; }
+.info-box strong { color: var(--blue); }
+.info-box code { background: rgba(255,255,255,.08); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+
+/* PHOTO MAP OUTPUT */
+.output-block { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 12px; color: #7ec8e3; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+.copy-btn { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+
+/* HOW TO SECTION */
+.step-list { counter-reset: steps; }
+.step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+.step-num { background: var(--gold); color: #000; font-family: 'Bebas Neue', cursive; font-size: 16px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-body { background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; flex: 1; }
+.step-title { font-weight: 700; font-size: 14px; color: var(--gold); margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+/* TAG */
+.tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+.tag-green { background: rgba(45,198,83,.18); color: var(--green); }
+.tag-gold { background: rgba(245,197,24,.15); color: var(--gold); }
+
+/* TOAST */
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #222; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity .25s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">NSMT</div>
+  <div class="header-title">Photo Manager & Overlay Config</div>
+  <div class="header-badge">OBS Integration</div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('photos', this)">📸 Player Photos</button>
+    <button class="tab-btn" onclick="showTab('config', this)">⚙️ Overlay Config</button>
+    <button class="tab-btn" onclick="showTab('howto', this)">📋 Setup Guide</button>
+    <button class="tab-btn" onclick="showTab('test', this)">🧪 Test Overlay</button>
+  </div>
+
+  <!-- ═══ PHOTOS TAB ═══ -->
+  <div id="tab-photos" class="tab-pane active">
+
+    <div class="info-box">
+      <strong>How player photos work:</strong> Each player in your roster needs their Google Drive headshot photo linked to their player ID. Paste the <strong>Google Drive file ID</strong> for each player (the long string in the share URL). Photos must be shared as <strong>"Anyone with the link can view"</strong> in Google Drive. Once linked, photos auto-pull in the overlay whenever that player scores.
+    </div>
+
+    <!-- Load from Roster -->
+    <div class="card">
+      <div class="card-title">Load Players from Saved Roster</div>
+      <div class="two-col">
+        <div class="field">
+          <label>Select Saved Roster</label>
+          <select id="rosterSelect" onchange="loadRosterPlayers()">
+            <option value="">— Choose a roster —</option>
+          </select>
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end">
+          <button class="btn btn-gold" onclick="loadRosterPlayers()">Load Players</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team filter -->
+    <div class="team-filters" id="teamFilters"></div>
+
+    <!-- Player grid -->
+    <div class="player-grid" id="playerGrid">
+      <div style="color:var(--muted);font-size:13px;padding:20px 0;grid-column:1/-1">Load a roster above to see players</div>
+    </div>
+
+    <!-- Save button -->
+    <div style="margin-top:20px;display:flex;gap:10px">
+      <button class="btn btn-gold" onclick="savePhotoMap()">💾 Save Photo Assignments</button>
+      <button class="btn btn-surf" onclick="copyPhotoMap()">📋 Copy Photo Map for Overlay</button>
+    </div>
+
+  </div>
+
+  <!-- ═══ CONFIG TAB ═══ -->
+  <div id="tab-config" class="tab-pane">
+
+    <div class="card">
+      <div class="card-title">Firebase Config</div>
+      <div class="info-box" style="margin-bottom:16px">
+        Paste your Firebase config here. This is the same config from your NSMT Stats app. The overlay and stats app must use the <strong>same Firebase project</strong> so they can talk to each other.
+      </div>
+      <div class="field"><label>API Key</label><input type="text" id="cfgApiKey" placeholder="AIzaSy..."></div>
+      <div class="two-col">
+        <div class="field"><label>Auth Domain</label><input type="text" id="cfgAuthDomain" placeholder="yourproject.firebaseapp.com"></div>
+        <div class="field"><label>Project ID</label><input type="text" id="cfgProjectId" placeholder="yourproject-id"></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Storage Bucket</label><input type="text" id="cfgBucket" placeholder="yourproject.appspot.com"></div>
+        <div class="field"><label>Messaging Sender ID</label><input type="text" id="cfgSenderId" placeholder="123456789"></div>
+      </div>
+      <div class="field"><label>App ID</label><input type="text" id="cfgAppId" placeholder="1:123:web:abc..."></div>
+      <button class="btn btn-gold" onclick="saveConfig()">💾 Save Config</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Overlay Display Settings</div>
+      <div class="two-col">
+        <div class="field"><label>Card Display Duration (seconds)</label><input type="number" id="cfgDuration" value="4.5" min="2" max="10" step="0.5"></div>
+        <div class="field"><label>Card Position</label>
+          <select id="cfgPosition">
+            <option value="bottom-left">Bottom Left (default)</option>
+            <option value="bottom-right">Bottom Right</option>
+            <option value="top-left">Top Left</option>
+            <option value="top-right">Top Right</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Show Scoreboard Bar</label>
+          <select id="cfgShowScoreboard">
+            <option value="true">Yes — show at top</option>
+            <option value="false">No — overlay only</option>
+          </select>
+        </div>
+        <div class="field"><label>Show Event Feed</label>
+          <select id="cfgShowFeed">
+            <option value="true">Yes — show right side</option>
+            <option value="false">No — score pops only</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="saveDisplaySettings()">💾 Save Settings</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Generated Overlay Config</div>
+      <div class="info-box" style="margin-bottom:12px">Copy this block and paste it into the <code>SETTINGS</code> and <code>firebaseConfig</code> sections of your <code>nsmt-obs-overlay.html</code> file.</div>
+      <div class="output-block" id="configOutput">// Click "Generate Config" to output</div>
+      <div class="copy-btn">
+        <button class="btn btn-surf" onclick="generateConfig()">⚙️ Generate Config</button>
+        <button class="btn btn-ghost" onclick="copyConfig()">📋 Copy</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ HOW TO TAB ═══ -->
+  <div id="tab-howto" class="tab-pane">
+
+    <div class="card">
+      <div class="card-title">Full Setup Guide — OBS Player Overlay</div>
+
+      <div class="step-list">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Set Up Firebase (one time, ~20 minutes)</div>
+            <div class="step-desc">
+              Go to <strong>console.firebase.google.com</strong> → Create a new project → Name it "nsmt-stats".<br><br>
+              Enable <strong>Firestore Database</strong> (start in test mode).<br>
+              Enable <strong>Authentication</strong> → Google sign-in provider.<br>
+              Go to Project Settings → Your Apps → Add Web App → copy the <code>firebaseConfig</code> object.<br><br>
+              Paste that config into the <strong>Overlay Config tab</strong> above and also into your NSMT Stats app file.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Update Your NSMT Stats App to Write Overlay State</div>
+            <div class="step-desc">
+              Your stat app needs to write a special <code>overlay/active</code> document to Firestore every time a stat is logged. This doc contains the current score, period, and last event. Add this to your <code>saveGame()</code> function:<br><br>
+              <code style="display:block;background:#000;padding:12px;border-radius:6px;line-height:1.8;font-size:12px;color:#7ec8e3">
+// In saveGame(), after saving locally:<br>
+if (window._firebase && G.status === 'live') {<br>
+&nbsp;&nbsp;const { db, doc, setDoc } = window._firebase;<br>
+&nbsp;&nbsp;const aScore = calcTeamScore(G, 'away');<br>
+&nbsp;&nbsp;const hScore = calcTeamScore(G, 'home');<br>
+&nbsp;&nbsp;const lastEvt = G.events[G.events.length - 1];<br>
+&nbsp;&nbsp;const p = lastEvt ? G[lastEvt.team]?.players?.find(x => x.id === lastEvt.pid) : null;<br>
+&nbsp;&nbsp;const pStats = lastEvt ? G.stats[lastEvt.pid] : null;<br>
+&nbsp;&nbsp;setDoc(doc(db, 'overlay', 'active'), {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;awayName: G.away.name, awayCode: G.away.code, awayScore: aScore,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;homeName: G.home.name, homeCode: G.home.code, homeScore: hScore,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;period: G.currentPeriod, eventName: G.event || 'LIVE',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;lastEvent: lastEvt ? {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...lastEvt,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;playerName: p?.name || '',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;playerNum: p?.num || '',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ptsGame: pStats ? calcPts(pStats) : 0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;} : null,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;updatedAt: Date.now()<br>
+&nbsp;&nbsp;});<br>
+}
+              </code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Set Up Player Headshots from Google Drive</div>
+            <div class="step-desc">
+              Upload your player headshots to a Google Drive folder.<br><br>
+              For each photo: Right-click → Share → Change to <strong>"Anyone with the link"</strong> → Copy link.<br><br>
+              The file ID is the long string in the URL: <code>drive.google.com/file/d/<strong>THIS_IS_THE_ID</strong>/view</code><br><br>
+              Go to the <strong>Player Photos tab</strong> on this page, load your roster, and paste each player's Drive file ID into their card. Hit Save.<br><br>
+              The overlay will pull the thumbnail automatically using: <code>drive.google.com/thumbnail?id=FILE_ID&sz=w400</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Add the Overlay to OBS</div>
+            <div class="step-desc">
+              In OBS, go to your game scene → click <strong>+ in Sources</strong> → add <strong>Browser Source</strong>.<br><br>
+              Settings:<br>
+              • URL: <code>file:///path/to/nsmt-obs-overlay.html</code> (or host it at overlay.thensmt.com)<br>
+              • Width: <strong>1920</strong><br>
+              • Height: <strong>1080</strong><br>
+              • ✅ Check "Transparent background"<br>
+              • FPS: 60<br><br>
+              Place this Browser Source <strong>above</strong> your game camera/stream capture in the source list so it appears on top.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Test Before Game Day</div>
+            <div class="step-desc">
+              Open <code>nsmt-obs-overlay.html</code> directly in Chrome to test it. You'll see demo buttons bottom-right.<br><br>
+              Click "Demo 2PT" and "Demo 3PT" to see the score pop card fire. Adjust the timing in <code>SETTINGS.displayDuration</code> if you want it to show longer or shorter.<br><br>
+              Once Firebase is connected and the stats app is running a test game, the real overlay will fire automatically whenever you log a basket.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">Game Day Workflow</div>
+            <div class="step-desc">
+              1. OBS computer opens the overlay URL in its Browser Source (auto-connects to Firebase)<br>
+              2. Stat-keeper opens NSMT Stats app on their iPad/phone, signs in with Google<br>
+              3. Start a new game in the stats app<br>
+              4. Every time a basket is logged → Firebase fires → overlay pops within 1–2 seconds<br>
+              5. Scoreboard bar updates live at the top of the stream<br><br>
+              The stat-keeper and OBS computer don't need to be on the same Wi-Fi. Any internet connection on both sides is all that's needed.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ TEST TAB ═══ -->
+  <div id="tab-test" class="tab-pane">
+    <div class="card">
+      <div class="card-title">Overlay Preview</div>
+      <div class="info-box" style="margin-bottom:16px">This is a live preview of the overlay scaled to fit. The actual overlay runs at <strong>1920×1080</strong> in OBS as a transparent Browser Source.</div>
+      <div style="position:relative;background:#1a1a1a;border:1px solid var(--border);border-radius:8px;overflow:hidden;padding-top:56.25%;margin-bottom:12px">
+        <iframe
+          id="overlayPreview"
+          src="nsmt-obs-overlay.html"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform-origin:top left;"
+          scrolling="no">
+        </iframe>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="triggerDemo('2pt')">🏀 Fire 2PT</button>
+        <button class="btn btn-gold" onclick="triggerDemo('3pt')">🎯 Fire 3PT</button>
+        <button class="btn btn-surf" onclick="triggerDemo('steal')">⚡ Fire Steal</button>
+        <button class="btn btn-ghost" onclick="reloadPreview()">🔄 Reload</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">OBS Browser Source Settings</div>
+      <div style="background:#000;border-radius:8px;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;color:var(--muted);width:40%">URL</td><td style="padding:10px 14px;color:var(--text)"><code>file:///path/to/nsmt-obs-overlay.html</code><br><small style="color:var(--muted)">or host at overlay.thensmt.com</small></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;color:var(--muted)">Width</td><td style="padding:10px 14px;color:var(--gold);font-weight:700">1920</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;color:var(--muted)">Height</td><td style="padding:10px 14px;color:var(--gold);font-weight:700">1080</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;color:var(--muted)">FPS</td><td style="padding:10px 14px;color:var(--text)">60</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;color:var(--muted)">Transparent background</td><td style="padding:10px 14px;color:var(--green);font-weight:700">✅ Must be checked</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;color:var(--muted)">Refresh browser when scene becomes active</td><td style="padding:10px 14px;color:var(--text)">✅ Check this too</td></tr>
+          <tr><td style="padding:10px 14px;color:var(--muted)">Source order in scene</td><td style="padding:10px 14px;color:var(--text)">⬆️ Place ABOVE all other sources (camera, gameplay, etc.)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════
+const DB = {
+  get(k, def=null){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch{ return def; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ console.warn(e); } }
+};
+
+// ═══════════════════════════════════════════
+// ROSTER LOAD
+// ═══════════════════════════════════════════
+let allPlayers = []; // { pid, name, num, team, teamCode }
+let photoMap   = DB.get('nsmt_photoMap', {}); // pid -> driveFileId
+let currentFilter = 'all';
+
+function init() {
+  const rosters = DB.get('rosters', []);
+  const sel = document.getElementById('rosterSelect');
+  rosters.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = `${r.name} (${r.players?.length || 0} players)`;
+    sel.appendChild(opt);
+  });
+  loadConfig();
+}
+
+function loadRosterPlayers() {
+  const rid = document.getElementById('rosterSelect').value;
+  if (!rid) return;
+  const rosters = DB.get('rosters', []);
+  const r = rosters.find(x => x.id === rid);
+  if (!r) return;
+
+  allPlayers = r.players.map(p => ({
+    pid: p.id, name: p.name, num: p.num || '—',
+    team: r.name, teamCode: r.code || r.name.slice(0,3).toUpperCase()
+  }));
+
+  renderTeamFilters();
+  renderPlayerGrid();
+  toast(`${allPlayers.length} players loaded from ${r.name}`);
+}
+
+function renderTeamFilters() {
+  const teams = [...new Set(allPlayers.map(p => p.team))];
+  const el = document.getElementById('teamFilters');
+  el.innerHTML = `<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all',this)">All Players</button>` +
+    teams.map(t => `<button class="filter-btn ${currentFilter===t?'active':''}" onclick="setFilter('${t}',this)">${t}</button>`).join('');
+}
+
+function setFilter(team, btn) {
+  currentFilter = team;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPlayerGrid();
+}
+
+function renderPlayerGrid() {
+  const filtered = currentFilter === 'all' ? allPlayers : allPlayers.filter(p => p.team === currentFilter);
+  const el = document.getElementById('playerGrid');
+
+  if (!filtered.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;grid-column:1/-1">No players found</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(p => {
+    const driveId = photoMap[p.pid] || '';
+    const photoUrl = driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w400` : '';
+    const hasPhoto = !!driveId;
+
+    return `
+      <div class="player-card ${hasPhoto ? 'has-photo' : ''}" id="card-${p.pid}">
+        <div class="player-photo-area">
+          ${photoUrl
+            ? `<img class="player-photo-img" src="${photoUrl}" onerror="this.style.display='none';document.getElementById('fallback-${p.pid}').style.display='flex'">`
+            : ''
+          }
+          <div class="player-photo-placeholder" id="fallback-${p.pid}" style="display:${photoUrl?'none':'flex'}" onclick="document.getElementById('driveInput-${p.pid}').focus()">
+            <div class="player-num-display">${p.num}</div>
+            <div class="player-upload-hint">Paste Drive ID below</div>
+          </div>
+          ${photoUrl ? `
+          <div class="photo-overlay">
+            <button class="photo-action-btn" onclick="document.getElementById('driveInput-${p.pid}').focus()">Change</button>
+            <button class="photo-remove-btn" onclick="removePhoto('${p.pid}')">Remove</button>
+          </div>` : ''}
+        </div>
+        <div class="player-card-info">
+          <div class="player-card-name">#${p.num} ${p.name}</div>
+          <div class="player-card-sub">${p.team} <span class="tag tag-gold">${p.teamCode}</span></div>
+          <div class="player-card-drive">
+            <label>Google Drive File ID</label>
+            <input type="text" id="driveInput-${p.pid}" value="${driveId}" placeholder="1aBcDeFgHiJkL..." oninput="updateDriveId('${p.pid}', this.value)">
+            <div class="drive-status ${hasPhoto ? 'ok' : 'empty'}" id="status-${p.pid}">${hasPhoto ? '✓ Photo linked' : 'No photo linked'}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateDriveId(pid, val) {
+  photoMap[pid] = val.trim();
+  const card = document.getElementById('card-' + pid);
+  const status = document.getElementById('status-' + pid);
+  const hasPhoto = !!val.trim();
+  if (card) card.classList.toggle('has-photo', hasPhoto);
+  if (status) {
+    status.textContent = hasPhoto ? '✓ Photo linked' : 'No photo linked';
+    status.className = 'drive-status ' + (hasPhoto ? 'ok' : 'empty');
+  }
+}
+
+function removePhoto(pid) {
+  photoMap[pid] = '';
+  updateDriveId(pid, '');
+  const input = document.getElementById('driveInput-' + pid);
+  if (input) input.value = '';
+  renderPlayerGrid();
+}
+
+function savePhotoMap() {
+  // Collect current inputs
+  allPlayers.forEach(p => {
+    const input = document.getElementById('driveInput-' + p.pid);
+    if (input) photoMap[p.pid] = input.value.trim();
+  });
+  DB.set('nsmt_photoMap', photoMap);
+  toast('Photo assignments saved ✓');
+}
+
+function copyPhotoMap() {
+  const entries = Object.entries(photoMap).filter(([,v]) => v);
+  const output = `photoMap: {\n${entries.map(([k,v]) => `  '${k}': '${v}'`).join(',\n')}\n}`;
+  navigator.clipboard.writeText(output).then(() => toast('Photo map copied to clipboard ✓'));
+}
+
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+function loadConfig() {
+  const cfg = DB.get('nsmt_obsConfig', {});
+  if (cfg.apiKey)    document.getElementById('cfgApiKey').value    = cfg.apiKey;
+  if (cfg.authDomain) document.getElementById('cfgAuthDomain').value = cfg.authDomain;
+  if (cfg.projectId) document.getElementById('cfgProjectId').value = cfg.projectId;
+  if (cfg.bucket)    document.getElementById('cfgBucket').value    = cfg.bucket;
+  if (cfg.senderId)  document.getElementById('cfgSenderId').value  = cfg.senderId;
+  if (cfg.appId)     document.getElementById('cfgAppId').value     = cfg.appId;
+  if (cfg.duration)  document.getElementById('cfgDuration').value  = cfg.duration;
+}
+
+function saveConfig() {
+  const cfg = {
+    apiKey:     document.getElementById('cfgApiKey').value.trim(),
+    authDomain: document.getElementById('cfgAuthDomain').value.trim(),
+    projectId:  document.getElementById('cfgProjectId').value.trim(),
+    bucket:     document.getElementById('cfgBucket').value.trim(),
+    senderId:   document.getElementById('cfgSenderId').value.trim(),
+    appId:      document.getElementById('cfgAppId').value.trim(),
+    duration:   document.getElementById('cfgDuration').value,
+  };
+  DB.set('nsmt_obsConfig', cfg);
+  toast('Config saved ✓');
+}
+
+function saveDisplaySettings() {
+  const cfg = DB.get('nsmt_obsConfig', {});
+  cfg.duration       = document.getElementById('cfgDuration').value;
+  cfg.position       = document.getElementById('cfgPosition').value;
+  cfg.showScoreboard = document.getElementById('cfgShowScoreboard').value;
+  cfg.showFeed       = document.getElementById('cfgShowFeed').value;
+  DB.set('nsmt_obsConfig', cfg);
+  toast('Display settings saved ✓');
+}
+
+function generateConfig() {
+  const cfg = DB.get('nsmt_obsConfig', {});
+  const photos = DB.get('nsmt_photoMap', {});
+  const photoEntries = Object.entries(photos).filter(([,v]) => v);
+
+  const output = `// ═══════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "${cfg.apiKey || 'YOUR_API_KEY'}",
+  authDomain:        "${cfg.authDomain || 'YOUR_PROJECT.firebaseapp.com'}",
+  projectId:         "${cfg.projectId || 'YOUR_PROJECT_ID'}",
+  storageBucket:     "${cfg.bucket || 'YOUR_PROJECT.appspot.com'}",
+  messagingSenderId: "${cfg.senderId || 'YOUR_SENDER_ID'}",
+  appId:             "${cfg.appId || 'YOUR_APP_ID'}"
+};
+
+// ═══════════════════════════════════
+// OVERLAY SETTINGS
+// ═══════════════════════════════════
+const SETTINGS = {
+  displayDuration: ${(parseFloat(cfg.duration || 4.5) * 1000)},
+  progressDuration: ${(parseFloat(cfg.duration || 4.5) * 1000)},
+  showScoreboard: ${cfg.showScoreboard || 'true'},
+  showFeed: ${cfg.showFeed || 'true'},
+  feedMaxItems: 4,
+  photoBaseUrl: '',
+  photoMap: {
+${photoEntries.map(([k,v]) => `    '${k}': '${v}'`).join(',\n')}
+  }
+};`;
+
+  document.getElementById('configOutput').textContent = output;
+  toast('Config generated ✓');
+}
+
+function copyConfig() {
+  const text = document.getElementById('configOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => toast('Config copied to clipboard ✓'));
+}
+
+// ═══════════════════════════════════════════
+// TEST / PREVIEW
+// ═══════════════════════════════════════════
+function triggerDemo(type) {
+  const frame = document.getElementById('overlayPreview');
+  if (!frame.contentWindow) return;
+  if (type === '2pt') frame.contentWindow.fireDemoScore(2);
+  else if (type === '3pt') frame.contentWindow.fireDemoScore(3);
+  else if (type === 'steal') frame.contentWindow.fireDemoNonScore();
+}
+
+function reloadPreview() {
+  const frame = document.getElementById('overlayPreview');
+  frame.src = frame.src;
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+init();
+</script>
+</body>
+</html>
