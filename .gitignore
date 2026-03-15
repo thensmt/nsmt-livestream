@@ -1,6 +1,12 @@
 # Large design asset folder (store in Google Drive)
 Livestream/NSMT Logo - Final Files/
 
+# Old scratch/working folder
+New Folder With Items/
+
+# Separate repo — not a submodule
+content-pipeline/
+
 # Capacitor-generated native projects (regenerated via `cap add`)
 nsmt-app/ios/
 nsmt-app/android/
