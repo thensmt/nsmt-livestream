@@ -86,6 +86,22 @@ This is the most complex file. It is a single-page app with screen-based navigat
 - Plugins installed: `@capacitor/filesystem`, `@capacitor/share`
 - After any change to `Livestream/nsmt-stats.html`, run `npm run build && npx cap sync ios` from `nsmt-app/`
 
+## Git Workflow
+
+After every meaningful change, commit and push automatically:
+
+```bash
+cd /Users/david/Downloads/Claude/NSMT
+git add -A
+git commit -m "description"
+git push
+```
+
+- Always use `git push` after committing — do not wait to be asked
+- Commit after each logical change (don't batch unrelated changes into one commit)
+- Remote: `https://github.com/thensmt/nsmt-livestream` (private, account: thensmt)
+- After any `nsmt-stats.html` change, also run `npm run build && npx cap sync ios` from `nsmt-app/` before committing
+
 ## Brand / Style
 
 - Colors: `#000000` (black), `#0E80FC` (NSMT blue), `#FFFFFF`
