@@ -155,6 +155,18 @@ async def ws_handler(websocket):
                 for k in ("bug","ticker","stats"):
                     if k in data:
                         STATE[k].update(data[k])
+                # Special handling: dunk.judgeSubmit — merge single judge score
+                # into dunk.scores without overwriting other judges
+                if "bug" in data:
+                    js = data["bug"].get("dunk", {}).get("judgeSubmit")
+                    if js and isinstance(js, dict):
+                        dunk = STATE["bug"].setdefault("dunk", {})
+                        scores = dunk.setdefault("scores", [None]*5)
+                        idx = js.get("judge")
+                        if idx is not None and 0 <= idx <= 4:
+                            scores[idx] = js.get("score")
+                        # Remove the transient judgeSubmit key so it doesn't accumulate
+                        dunk.pop("judgeSubmit", None)
                 schedule_save()
                 await broadcast({"type":"state","data":STATE})
             elif kind == "get_state":

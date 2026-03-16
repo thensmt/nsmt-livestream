@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NSMT Dunk Judge</title>
+<style>
+:root{--bg:#07080a;--surf:#0e1014;--surf2:#141619;--border:#22252b;--border2:#2d3138;--text:#e8eaed;--muted:#5a606b;--gold:#F5C518;--green:#22c55e;--blue:#0E80FC;--red:#e53f3f;--r:10px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden;}
+
+.topbar{background:#000;border-bottom:2px solid var(--gold);height:52px;display:flex;align-items:center;padding:0 14px;gap:10px;}
+.tb-logo{font-size:17px;font-weight:900;letter-spacing:3px;color:var(--blue);}
+.tb-div{width:1px;height:20px;background:var(--border2);}
+.tb-judge{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.tb-ws{width:8px;height:8px;border-radius:50%;background:var(--muted);margin-left:auto;}
+.tb-ws.ok{background:var(--green);}
+
+.body{height:calc(100vh - 52px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:16px;}
+
+/* Dunker info strip */
+.dunker-strip{text-align:center;}
+.dunker-name{font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;}
+.dunker-sub{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+
+/* Score grid 3+3+4 */
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:360px;}
+.score-btn{
+  aspect-ratio:1;border-radius:var(--r);border:2px solid var(--border2);
+  background:var(--surf);color:var(--text);font-size:28px;font-weight:900;
+  cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;
+}
+.score-btn:active{transform:scale(.88);}
+.score-btn.selected{background:rgba(245,197,24,.15);border-color:var(--gold);color:var(--gold);}
+.score-btn.perfect{background:rgba(245,197,24,.25);border-color:var(--gold);color:var(--gold);box-shadow:0 0 20px rgba(245,197,24,.3);}
+
+/* Selected indicator */
+.selected-display{
+  text-align:center;background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px 24px;width:100%;max-width:360px;
+}
+.sel-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.sel-val{font-size:48px;font-weight:900;color:var(--gold);line-height:1;}
+.sel-val.empty{color:var(--muted);font-size:28px;}
+
+/* Submit button */
+.submit-btn{
+  width:100%;max-width:360px;height:64px;border-radius:var(--r);border:none;
+  background:var(--gold);color:#000;font-size:16px;font-weight:900;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:transform .12s,opacity .15s;
+}
+.submit-btn:active{transform:scale(.96);}
+.submit-btn:disabled{opacity:.35;cursor:not-allowed;}
+.submit-btn.submitted{background:var(--green);color:#000;}
+
+/* Submitted state */
+.submitted-card{
+  text-align:center;padding:20px;background:rgba(34,197,94,.1);
+  border:1px solid rgba(34,197,94,.3);border-radius:var(--r);
+  width:100%;max-width:360px;display:none;
+}
+.submitted-card.show{display:block;}
+.submitted-card .sc-lbl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);}
+.submitted-card .sc-val{font-size:40px;font-weight:900;color:var(--green);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo">NSMT</div>
+  <div class="tb-div"></div>
+  <div class="tb-judge" id="tbJudgeLabel">JUDGE 1</div>
+  <div class="tb-ws" id="wsStatus"></div>
+</div>
+
+<div class="body">
+
+  <div class="dunker-strip">
+    <div class="dunker-name" id="dunkerName">Waiting…</div>
+    <div class="dunker-sub" id="dunkerSub">DUNK CONTEST</div>
+  </div>
+
+  <div class="score-grid" id="scoreGrid"></div>
+
+  <div class="selected-display">
+    <div class="sel-lbl">Your Score</div>
+    <div class="sel-val empty" id="selVal">—</div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" disabled onclick="submitScore()">Submit Score</button>
+
+  <div class="submitted-card" id="submittedCard">
+    <div class="sc-lbl">Score Submitted</div>
+    <div class="sc-val" id="submittedVal">—</div>
+  </div>
+
+</div>
+
+<script>
+  const params   = new URLSearchParams(location.search);
+  const judgeNum = Math.max(1, Math.min(5, parseInt(params.get('judge') || '1', 10)));
+  const judgeIdx = judgeNum - 1;
+
+  document.getElementById('tbJudgeLabel').textContent = 'JUDGE ' + judgeNum;
+
+  let selectedScore = null;
+  let submitted     = false;
+  let currentDunker = '';
+
+  // ── Score grid 1–10 ──────────────────────────────────────
+  const grid = document.getElementById('scoreGrid');
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'score-btn' + (i === 10 ? ' perfect' : '');
+    btn.textContent = i;
+    btn.onclick = () => selectScore(i);
+    grid.appendChild(btn);
+  }
+
+  function selectScore(n) {
+    if (submitted) return;
+    selectedScore = n;
+    grid.querySelectorAll('.score-btn').forEach((b, i) => {
+      b.classList.toggle('selected', i + 1 === n);
+    });
+    const selEl = document.getElementById('selVal');
+    selEl.textContent = n;
+    selEl.classList.remove('empty');
+    document.getElementById('submitBtn').disabled = false;
+  }
+
+  // ── Submit ───────────────────────────────────────────────
+  window.submitScore = function() {
+    if (selectedScore == null || submitted) return;
+    submitted = true;
+    // Build a targeted patch: only set this judge's score
+    // scores is an array; we patch the whole array but preserve others via server merge
+    // Server uses shallow merge so we need to send the full scores object trick:
+    // We'll use a special field dunk.judgeScore so the server can handle it,
+    // OR we'll patch with the full scores array using get_state first.
+    // Simplest: send a patch with the full dunk object scored only for this judge.
+    // We'll rely on the fact that we sync from server and store the array locally.
+    const patch = {
+      type: 'patch',
+      bug: {
+        dunk: {
+          judgeSubmit: { judge: judgeIdx, score: selectedScore }
+        }
+      }
+    };
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify(patch));
+
+    document.getElementById('submitBtn').classList.add('submitted');
+    document.getElementById('submitBtn').textContent = '✓ Submitted';
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submittedCard').classList.add('show');
+    document.getElementById('submittedVal').textContent = selectedScore;
+  };
+
+  // ── WebSocket ─────────────────────────────────────────────
+  const WS_HOST = location.hostname === 'localhost' ? 'localhost' : location.hostname;
+  const WS_URL  = 'ws://' + WS_HOST.replace(/:\d+$/,'') + ':8765';
+  let ws;
+
+  function connect() {
+    ws = new WebSocket(WS_URL);
+    ws.onopen  = () => document.getElementById('wsStatus').classList.add('ok');
+    ws.onclose = () => { document.getElementById('wsStatus').classList.remove('ok'); setTimeout(connect, 2000); };
+    ws.onerror = () => ws.close();
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'snapshot' || msg.type === 'state') syncFromServer(msg.data);
+    };
+  }
+
+  function syncFromServer(state) {
+    const dk = state && state.bug && state.bug.dunk;
+    if (!dk) return;
+    const newDunker = dk.dunker || '';
+    // If dunker changed, reset submission state
+    if (newDunker !== currentDunker) {
+      currentDunker = newDunker;
+      submitted     = false;
+      selectedScore = null;
+      grid.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected'));
+      const selEl = document.getElementById('selVal');
+      selEl.textContent = '—';
+      selEl.classList.add('empty');
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').classList.remove('submitted');
+      document.getElementById('submitBtn').textContent = 'Submit Score';
+      document.getElementById('submittedCard').classList.remove('show');
+    }
+    document.getElementById('dunkerName').textContent = (newDunker || 'Waiting…').toUpperCase();
+    document.getElementById('dunkerSub').textContent =
+      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ').toUpperCase() || 'DUNK CONTEST';
+  }
+
+  connect();
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>NSMT Dunk Contest Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;background:transparent;overflow:hidden;}
+  .stage{position:relative;width:1920px;height:1080px;}
+
+  /* ── Main card ── */
+  .dk-wrap{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-56%);
+    min-width:680px;
+    background:linear-gradient(160deg,#0a0b0f 0%,#141720 100%);
+    border:1px solid rgba(255,255,255,.12);border-radius:18px;
+    padding:28px 36px 30px;
+    display:flex;flex-direction:column;gap:18px;
+    box-shadow:0 28px 80px rgba(0,0,0,.9);
+    font-family:'Rubik',sans-serif;color:#fff;
+    animation:dkIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .dk-wrap.hidden{display:none;}
+  @keyframes dkIn{from{opacity:0;transform:translate(-50%,-56%) scale(.88);}to{opacity:1;transform:translate(-50%,-56%) scale(1);}}
+
+  /* ── Header ── */
+  .dk-hdr{display:flex;align-items:center;justify-content:space-between;}
+  .dk-badge{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0E80FC;}
+  .dk-round-info{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+
+  /* ── Dunker row ── */
+  .dk-dunker-row{display:flex;align-items:center;gap:18px;}
+  .dk-photo{
+    width:80px;height:80px;border-radius:10px;overflow:hidden;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);flex-shrink:0;
+  }
+  .dk-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .dk-photo.no-photo{display:none;}
+  .dk-dunker-info{display:flex;flex-direction:column;gap:2px;}
+  .dk-dunker-name{font-family:'Anton',Impact,sans-serif;font-size:44px;text-transform:uppercase;letter-spacing:1px;line-height:1;}
+  .dk-dunker-sub{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);}
+
+  /* ── Judge scores ── */
+  .dk-judges{display:flex;gap:10px;justify-content:center;}
+  .dk-judge{
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;padding:10px 14px;min-width:80px;
+    transition:background .3s,border-color .3s;
+  }
+  .dk-judge.revealed{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);}
+  .dk-judge.perfect{background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.4);}
+  .dk-judge-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .dk-judge-val{
+    font-family:'Anton',Impact,sans-serif;font-size:38px;line-height:1;
+    color:rgba(255,255,255,.15);transition:color .4s,transform .4s;
+  }
+  .dk-judge-val.revealed{color:#fff;}
+  .dk-judge-val.perfect{color:#F5C518;}
+  .dk-judge.revealed .dk-judge-val{animation:scoreReveal 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes scoreReveal{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  /* ── Total ── */
+  .dk-total-row{
+    display:flex;align-items:baseline;gap:12px;justify-content:center;
+    padding-top:10px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .dk-total-lbl{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .dk-total-val{font-family:'Anton',Impact,sans-serif;font-size:60px;line-height:1;}
+  .dk-total-max{font-size:14px;color:rgba(255,255,255,.22);}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="dk-wrap hidden" id="dkWrap">
+
+    <div class="dk-hdr">
+      <div class="dk-badge">DUNK CONTEST</div>
+      <div class="dk-round-info" id="dkRoundInfo">ROUND 1 · ATTEMPT 1</div>
+    </div>
+
+    <div class="dk-dunker-row">
+      <div class="dk-photo" id="dkPhotoWrap">
+        <img id="dkPhoto" src="" alt="">
+      </div>
+      <div class="dk-dunker-info">
+        <div class="dk-dunker-name" id="dkDunkerName">—</div>
+        <div class="dk-dunker-sub" id="dkDunkerSub"></div>
+      </div>
+    </div>
+
+    <div class="dk-judges" id="dkJudges"></div>
+
+    <div class="dk-total-row">
+      <div class="dk-total-lbl">TOTAL</div>
+      <div class="dk-total-val" id="dkTotal">—</div>
+      <div class="dk-total-max">/50</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  if (!navigator.userAgent.match(/OBS|Chromium/i) || location.hostname !== 'localhost') {
+    document.body.style.background = '#000';
+  }
+
+  const WS_URL = (location.protocol === 'file:' || location.hostname === 'localhost')
+    ? 'ws://localhost:8765'
+    : 'ws://' + location.hostname + ':8765';
+
+  let ws, _prevRevealed = [false,false,false,false,false];
+
+  function connect() {
+    ws = new WebSocket(WS_URL);
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'snapshot' || msg.type === 'state') apply(msg.data);
+    };
+    ws.onclose = () => setTimeout(connect, 2000);
+    ws.onerror  = () => ws.close();
+  }
+
+  function apply(state) {
+    const dk   = state && state.bug && state.bug.dunk;
+    const wrap = document.getElementById('dkWrap');
+    if (!dk || !dk.show) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+
+    // Dunker info
+    document.getElementById('dkDunkerName').textContent = (dk.dunker || '—').toUpperCase();
+    document.getElementById('dkDunkerSub').textContent =
+      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ');
+    document.getElementById('dkRoundInfo').textContent =
+      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ').toUpperCase();
+
+    // Photo
+    const photoWrap = document.getElementById('dkPhotoWrap');
+    const photoEl   = document.getElementById('dkPhoto');
+    if (dk.dunkerPhoto) {
+      photoEl.src = dk.dunkerPhoto;
+      photoWrap.classList.remove('no-photo');
+    } else {
+      photoEl.src = '';
+      photoWrap.classList.add('no-photo');
+    }
+
+    // Judges
+    const scores   = dk.scores   || [null,null,null,null,null];
+    const revealed = dk.revealed || [false,false,false,false,false];
+    const judgesEl = document.getElementById('dkJudges');
+    judgesEl.innerHTML = scores.map((s, i) => {
+      const isRevealed = !!revealed[i];
+      const isPerfect  = isRevealed && s === 10;
+      const val        = isRevealed && s != null ? s : '—';
+      const newReveal  = isRevealed && !_prevRevealed[i];
+      return `<div class="dk-judge${isRevealed?' revealed':''}${isPerfect?' perfect':''}">
+        <div class="dk-judge-lbl">Judge ${i+1}</div>
+        <div class="dk-judge-val${isRevealed?' revealed':''}${isPerfect?' perfect':''}${newReveal?' animating':''}">${val}</div>
+      </div>`;
+    }).join('');
+    _prevRevealed = [...revealed];
+
+    // Total (only count revealed scores)
+    const total = scores.reduce((sum, s, i) => sum + (revealed[i] && s != null ? s : 0), 0);
+    const anyRevealed = revealed.some(Boolean);
+    document.getElementById('dkTotal').textContent = anyRevealed ? total : '—';
+  }
+
+  connect();
+</script>
+</body>
+</html>
