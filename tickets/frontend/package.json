@@ -1,0 +1,22 @@
+{
+  "name": "nsmt-tickets-frontend",
+  "version": "1.0.0",
+  "description": "NSMT ticketing — React frontend for tickets.thensmt.com",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.x",
+    "react-dom": "^18.x",
+    "react-router-dom": "^6.x",
+    "qrcode": "^1.5.x",
+    "jspdf": "^2.5.x"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.x",
+    "vite": "^5.x"
+  }
+}
