@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NSMT 3PT Control</title>
+<style>
+:root{
+  --bg:#07080a;--surf:#0e1014;--surf2:#141619;--surf3:#1a1d21;
+  --border:#22252b;--border2:#2d3138;
+  --text:#e8eaed;--muted:#5a606b;
+  --blue:#0E80FC;--gold:#F5C518;--green:#22c55e;--red:#e53f3f;
+  --r:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:#000;border-bottom:2px solid var(--gold);
+  height:52px;display:flex;align-items:center;padding:0 14px;gap:12px;flex-shrink:0;
+}
+.tb-logo{font-size:18px;font-weight:900;letter-spacing:3px;color:var(--blue);}
+.tb-div{width:1px;height:20px;background:var(--border2);}
+.tb-court{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.tb-ws{width:8px;height:8px;border-radius:50%;background:var(--muted);margin-left:auto;}
+.tb-ws.ok{background:var(--green);}
+
+/* ── SCROLL BODY ── */
+.body{height:calc(100vh - 52px);overflow-y:auto;padding:12px 14px 24px;display:flex;flex-direction:column;gap:14px;}
+.body::-webkit-scrollbar{width:3px;}
+.body::-webkit-scrollbar-thumb{background:var(--border2);}
+
+/* ── CARD ── */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.card-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+
+/* ── SHOOTER INPUT ── */
+.shooter-input{
+  width:100%;background:var(--surf3);border:1px solid var(--border2);
+  color:var(--text);font-size:18px;font-weight:700;padding:10px 12px;
+  border-radius:var(--r);outline:none;-webkit-appearance:none;
+}
+.shooter-input:focus{border-color:var(--gold);}
+
+/* ── ROUND BUTTONS ── */
+.round-row{display:flex;gap:8px;}
+.round-btn{
+  flex:1;padding:10px;border:1px solid var(--border2);border-radius:var(--r);
+  background:var(--surf3);color:var(--muted);font-size:13px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;
+}
+.round-btn.active{background:rgba(245,197,24,.12);border-color:var(--gold);color:var(--gold);}
+
+/* ── MONEY RACK SELECTOR ── */
+.money-row{display:flex;gap:8px;}
+.money-btn{
+  flex:1;height:52px;border:1px solid var(--border2);border-radius:var(--r);
+  background:var(--surf3);color:var(--muted);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;
+}
+.money-btn.active{background:rgba(245,197,24,.15);border-color:var(--gold);color:var(--gold);}
+
+/* ── BALL GRID ── */
+.racks{display:flex;flex-direction:column;gap:8px;}
+.rack-row{display:flex;align-items:center;gap:10px;}
+.rack-lbl{
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);width:52px;flex-shrink:0;line-height:1.2;
+}
+.rack-lbl.money{color:var(--gold);}
+.balls{display:flex;gap:8px;flex:1;}
+.ball-btn{
+  flex:1;max-width:62px;aspect-ratio:1;border-radius:50%;border:2px solid var(--border2);
+  background:var(--surf3);cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:transparent;
+}
+.ball-btn:active{transform:scale(.88);}
+.ball-btn.made{background:#fff;border-color:#fff;color:#000;}
+.ball-btn.made.money{background:var(--gold);border-color:var(--gold);color:#000;}
+
+/* ── TOTAL ROW ── */
+.total-row{display:flex;align-items:baseline;gap:10px;padding-top:10px;border-top:1px solid var(--border);}
+.total-lbl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.total-val{font-size:48px;font-weight:900;line-height:1;}
+.total-max{font-size:13px;color:var(--muted);}
+
+/* ── CONTROL BUTTONS ── */
+.ctrl-row{display:flex;gap:10px;}
+.ctrl-btn{
+  flex:1;height:56px;border:none;border-radius:var(--r);
+  font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;transition:transform .1s,opacity .15s;
+}
+.ctrl-btn:active{transform:scale(.96);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-surf{background:var(--surf3);color:var(--text);border:1px solid var(--border2);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-green{background:var(--green);color:#000;}
+
+/* ── VISIBILITY ROW ── */
+.vis-row{display:flex;gap:10px;}
+.vis-btn{
+  flex:1;height:56px;border-radius:var(--r);border:1px solid var(--border2);
+  background:var(--surf3);color:var(--muted);font-size:13px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;
+}
+.vis-btn.active{background:rgba(34,197,94,.12);border-color:var(--green);color:var(--green);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo">NSMT</div>
+  <div class="tb-div"></div>
+  <div class="tb-court" id="tbCourtLabel">3PT — COURT 1</div>
+  <div class="tb-ws" id="wsStatus"></div>
+</div>
+
+<div class="body">
+
+  <!-- Shooter -->
+  <div class="card">
+    <div class="card-title">Shooter Name</div>
+    <input class="shooter-input" id="shooterName" type="text" placeholder="Enter player name…" oninput="pushState()" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+
+  <!-- Round + Visibility (court 1 only shows these) -->
+  <div class="card" id="roundCard">
+    <div class="card-title">Round</div>
+    <div class="round-row">
+      <button class="round-btn active" id="btnRound1" onclick="setRound('round1')">Round 1</button>
+      <button class="round-btn" id="btnFinals" onclick="setRound('finals')">Finals</button>
+    </div>
+  </div>
+
+  <!-- Overlay visibility -->
+  <div class="card">
+    <div class="card-title">Overlay</div>
+    <div class="vis-row">
+      <button class="vis-btn" id="btnShow" onclick="setShow(true)">▶ Show</button>
+      <button class="vis-btn" id="btnHide" onclick="setShow(false)">■ Hide</button>
+    </div>
+  </div>
+
+  <!-- Money rack selector -->
+  <div class="card">
+    <div class="card-title">Money Rack (★ = 2pts per ball)</div>
+    <div class="money-row" id="moneyRackRow"></div>
+  </div>
+
+  <!-- Ball grid -->
+  <div class="card">
+    <div class="card-title">Balls</div>
+    <div class="racks" id="racksGrid"></div>
+    <div class="total-row">
+      <div class="total-lbl">Total</div>
+      <div class="total-val" id="totalDisplay">0</div>
+      <div class="total-max">/30</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl-row">
+    <button class="ctrl-btn btn-surf" onclick="resetShooter()">↺ Reset Balls</button>
+    <button class="ctrl-btn btn-gold" onclick="nextShooter()">Next Shooter ▶</button>
+  </div>
+
+</div>
+
+<script>
+  // ── Court from URL param ──────────────────────────────────
+  const params  = new URLSearchParams(location.search);
+  const court   = params.get('court') === '2' ? 2 : 1;
+  const courtKey = 'court' + court;
+  document.getElementById('tbCourtLabel').textContent = '3PT — COURT ' + court;
+  // Only court 1 controls round (court 2 always follows)
+  if (court === 2) document.getElementById('roundCard').style.display = 'none';
+
+  // ── Local state ───────────────────────────────────────────
+  const EMPTY_RACKS = () => Array.from({length:5}, () => Array(5).fill(false));
+
+  let S = {
+    show: false,
+    round: 'round1',
+    moneyRack: 4,         // 0-indexed; default to rack 5 (last)
+    racks: EMPTY_RACKS()
+  };
+
+  // ── WebSocket ─────────────────────────────────────────────
+  const WS_HOST = location.hostname === 'localhost' ? 'localhost' : location.hostname;
+  const WS_URL  = 'ws://' + WS_HOST.replace(/:\d+$/, '') + ':8765';
+  let ws, wsReady = false;
+
+  function connect() {
+    ws = new WebSocket(WS_URL);
+    ws.onopen  = () => { wsReady = true; setWsDot(true); };
+    ws.onclose = () => { wsReady = false; setWsDot(false); setTimeout(connect, 2000); };
+    ws.onerror = () => ws.close();
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'snapshot' || msg.type === 'state') syncFromServer(msg.data);
+    };
+  }
+
+  function setWsDot(ok) {
+    const el = document.getElementById('wsStatus');
+    el.classList.toggle('ok', ok);
+  }
+
+  function send(obj) {
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
+  }
+
+  // ── Sync from server (initial snapshot) ──────────────────
+  function syncFromServer(state) {
+    const tp = state && state.bug && state.bug.threePoint;
+    if (!tp) return;
+    // Pull shared fields
+    if (tp.show !== undefined) S.show = tp.show;
+    if (tp.round)              S.round = tp.round;
+    // Pull this court's data
+    const ct = tp[courtKey];
+    if (ct) {
+      if (ct.moneyRack != null) S.moneyRack = ct.moneyRack;
+      if (ct.racks)             S.racks = ct.racks.map(r => [...r]);
+      if (ct.shooter)           document.getElementById('shooterName').value = ct.shooter;
+    }
+    renderAll();
+  }
+
+  // ── Push to server ────────────────────────────────────────
+  function pushState() {
+    const shooter = document.getElementById('shooterName').value.trim();
+    const courtData = { shooter, moneyRack: S.moneyRack, racks: S.racks };
+
+    const patch = { threePoint: { show: S.show, round: S.round, [courtKey]: courtData } };
+    // Court 1 is authoritative for show/round
+    if (court !== 1) delete patch.threePoint.show;
+    if (court !== 1) delete patch.threePoint.round;
+
+    send({ type: 'patch', bug: patch });
+  }
+
+  // ── Round ─────────────────────────────────────────────────
+  window.setRound = function(r) {
+    S.round = r;
+    document.getElementById('btnRound1').classList.toggle('active', r === 'round1');
+    document.getElementById('btnFinals').classList.toggle('active', r === 'finals');
+    pushState();
+  };
+
+  // ── Overlay visibility ────────────────────────────────────
+  window.setShow = function(show) {
+    S.show = show;
+    document.getElementById('btnShow').classList.toggle('active', show);
+    document.getElementById('btnHide').classList.toggle('active', !show);
+    // Only court 1 sends show (authoritative)
+    if (court === 1) pushState();
+    else {
+      // Court 2 just changes local state display but doesn't control show
+      S.show = show;
+    }
+    if (court === 1) {
+      document.getElementById('btnShow').classList.toggle('active', show);
+      document.getElementById('btnHide').classList.toggle('active', !show);
+    }
+  };
+
+  // ── Money rack ────────────────────────────────────────────
+  function renderMoneyRack() {
+    const row = document.getElementById('moneyRackRow');
+    row.innerHTML = Array.from({length:5}, (_,i) =>
+      `<button class="money-btn${S.moneyRack===i?' active':''}" onclick="setMoneyRack(${i})">
+        ${i===S.moneyRack?'★ ':''} ${i+1}
+      </button>`
+    ).join('');
+  }
+
+  window.setMoneyRack = function(i) {
+    S.moneyRack = i;
+    renderMoneyRack();
+    renderBalls();
+    updateTotal();
+    pushState();
+  };
+
+  // ── Ball grid ─────────────────────────────────────────────
+  function renderBalls() {
+    const grid = document.getElementById('racksGrid');
+    const rows = [];
+    for (let r = 0; r < 5; r++) {
+      const isMoney = r === S.moneyRack;
+      const ballsHtml = Array.from({length:5}, (_,b) => {
+        const made = S.racks[r] && S.racks[r][b];
+        const cls = 'ball-btn' + (made ? ' made' + (isMoney ? ' money' : '') : '');
+        return `<button class="${cls}" onclick="toggleBall(${r},${b})">✓</button>`;
+      }).join('');
+      rows.push(`
+        <div class="rack-row">
+          <div class="rack-lbl${isMoney?' money':''}">${isMoney?'★ Rack '+(r+1):'Rack '+(r+1)}</div>
+          <div class="balls">${ballsHtml}</div>
+        </div>`);
+    }
+    grid.innerHTML = rows.join('');
+  }
+
+  window.toggleBall = function(rack, ball) {
+    S.racks[rack][ball] = !S.racks[rack][ball];
+    renderBalls();
+    updateTotal();
+    pushState();
+  };
+
+  // ── Total ─────────────────────────────────────────────────
+  function calcTotal() {
+    let t = 0;
+    for (let r = 0; r < 5; r++)
+      for (let b = 0; b < 5; b++)
+        if (S.racks[r] && S.racks[r][b]) t += (r === S.moneyRack) ? 2 : 1;
+    return t;
+  }
+
+  function updateTotal() {
+    document.getElementById('totalDisplay').textContent = calcTotal();
+  }
+
+  // ── Reset / Next ──────────────────────────────────────────
+  window.resetShooter = function() {
+    S.racks = EMPTY_RACKS();
+    renderBalls();
+    updateTotal();
+    pushState();
+  };
+
+  window.nextShooter = function() {
+    document.getElementById('shooterName').value = '';
+    S.racks = EMPTY_RACKS();
+    S.moneyRack = 4;
+    renderMoneyRack();
+    renderBalls();
+    updateTotal();
+    pushState();
+    document.getElementById('shooterName').focus();
+  };
+
+  // ── Render all ────────────────────────────────────────────
+  function renderAll() {
+    document.getElementById('btnRound1').classList.toggle('active', S.round === 'round1');
+    document.getElementById('btnFinals').classList.toggle('active', S.round === 'finals');
+    document.getElementById('btnShow').classList.toggle('active', S.show);
+    document.getElementById('btnHide').classList.toggle('active', !S.show);
+    renderMoneyRack();
+    renderBalls();
+    updateTotal();
+  }
+
+  renderAll();
+  connect();
+</script>
+</body>
+</html>

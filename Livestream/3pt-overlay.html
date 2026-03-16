@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>NSMT 3-Point Contest Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;background:transparent;overflow:hidden;}
+  .stage{position:relative;width:1920px;height:1080px;}
+
+  /* ── Outer wrap ── */
+  .tpt-wrap{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-54%);
+    display:flex;gap:28px;align-items:stretch;
+    transition:opacity 0.4s;
+  }
+  .tpt-wrap.hidden{display:none;}
+
+  /* ── Court panel ── */
+  .court-panel{
+    background:linear-gradient(160deg,#0c0e12 0%,#161920 100%);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;padding:22px 30px 26px;
+    min-width:370px;display:flex;flex-direction:column;gap:14px;
+    box-shadow:0 24px 72px rgba(0,0,0,.85);
+    font-family:'Rubik',sans-serif;color:#fff;
+  }
+
+  /* ── Header ── */
+  .ct-hdr{display:flex;align-items:center;justify-content:space-between;}
+  .ct-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-badge{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0E80FC;}
+
+  /* ── Shooter name ── */
+  .ct-shooter{font-family:'Anton',Impact,sans-serif;font-size:38px;letter-spacing:1px;text-transform:uppercase;line-height:1;}
+
+  /* ── Racks ── */
+  .rack-row{display:flex;align-items:center;gap:10px;}
+  .rack-label{
+    font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:rgba(255,255,255,.28);width:50px;flex-shrink:0;
+  }
+  .rack-label.money{color:#F5C518;}
+  .balls{display:flex;gap:8px;}
+  .ball{
+    width:30px;height:30px;border-radius:50%;flex-shrink:0;
+    border:2px solid rgba(255,255,255,.2);background:transparent;
+    transition:background .15s,border-color .15s,box-shadow .15s;
+  }
+  .ball.made{background:#fff;border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,.35);}
+  .ball.made.money{background:#F5C518;border-color:#F5C518;box-shadow:0 0 14px rgba(245,197,24,.55);}
+
+  /* ── Total ── */
+  .ct-total{
+    display:flex;align-items:baseline;gap:10px;
+    padding-top:8px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .ct-total-lbl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-total-val{font-family:'Anton',Impact,sans-serif;font-size:52px;line-height:1;}
+  .ct-total-max{font-size:13px;color:rgba(255,255,255,.22);}
+
+  /* ── Finals = single panel, centered & slightly wider ── */
+  .tpt-wrap.finals .court-panel{min-width:440px;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="tpt-wrap hidden" id="tptWrap">
+
+    <!-- Court 1 / Finals panel -->
+    <div class="court-panel" id="court1Panel">
+      <div class="ct-hdr">
+        <div class="ct-label" id="court1Label">COURT 1</div>
+        <div class="ct-badge">3-POINT CONTEST</div>
+      </div>
+      <div class="ct-shooter" id="court1Shooter">—</div>
+      <div id="court1Racks"></div>
+      <div class="ct-total">
+        <div class="ct-total-lbl">TOTAL</div>
+        <div class="ct-total-val" id="court1Total">0</div>
+        <div class="ct-total-max">/30</div>
+      </div>
+    </div>
+
+    <!-- Court 2 panel (hidden in finals) -->
+    <div class="court-panel" id="court2Panel">
+      <div class="ct-hdr">
+        <div class="ct-label">COURT 2</div>
+        <div class="ct-badge">3-POINT CONTEST</div>
+      </div>
+      <div class="ct-shooter" id="court2Shooter">—</div>
+      <div id="court2Racks"></div>
+      <div class="ct-total">
+        <div class="ct-total-lbl">TOTAL</div>
+        <div class="ct-total-val" id="court2Total">0</div>
+        <div class="ct-total-max">/30</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Black background in browser, transparent in OBS
+  if (!navigator.userAgent.match(/OBS|Chromium/i) || location.hostname !== 'localhost') {
+    document.body.style.background = '#000';
+  }
+
+  const WS_URL = (location.protocol === 'file:' || location.hostname === 'localhost')
+    ? 'ws://localhost:8765'
+    : 'ws://' + location.hostname + ':8765';
+
+  let ws, reconnectTimer;
+
+  function connect() {
+    ws = new WebSocket(WS_URL);
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'snapshot' || msg.type === 'state') apply(msg.data);
+    };
+    ws.onclose = () => { reconnectTimer = setTimeout(connect, 2000); };
+    ws.onerror  = () => ws.close();
+  }
+
+  function calcScore(racks, moneyRack) {
+    let total = 0;
+    for (let r = 0; r < 5; r++) {
+      for (let b = 0; b < 5; b++) {
+        if (racks[r] && racks[r][b]) total += (r === moneyRack) ? 2 : 1;
+      }
+    }
+    return total;
+  }
+
+  function renderRacks(containerId, racks, moneyRack) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const rows = [];
+    for (let r = 0; r < 5; r++) {
+      const isMoney = r === moneyRack;
+      const ballsHtml = Array.from({length:5}, (_,b) => {
+        const made = racks[r] && racks[r][b];
+        const cls = 'ball' + (made ? ' made' + (isMoney ? ' money' : '') : '');
+        return `<div class="${cls}"></div>`;
+      }).join('');
+      rows.push(`
+        <div class="rack-row">
+          <div class="rack-label${isMoney ? ' money' : ''}">${isMoney ? '★ RACK '+(r+1) : 'RACK '+(r+1)}</div>
+          <div class="balls">${ballsHtml}</div>
+        </div>`);
+    }
+    el.innerHTML = rows.join('');
+  }
+
+  function apply(state) {
+    const tp   = state && state.bug && state.bug.threePoint;
+    const wrap = document.getElementById('tptWrap');
+    if (!tp || !tp.show) { wrap.classList.add('hidden'); return; }
+
+    wrap.classList.remove('hidden');
+    const isFinals = tp.round === 'finals';
+    wrap.classList.toggle('finals', isFinals);
+
+    document.getElementById('court1Label').textContent = isFinals ? 'FINALS' : 'COURT 1';
+    document.getElementById('court2Panel').style.display = isFinals ? 'none' : '';
+
+    // Court 1
+    const c1      = tp.court1 || {};
+    const c1racks = c1.racks || Array.from({length:5}, () => Array(5).fill(false));
+    const c1money = c1.moneyRack != null ? c1.moneyRack : 4;
+    document.getElementById('court1Shooter').textContent = (c1.shooter || '—').toUpperCase();
+    renderRacks('court1Racks', c1racks, c1money);
+    document.getElementById('court1Total').textContent = calcScore(c1racks, c1money);
+
+    // Court 2 (round 1 only)
+    if (!isFinals) {
+      const c2      = tp.court2 || {};
+      const c2racks = c2.racks || Array.from({length:5}, () => Array(5).fill(false));
+      const c2money = c2.moneyRack != null ? c2.moneyRack : 4;
+      document.getElementById('court2Shooter').textContent = (c2.shooter || '—').toUpperCase();
+      renderRacks('court2Racks', c2racks, c2money);
+      document.getElementById('court2Total').textContent = calcScore(c2racks, c2money);
+    }
+  }
+
+  connect();
+</script>
+</body>
+</html>
