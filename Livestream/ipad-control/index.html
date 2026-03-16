@@ -35,31 +35,75 @@ html, body {
   user-select: none;
 }
 
-/* ── TOPBAR ── */
+/* ── TOPBAR (scoreboard strip) ── */
 .topbar {
   background: #000;
   border-bottom: 2px solid var(--gold);
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 16px; height: 50px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 0;
+  padding: 0; height: 50px; flex-shrink: 0;
 }
-.tb-logo { font-size: 20px; font-weight: 900; letter-spacing: 3px; color: var(--blue); }
-.tb-game { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; opacity: .7; text-transform: uppercase; letter-spacing: 1px; }
+.tb-logo {
+  font-size: 18px; font-weight: 900; letter-spacing: 3px;
+  color: var(--blue); padding: 0 12px; flex-shrink: 0;
+}
+.tb-score-strip {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 0; height: 100%;
+}
+.tb-team {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 12px; min-width: 90px;
+}
+.tb-team-name {
+  font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;
+}
+.tb-team-score {
+  font-size: 24px; font-weight: 900; color: var(--text); line-height: 1;
+}
+.tb-center {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 10px; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  min-width: 90px;
+}
+.tb-period { font-size: 11px; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
+.tb-clock { font-size: 18px; font-weight: 900; color: var(--text); letter-spacing: 1px; }
+.tb-clock.running { color: var(--green); }
+.tb-ws { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 12px; flex-shrink: 0; }
 .ws-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background .3s; }
 .ws-dot.ok { background: var(--green); }
-.ws-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.ws-label { font-size: 8px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
-/* ── MAIN LAYOUT (3 columns) ── */
+/* ── TAB BAR ── */
+.tab-bar {
+  display: flex; background: var(--surf); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; height: 38px;
+}
+.tab-btn {
+  flex: 1; height: 100%; font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; background: none; border: none;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all .12s;
+}
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ── TAB PANES ── */
+.tab-pane { display: none; }
+.tab-pane.active { display: flex; flex-direction: column; }
+
+/* ── GAME TAB: 3-column layout ── */
 .main {
   display: grid;
-  grid-template-columns: 1fr 280px 1fr;
+  grid-template-columns: 1fr 260px 1fr;
   gap: 0;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 88px);
   overflow: hidden;
 }
 .team-col {
   display: flex; flex-direction: column;
-  padding: 12px 10px;
-  gap: 10px;
+  padding: 10px 8px;
+  gap: 8px;
   overflow: hidden;
   border-right: 1px solid var(--border);
 }
@@ -67,50 +111,36 @@ html, body {
 .center-col {
   display: flex; flex-direction: column;
   align-items: center;
-  padding: 12px 8px;
-  gap: 10px;
+  padding: 10px 8px;
+  gap: 8px;
   background: var(--surf);
   overflow: hidden;
 }
 
 /* ── TEAM HEADER ── */
 .team-hdr {
-  text-align: center;
-  font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-align: center; font-size: 10px; font-weight: 800; letter-spacing: 2px;
   text-transform: uppercase; color: var(--muted);
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px; border-bottom: 1px solid var(--border);
 }
 .team-name-big {
-  text-align: center;
-  font-size: 18px; font-weight: 900;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: var(--text);
-  line-height: 1.1;
+  text-align: center; font-size: 16px; font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text); line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* ── SCORE ── */
 .score-display {
-  text-align: center;
-  font-size: 72px; font-weight: 900; line-height: 1;
-  color: var(--text);
-  background: var(--surf2);
-  border-radius: var(--r);
-  padding: 8px 0;
-  cursor: pointer;
+  text-align: center; font-size: 68px; font-weight: 900; line-height: 1;
+  color: var(--text); background: var(--surf2); border-radius: var(--r);
+  padding: 6px 0; cursor: pointer;
 }
 .score-display:active { opacity: .75; }
-.score-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 5px;
-}
+.score-btns { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; }
 .score-btns .sbtn {
-  height: 54px; font-size: 18px; font-weight: 900;
+  height: 52px; font-size: 18px; font-weight: 900;
   border: none; border-radius: 8px; cursor: pointer;
-  transition: transform .08s, opacity .1s;
-  color: #fff;
+  transition: transform .08s, opacity .1s; color: #fff;
 }
 .score-btns .sbtn:active { transform: scale(.92); opacity: .8; }
 .sbtn.plus3 { background: var(--blue); }
@@ -118,32 +148,18 @@ html, body {
 .sbtn.plus1 { background: var(--surf3); border: 1px solid var(--border2); color: var(--text); }
 .sbtn.minus1 { background: var(--surf3); border: 1px solid var(--border2); color: var(--red); }
 
-/* Right team: buttons reversed in order (visual mirror) */
-.team-col.home .score-btns {
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-
 /* ── FOULS ── */
 .section-label {
   font-size: 9px; font-weight: 800; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--muted);
-  text-align: center;
+  text-transform: uppercase; color: var(--muted); text-align: center;
 }
-.foul-pips {
-  display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;
-}
-.foul-pip {
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--border2);
-  transition: background .15s;
-}
+.foul-pips { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.foul-pip { width: 16px; height: 16px; border-radius: 50%; background: var(--border2); transition: background .15s; }
 .foul-pip.on { background: var(--orange); }
 .foul-pip.red { background: var(--red); }
-.foul-adj {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-}
+.foul-adj { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
 .adj-btn {
-  height: 48px; font-size: 22px; font-weight: 900;
+  height: 46px; font-size: 22px; font-weight: 900;
   background: var(--surf2); border: 1px solid var(--border2);
   color: var(--text); border-radius: 8px; cursor: pointer;
   transition: transform .08s, opacity .1s;
@@ -153,17 +169,11 @@ html, body {
 .adj-btn.plus-foul { color: var(--orange); }
 
 /* ── TIMEOUTS ── */
-.to-pips {
-  display: flex; gap: 5px; justify-content: center;
-}
-.to-pip {
-  width: 22px; height: 22px; border-radius: 4px;
-  background: var(--blue);
-  transition: background .15s, opacity .15s;
-}
+.to-pips { display: flex; gap: 5px; justify-content: center; }
+.to-pip { width: 20px; height: 20px; border-radius: 4px; background: var(--blue); transition: background .15s, opacity .15s; }
 .to-pip.used { background: var(--border2); opacity: .4; }
 .to-use-btn {
-  height: 52px; width: 100%; font-size: 14px; font-weight: 800;
+  height: 50px; width: 100%; font-size: 13px; font-weight: 800;
   letter-spacing: 1.5px; text-transform: uppercase;
   background: var(--surf2); border: 1px solid var(--border2);
   color: var(--text); border-radius: 8px; cursor: pointer;
@@ -172,31 +182,22 @@ html, body {
 .to-use-btn:active { transform: scale(.96); background: var(--surf3); }
 
 /* ── DIVIDER ── */
-.divider {
-  width: 100%; height: 1px; background: var(--border);
-  flex-shrink: 0;
-}
+.divider { width: 100%; height: 1px; background: var(--border); flex-shrink: 0; }
 
 /* ── CENTER: CLOCK ── */
 .clock-display {
-  font-size: 60px; font-weight: 900; letter-spacing: 2px;
-  color: var(--text); background: var(--surf2);
-  border-radius: var(--r); padding: 10px 0;
-  text-align: center; width: 100%;
-  cursor: pointer;
-  transition: color .2s;
+  font-size: 56px; font-weight: 900; letter-spacing: 2px;
+  color: var(--text); background: var(--surf2); border-radius: var(--r);
+  padding: 8px 0; text-align: center; width: 100%;
+  cursor: pointer; transition: color .2s;
 }
 .clock-display.running { color: var(--green); }
 .clock-display:active { opacity: .8; }
-.clock-btns {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 5px; width: 100%;
-}
+.clock-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; width: 100%; }
 .ck-btn {
-  height: 56px; font-size: 20px;
+  height: 54px; font-size: 20px;
   background: var(--surf2); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 8px; cursor: pointer;
-  font-weight: 900;
+  color: var(--text); border-radius: 8px; cursor: pointer; font-weight: 900;
   transition: transform .08s, background .1s;
 }
 .ck-btn:active { transform: scale(.93); opacity: .8; }
@@ -205,42 +206,42 @@ html, body {
 .ck-btn.reset { background: var(--surf3); }
 
 /* ── CENTER: PERIOD ── */
-.period-label-big {
-  font-size: 15px; font-weight: 900; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--gold);
-  text-align: center;
-}
-.period-pills {
-  display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; width: 100%;
-}
+.period-label-big { font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-align: center; }
+.period-pills { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; width: 100%; }
 .period-pill {
-  height: 40px; min-width: 44px; padding: 0 10px;
+  height: 38px; min-width: 42px; padding: 0 8px;
   font-size: 13px; font-weight: 800; letter-spacing: 1px;
   background: var(--surf2); border: 1px solid var(--border2);
-  color: var(--muted); border-radius: 6px; cursor: pointer;
-  transition: all .12s;
+  color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .12s;
 }
-.period-pill.active {
-  background: var(--gold); color: #000; border-color: var(--gold);
-}
+.period-pill.active { background: var(--gold); color: #000; border-color: var(--gold); }
 .period-pill.ot { border-color: var(--orange); color: var(--orange); }
 .period-pill.ot.active { background: var(--orange); color: #fff; }
 .period-pill:active { transform: scale(.92); }
 .end-period-btn {
-  width: 100%; height: 48px;
-  font-size: 13px; font-weight: 800; letter-spacing: 1px;
-  text-transform: uppercase;
+  width: 100%; height: 46px; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
   background: var(--surf2); border: 1px solid var(--border2);
-  color: var(--muted); border-radius: 8px; cursor: pointer;
-  transition: all .1s;
+  color: var(--muted); border-radius: 8px; cursor: pointer; transition: all .1s;
 }
 .end-period-btn:active { background: var(--surf3); transform: scale(.97); }
 
-/* ── CLOCK SET MODAL ── */
+/* ── BOTTOM ROW BUTTONS ── */
+.reset-to-btn {
+  height: 34px; width: 100%; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; cursor: pointer;
+}
+.reset-to-btn:active { color: var(--text); border-color: var(--border2); }
+.spotlight-row { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; margin-top: auto; }
+.dismiss-btn {
+  height: 38px; padding: 0 10px; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 8px; cursor: pointer;
+}
+.dismiss-btn:active { opacity: .7; }
+
+/* ── MODALS ── */
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,.75);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100;
+  display: flex; align-items: center; justify-content: center; z-index: 100;
 }
 .modal-backdrop.hidden { display: none; }
 .modal-box {
@@ -248,179 +249,290 @@ html, body {
   border-radius: 14px; padding: 24px; width: 280px;
   display: flex; flex-direction: column; gap: 14px;
 }
-.modal-title {
-  font-size: 13px; font-weight: 800; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--gold);
-}
+.modal-title { font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
 .modal-input {
-  background: var(--surf3); border: 1px solid var(--border2);
-  color: var(--text); padding: 12px 14px;
-  font-size: 28px; font-weight: 700; font-family: inherit;
-  border-radius: 8px; outline: none; width: 100%;
-  text-align: center;
+  background: var(--surf3); border: 1px solid var(--border2); color: var(--text);
+  padding: 12px 14px; font-size: 28px; font-weight: 700; font-family: inherit;
+  border-radius: 8px; outline: none; width: 100%; text-align: center;
 }
 .modal-input:focus { border-color: var(--gold); }
 .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.modal-btn {
-  height: 50px; font-size: 14px; font-weight: 800;
-  border: none; border-radius: 8px; cursor: pointer;
-}
+.modal-btn { height: 50px; font-size: 14px; font-weight: 800; border: none; border-radius: 8px; cursor: pointer; }
 .modal-btn.apply { background: var(--gold); color: #000; }
 .modal-btn.cancel { background: var(--surf3); color: var(--muted); }
-
-/* ── SCORE OVERRIDE MODAL ── */
-.score-preset-btns {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-}
-.score-preset {
-  height: 48px; font-size: 16px; font-weight: 800;
-  background: var(--surf3); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 8px; cursor: pointer;
-}
+.score-preset-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.score-preset { height: 48px; font-size: 16px; font-weight: 800; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; }
 .score-preset:active { background: var(--blue); }
 
 /* ── TOAST ── */
 .toast {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: rgba(14,128,252,.92); color: #fff;
-  padding: 10px 20px; border-radius: 8px;
-  font-size: 13px; font-weight: 700;
-  pointer-events: none; opacity: 0;
-  transition: opacity .25s;
-  z-index: 200; white-space: nowrap;
+  background: rgba(14,128,252,.92); color: #fff; padding: 10px 20px;
+  border-radius: 8px; font-size: 13px; font-weight: 700;
+  pointer-events: none; opacity: 0; transition: opacity .25s; z-index: 200; white-space: nowrap;
 }
 .toast.show { opacity: 1; }
 
-/* ── RESET TOs row ── */
-.reset-to-btn {
-  height: 36px; width: 100%;
-  font-size: 10px; font-weight: 700; letter-spacing: 1px;
-  text-transform: uppercase;
-  background: none; border: 1px solid var(--border);
-  color: var(--muted); border-radius: 6px; cursor: pointer;
+/* ════════════════════════════════════
+   STATS TAB
+════════════════════════════════════ */
+.stats-pane {
+  height: calc(100vh - 88px);
+  display: flex; flex-direction: column;
+  overflow: hidden;
 }
-.reset-to-btn:active { color: var(--text); border-color: var(--border2); }
 
-/* ── SPOTLIGHT BAR ── */
-.spotlight-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: 6px; width: 100%; margin-top: auto;
+/* Player grid */
+.stats-player-section {
+  flex: 1; display: flex; overflow: hidden;
 }
-.spotlight-btn {
-  flex: 1; height: 40px; font-size: 11px; font-weight: 800;
-  letter-spacing: 1px; text-transform: uppercase;
+.stats-team-col {
+  flex: 1; display: flex; flex-direction: column;
+  border-right: 1px solid var(--border); overflow: hidden;
+}
+.stats-team-col:last-child { border-right: none; }
+.stats-team-hdr {
+  padding: 6px 10px; background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  font-size: 10px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.stats-team-score { color: var(--gold); font-size: 14px; }
+.player-grid {
+  flex: 1; display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 5px; padding: 8px; overflow-y: auto; align-content: start;
+}
+.player-grid::-webkit-scrollbar { width: 3px; }
+.player-grid::-webkit-scrollbar-thumb { background: var(--border2); }
+.pbtn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--surf2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 4px; cursor: pointer;
+  transition: all .1s; min-height: 72px; position: relative;
+}
+.pbtn:active { transform: scale(.94); background: var(--surf3); }
+.pbtn.foul4 { border-color: var(--orange); }
+.pbtn.foul5 { border-color: var(--red); opacity: .5; }
+.pbtn-num { font-size: 22px; font-weight: 900; color: var(--gold); line-height: 1; }
+.pbtn-name { font-size: 9px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
+.pbtn-pts { font-size: 9px; color: var(--muted); }
+.pbtn-pips { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
+.pbtn-pip { width: 5px; height: 5px; border-radius: 50%; background: var(--border2); }
+.pbtn-pip.on { background: var(--red); }
+.no-roster {
+  padding: 20px 12px; text-align: center;
+  font-size: 11px; color: var(--muted); line-height: 1.6;
+  grid-column: 1 / -1;
+}
+
+/* Stat detail panel (full-screen overlay within stats tab) */
+.stat-detail {
+  position: absolute; inset: 88px 0 0 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  z-index: 10; overflow-y: auto;
+}
+.stat-detail.hidden { display: none; }
+.stat-detail-hdr {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--surf);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.stat-back-btn {
+  height: 40px; padding: 0 14px; font-size: 13px; font-weight: 800;
+  background: var(--surf2); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 8px; cursor: pointer; flex-shrink: 0;
+}
+.stat-back-btn:active { opacity: .7; }
+.stat-player-name {
+  flex: 1; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px;
+}
+.stat-player-pts {
+  font-size: 20px; font-weight: 900; color: var(--gold);
+}
+.stat-spotlight-btn {
+  height: 40px; padding: 0 14px; font-size: 13px; font-weight: 800;
   background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3);
   color: #fbbf24; border-radius: 8px; cursor: pointer;
-  transition: background .1s;
 }
-.spotlight-btn:active { background: rgba(251,191,36,.2); }
-.dismiss-btn {
-  height: 40px; padding: 0 14px; font-size: 11px; font-weight: 800;
-  letter-spacing: 1px; text-transform: uppercase;
-  background: var(--surf2); border: 1px solid var(--border2);
-  color: var(--muted); border-radius: 8px; cursor: pointer;
+.stat-spotlight-btn:active { background: rgba(251,191,36,.2); }
+
+/* Stat rows */
+.stat-rows { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+.stat-group-label {
+  font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); padding: 4px 0 2px; border-bottom: 1px solid var(--border);
 }
-.dismiss-btn:active { opacity: .7; }
+.stat-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.stat-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surf2); border-radius: 8px; padding: 8px 10px;
+  border: 1px solid var(--border);
+}
+.stat-row-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); flex: 1; }
+.stat-val { font-size: 20px; font-weight: 900; color: var(--text); min-width: 32px; text-align: center; }
+.stat-sub { font-size: 9px; color: var(--muted); min-width: 36px; text-align: right; }
+.stat-adj {
+  height: 38px; width: 38px; font-size: 20px; font-weight: 900;
+  background: var(--surf3); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 6px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-adj:active { transform: scale(.88); opacity: .8; }
+.stat-adj.plus { color: var(--green); }
+.stat-adj.minus { color: var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
+<!-- TOPBAR: live scoreboard strip -->
 <div class="topbar">
   <div class="tb-logo">NSMT</div>
-  <div class="tb-game" id="tbGame">Game Control</div>
-  <div class="ws-dot" id="wsDot"></div>
-  <div class="ws-label" id="wsLabel">WS</div>
+  <div class="tb-score-strip">
+    <div class="tb-team">
+      <div class="tb-team-name" id="tbAwayName">Away</div>
+      <div class="tb-team-score" id="tbAwayScore">0</div>
+    </div>
+    <div class="tb-center">
+      <div class="tb-period" id="tbPeriod">Q1</div>
+      <div class="tb-clock" id="tbClock">8:00</div>
+    </div>
+    <div class="tb-team">
+      <div class="tb-team-name" id="tbHomeName">Home</div>
+      <div class="tb-team-score" id="tbHomeScore">0</div>
+    </div>
+  </div>
+  <div class="tb-ws">
+    <div class="ws-dot" id="wsDot"></div>
+    <div class="ws-label" id="wsLabel">WS</div>
+  </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-
-  <!-- AWAY TEAM COL -->
-  <div class="team-col away" id="colAway">
-    <div class="team-hdr">AWAY</div>
-    <div class="team-name-big" id="awayNameDisplay">Away</div>
-    <div class="score-display" id="awayScoreDisplay" onclick="openScoreModal('away')">0</div>
-    <div class="score-btns">
-      <button class="sbtn plus3" onclick="adjScore('away',3)">+3</button>
-      <button class="sbtn plus2" onclick="adjScore('away',2)">+2</button>
-      <button class="sbtn plus1" onclick="adjScore('away',1)">+1</button>
-      <button class="sbtn minus1" onclick="adjScore('away',-1)">−1</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="section-label">Team Fouls</div>
-    <div class="foul-pips" id="awayFoulPips"></div>
-    <div class="foul-adj">
-      <button class="adj-btn minus" onclick="adjFoul('away',-1)">−</button>
-      <button class="adj-btn plus-foul" onclick="adjFoul('away',1)">+</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="section-label">Timeouts</div>
-    <div class="to-pips" id="awayToPips"></div>
-    <button class="to-use-btn" onclick="useTimeout('away')">⏱ Use Timeout</button>
-    <button class="reset-to-btn" onclick="resetTOs('away')">Reset TOs</button>
-  </div>
-
-  <!-- CENTER COL -->
-  <div class="center-col">
-    <div class="section-label">Game Clock</div>
-    <div class="clock-display" id="clockDisplay" onclick="openClockModal()">8:00</div>
-    <div class="clock-btns">
-      <button class="ck-btn start" id="clockStartBtn" onclick="clockStart()">▶</button>
-      <button class="ck-btn pause" id="clockPauseBtn" onclick="clockPause()">⏸</button>
-      <button class="ck-btn reset" onclick="clockReset()">↺</button>
-    </div>
-
-    <div class="divider" style="width:100%"></div>
-
-    <div class="period-label-big" id="periodLabel">Q1</div>
-    <div class="period-pills" id="periodPills"></div>
-    <button class="end-period-btn" onclick="endPeriod()">End Period ▸</button>
-
-    <div class="divider" style="width:100%;margin-top:auto"></div>
-
-    <div class="spotlight-row">
-      <button class="dismiss-btn" onclick="dismissSpotlight()">✕ Dismiss Card</button>
-      <button class="dismiss-btn" onclick="resetGame()" style="color:var(--red);border-color:rgba(229,63,63,.3);">↺ Reset Game</button>
-    </div>
-  </div>
-
-  <!-- HOME TEAM COL -->
-  <div class="team-col home" id="colHome">
-    <div class="team-hdr">HOME</div>
-    <div class="team-name-big" id="homeNameDisplay">Home</div>
-    <div class="score-display" id="homeScoreDisplay" onclick="openScoreModal('home')">0</div>
-    <div class="score-btns">
-      <button class="sbtn minus1" onclick="adjScore('home',-1)">−1</button>
-      <button class="sbtn plus1" onclick="adjScore('home',1)">+1</button>
-      <button class="sbtn plus2" onclick="adjScore('home',2)">+2</button>
-      <button class="sbtn plus3" onclick="adjScore('home',3)">+3</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="section-label">Team Fouls</div>
-    <div class="foul-pips" id="homeFoulPips"></div>
-    <div class="foul-adj">
-      <button class="adj-btn minus" onclick="adjFoul('home',-1)">−</button>
-      <button class="adj-btn plus-foul" onclick="adjFoul('home',1)">+</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="section-label">Timeouts</div>
-    <div class="to-pips" id="homeToPips"></div>
-    <button class="to-use-btn" onclick="useTimeout('home')">⏱ Use Timeout</button>
-    <button class="reset-to-btn" onclick="resetTOs('home')">Reset TOs</button>
-  </div>
-
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabBtnGame" onclick="switchTab('game')">⚡ Game</button>
+  <button class="tab-btn" id="tabBtnStats" onclick="switchTab('stats')">📊 Stats</button>
 </div>
 
-<!-- CLOCK SET MODAL -->
+<!-- GAME TAB -->
+<div class="tab-pane active" id="tabGame">
+  <div class="main">
+
+    <!-- AWAY TEAM COL -->
+    <div class="team-col away">
+      <div class="team-hdr">AWAY</div>
+      <div class="team-name-big" id="awayNameDisplay">Away</div>
+      <div class="score-display" id="awayScoreDisplay" onclick="openScoreModal('away')">0</div>
+      <div class="score-btns">
+        <button class="sbtn plus3" onclick="adjScore('away',3)">+3</button>
+        <button class="sbtn plus2" onclick="adjScore('away',2)">+2</button>
+        <button class="sbtn plus1" onclick="adjScore('away',1)">+1</button>
+        <button class="sbtn minus1" onclick="adjScore('away',-1)">−1</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Team Fouls</div>
+      <div class="foul-pips" id="awayFoulPips"></div>
+      <div class="foul-adj">
+        <button class="adj-btn minus" onclick="adjFoul('away',-1)">−</button>
+        <button class="adj-btn plus-foul" onclick="adjFoul('away',1)">+</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Timeouts</div>
+      <div class="to-pips" id="awayToPips"></div>
+      <button class="to-use-btn" onclick="useTimeout('away')">⏱ Use Timeout</button>
+      <button class="reset-to-btn" onclick="resetTOs('away')">Reset TOs</button>
+    </div>
+
+    <!-- CENTER COL -->
+    <div class="center-col">
+      <div class="section-label">Game Clock</div>
+      <div class="clock-display" id="clockDisplay" onclick="openClockModal()">8:00</div>
+      <div class="clock-btns">
+        <button class="ck-btn start" onclick="clockStart()">▶</button>
+        <button class="ck-btn pause" onclick="clockPause()">⏸</button>
+        <button class="ck-btn reset" onclick="clockReset()">↺</button>
+      </div>
+      <div class="divider" style="width:100%"></div>
+      <div class="period-label-big" id="periodLabel">Q1</div>
+      <div class="period-pills" id="periodPills"></div>
+      <button class="end-period-btn" onclick="endPeriod()">End Period ▸</button>
+      <div class="divider" style="width:100%;margin-top:auto"></div>
+      <div class="spotlight-row">
+        <button class="dismiss-btn" onclick="dismissSpotlight()">✕ Dismiss Card</button>
+        <button class="dismiss-btn" onclick="resetGame()" style="color:var(--red);border-color:rgba(229,63,63,.3);">↺ Reset Game</button>
+      </div>
+    </div>
+
+    <!-- HOME TEAM COL -->
+    <div class="team-col home">
+      <div class="team-hdr">HOME</div>
+      <div class="team-name-big" id="homeNameDisplay">Home</div>
+      <div class="score-display" id="homeScoreDisplay" onclick="openScoreModal('home')">0</div>
+      <div class="score-btns">
+        <button class="sbtn minus1" onclick="adjScore('home',-1)">−1</button>
+        <button class="sbtn plus1" onclick="adjScore('home',1)">+1</button>
+        <button class="sbtn plus2" onclick="adjScore('home',2)">+2</button>
+        <button class="sbtn plus3" onclick="adjScore('home',3)">+3</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Team Fouls</div>
+      <div class="foul-pips" id="homeFoulPips"></div>
+      <div class="foul-adj">
+        <button class="adj-btn minus" onclick="adjFoul('home',-1)">−</button>
+        <button class="adj-btn plus-foul" onclick="adjFoul('home',1)">+</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Timeouts</div>
+      <div class="to-pips" id="homeToPips"></div>
+      <button class="to-use-btn" onclick="useTimeout('home')">⏱ Use Timeout</button>
+      <button class="reset-to-btn" onclick="resetTOs('home')">Reset TOs</button>
+    </div>
+
+  </div>
+</div><!-- /tabGame -->
+
+<!-- STATS TAB -->
+<div class="tab-pane" id="tabStats">
+  <div class="stats-pane">
+    <div class="stats-player-section">
+      <!-- Away players -->
+      <div class="stats-team-col">
+        <div class="stats-team-hdr">
+          <span id="statsAwayLabel">Away</span>
+          <span class="stats-team-score" id="statsAwayScore">0</span>
+        </div>
+        <div class="player-grid" id="awayPlayerGrid">
+          <div class="no-roster">No roster loaded.<br>Load a roster in the producer first.</div>
+        </div>
+      </div>
+      <!-- Home players -->
+      <div class="stats-team-col">
+        <div class="stats-team-hdr">
+          <span id="statsHomeLabel">Home</span>
+          <span class="stats-team-score" id="statsHomeScore">0</span>
+        </div>
+        <div class="player-grid" id="homePlayerGrid">
+          <div class="no-roster">No roster loaded.<br>Load a roster in the producer first.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /tabStats -->
+
+<!-- Stat detail panel (shown over everything when a player is selected) -->
+<div class="stat-detail hidden" id="statDetail">
+  <div class="stat-detail-hdr">
+    <button class="stat-back-btn" onclick="closeStatDetail()">← Back</button>
+    <div class="stat-player-name" id="detailPlayerName">Player</div>
+    <div class="stat-player-pts" id="detailPlayerPts">0 PTS</div>
+    <button class="stat-spotlight-btn" onclick="spotlightCurrentPlayer()">★ Spotlight</button>
+  </div>
+  <div class="stat-rows" id="statRows"></div>
+</div>
+
+<!-- CLOCK MODAL -->
 <div class="modal-backdrop hidden" id="clockModal">
   <div class="modal-box">
     <div class="modal-title">Set Clock</div>
@@ -455,19 +567,33 @@ html, body {
 
 <script>
 // ═══════════════════════════════════
-// STATE
+// GAME STATE
 // ═══════════════════════════════════
 const S = {
-  away: { name: 'Away', code: 'AWAY', score: 0, fouls: 0, timeouts: 4 },
-  home: { name: 'Home', code: 'HOME', score: 0, fouls: 0, timeouts: 4 },
+  away: { name: 'Away', code: 'AWAY', score: 0, fouls: 0, timeouts: 4, players: [] },
+  home: { name: 'Home', code: 'HOME', score: 0, fouls: 0, timeouts: 4, players: [] },
   clock: { secs: 480, display: '8:00', running: false },
-  period: 1,
-  totalPeriods: 4,
-  periods: 4,   // 4 = quarters, 2 = halves
-  periodLen: 8, // minutes
+  period: 1, totalPeriods: 4, periods: 4, periodLen: 8,
 };
+
+// Player stats by player id: { fgm, fga, t3m, t3a, ftm, fta, off, def, ast, stl, blk, to, pf }
+const STATS = {};
+
 let _scoreModalTeam = null;
 let _clockInterval = null;
+let _detailTeam = null;
+let _detailPid = null;
+
+// ═══════════════════════════════════
+// TABS
+// ═══════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  document.getElementById('tabBtn' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  if (name === 'stats') renderPlayerGrids();
+}
 
 // ═══════════════════════════════════
 // CLOCK
@@ -480,39 +606,28 @@ function parseClock(str) {
   const p = (str || '0:00').trim().split(':');
   return p.length === 2 ? (parseInt(p[0]) || 0) * 60 + (parseInt(p[1]) || 0) : parseInt(str) || 0;
 }
-
 function clockStart() {
   if (S.clock.running) return;
   if (S.clock.secs <= 0) { S.clock.secs = S.periodLen * 60; S.clock.display = fmtClock(S.clock.secs); }
   S.clock.running = true;
-  renderClock();
-  pushBug();
+  renderClock(); pushBug();
   _clockInterval = setInterval(() => {
     S.clock.secs = Math.max(0, S.clock.secs - 1);
     S.clock.display = fmtClock(S.clock.secs);
-    renderClock();
-    pushBug();
+    renderClock(); pushBug();
     if (S.clock.secs === 0) clockPause();
   }, 1000);
 }
-
 function clockPause() {
   if (!S.clock.running && !_clockInterval) return;
-  clearInterval(_clockInterval);
-  _clockInterval = null;
-  S.clock.running = false;
-  renderClock();
-  pushBug();
+  clearInterval(_clockInterval); _clockInterval = null;
+  S.clock.running = false; renderClock(); pushBug();
 }
-
 function clockReset() {
   clockPause();
-  S.clock.secs = S.periodLen * 60;
-  S.clock.display = fmtClock(S.clock.secs);
-  renderClock();
-  pushBug();
+  S.clock.secs = S.periodLen * 60; S.clock.display = fmtClock(S.clock.secs);
+  renderClock(); pushBug();
 }
-
 function openClockModal() {
   clockPause();
   document.getElementById('clockInput').value = S.clock.display;
@@ -521,15 +636,11 @@ function openClockModal() {
 }
 function closeClockModal() { document.getElementById('clockModal').classList.add('hidden'); }
 function applyClock() {
-  const val = document.getElementById('clockInput').value.trim();
-  if (!val) return;
-  S.clock.secs = parseClock(val);
-  S.clock.display = fmtClock(S.clock.secs);
+  const val = document.getElementById('clockInput').value.trim(); if (!val) return;
+  S.clock.secs = parseClock(val); S.clock.display = fmtClock(S.clock.secs);
   S.periodLen = Math.ceil(S.clock.secs / 60) || S.periodLen;
-  closeClockModal();
-  renderClock();
-  pushBug();
-  toast('Clock set to ' + S.clock.display);
+  closeClockModal(); renderClock(); pushBug();
+  toast('Clock → ' + S.clock.display);
 }
 
 // ═══════════════════════════════════
@@ -537,10 +648,8 @@ function applyClock() {
 // ═══════════════════════════════════
 function adjScore(team, delta) {
   S[team].score = Math.max(0, S[team].score + delta);
-  renderScore(team);
-  pushBug();
+  renderScore(team); pushBug();
 }
-
 function openScoreModal(team) {
   _scoreModalTeam = team;
   document.getElementById('scoreModalTitle').textContent = 'Override — ' + S[team].name;
@@ -552,106 +661,343 @@ function closeScoreModal() { document.getElementById('scoreModal').classList.add
 function applyScore() {
   const v = parseInt(document.getElementById('scoreInput').value);
   if (isNaN(v) || v < 0) return;
-  S[_scoreModalTeam].score = v;
-  renderScore(_scoreModalTeam);
-  closeScoreModal();
-  pushBug();
-  toast(S[_scoreModalTeam].name + ' score → ' + v);
+  S[_scoreModalTeam].score = v; renderScore(_scoreModalTeam);
+  closeScoreModal(); pushBug();
+  toast(S[_scoreModalTeam].name + ' → ' + v);
 }
-function scorePreset(v) {
-  document.getElementById('scoreInput').value = v;
-}
+function scorePreset(v) { document.getElementById('scoreInput').value = v; }
 
 // ═══════════════════════════════════
 // FOULS
 // ═══════════════════════════════════
 function adjFoul(team, delta) {
   S[team].fouls = Math.max(0, (S[team].fouls || 0) + delta);
-  renderFouls(team);
-  pushBug();
+  renderFouls(team); pushBug();
 }
 
 // ═══════════════════════════════════
 // TIMEOUTS
 // ═══════════════════════════════════
 function useTimeout(team) {
-  if (S[team].timeouts <= 0) { toast('No timeouts remaining'); return; }
-  S[team].timeouts--;
-  clockPause();
-  renderTOs(team);
+  if (S[team].timeouts <= 0) { toast('No timeouts left'); return; }
+  S[team].timeouts--; clockPause(); renderTOs(team);
   pushBug({ timeoutAt: Date.now(), timeoutTeam: team, timeoutType: 'Full' });
   toast(S[team].name + ' timeout — ' + S[team].timeouts + ' left');
 }
-
-function resetTOs(team) {
-  S[team].timeouts = 4;
-  renderTOs(team);
-  pushBug();
-}
+function resetTOs(team) { S[team].timeouts = 4; renderTOs(team); pushBug(); }
 
 // ═══════════════════════════════════
 // PERIOD
 // ═══════════════════════════════════
 function getPeriodLabel(n) {
-  n = n || S.period;
+  n = n == null ? S.period : n;
   if (S.periods === 2) return n <= 2 ? 'H' + n : 'OT' + (n - 2);
   return n <= 4 ? 'Q' + n : 'OT' + (n - 4);
 }
-
-function setPeriod(n) {
-  S.period = n;
-  renderPeriod();
-  pushBug();
-  toast('Now ' + getPeriodLabel(n));
-}
-
+function setPeriod(n) { S.period = n; renderPeriod(); pushBug(); toast('Now ' + getPeriodLabel(n)); }
 function endPeriod() {
   clockPause();
   if (S.period < S.totalPeriods) {
-    S.period++;
-    S.away.fouls = 0;
-    S.home.fouls = 0;
-    renderFouls('away'); renderFouls('home');
-    clockReset();
-    renderPeriod();
-    pushBug();
-    toast('Period ' + getPeriodLabel() + ' started');
+    S.period++; S.away.fouls = 0; S.home.fouls = 0;
+    renderFouls('away'); renderFouls('home'); clockReset(); renderPeriod(); pushBug();
+    toast(getPeriodLabel() + ' started');
   } else {
-    // Add OT
-    S.totalPeriods++;
-    S.period = S.totalPeriods;
-    renderPeriod();
-    pushBug();
-    toast('Overtime!');
+    S.totalPeriods++; S.period = S.totalPeriods; renderPeriod(); pushBug(); toast('Overtime!');
   }
 }
+function addOT() { S.totalPeriods++; renderPeriod(); }
 
 // ═══════════════════════════════════
-// SPOTLIGHT DISMISS
+// SPOTLIGHT
 // ═══════════════════════════════════
 function dismissSpotlight() {
   NSMTClient.send({ type: 'patch', bug: { spotlight: { active: false } } });
   toast('Spotlight dismissed');
 }
+function spotlightCurrentPlayer() {
+  if (!_detailTeam || !_detailPid) return;
+  const p = (S[_detailTeam].players || []).find(x => x.id === _detailPid);
+  if (!p) return;
+  const st = STATS[_detailPid] || {};
+  NSMTClient.send({ type: 'patch', bug: { spotlight: {
+    active: true,
+    playerName: p.name, playerNum: p.num,
+    playerPhoto: p.photo || '',
+    teamName: S[_detailTeam].name,
+    teamColor: S[_detailTeam].primary || '#0E80FC',
+    stats: {
+      pts: calcPts(st), reb: (st.off||0)+(st.def||0),
+      ast: st.ast||0, stl: st.stl||0, blk: st.blk||0
+    },
+    dismissAfter: 8000
+  }}});
+  toast('★ Spotlight: ' + p.name);
+}
+function fireSpotlightFromGrid(team, pid) {
+  const p = (S[team].players || []).find(x => x.id === pid); if (!p) return;
+  const st = STATS[pid] || {};
+  NSMTClient.send({ type: 'patch', bug: { spotlight: {
+    active: true, playerName: p.name, playerNum: p.num, playerPhoto: p.photo || '',
+    teamName: S[team].name, teamColor: S[team].primary || '#0E80FC',
+    stats: { pts: calcPts(st), reb: (st.off||0)+(st.def||0), ast: st.ast||0, stl: st.stl||0, blk: st.blk||0 },
+    dismissAfter: 8000
+  }}});
+  toast('★ ' + p.name);
+}
 
 // ═══════════════════════════════════
-// PERSISTENCE (localStorage)
+// PLAYER STATS
+// ═══════════════════════════════════
+function calcPts(s) {
+  if (!s) return 0;
+  return ((s.fgm||0) - (s.t3m||0)) * 2 + (s.t3m||0) * 3 + (s.ftm||0);
+}
+function statDefaults() {
+  return { fgm:0, fga:0, t3m:0, t3a:0, ftm:0, fta:0, off:0, def:0, ast:0, stl:0, blk:0, to:0, pf:0 };
+}
+function getStats(pid) {
+  if (!STATS[pid]) STATS[pid] = statDefaults();
+  return STATS[pid];
+}
+function adjStat(pid, field, delta) {
+  const s = getStats(pid);
+  s[field] = Math.max(0, (s[field] || 0) + delta);
+  // Ensure makes never exceed attempts
+  if (field === 'fgm' && s.fgm > s.fga) s.fga = s.fgm;
+  if (field === 'fga' && s.fga < s.fgm) s.fgm = s.fga;
+  if (field === 't3m' && s.t3m > s.t3a) s.t3a = s.t3m;
+  if (field === 't3a' && s.t3a < s.t3m) s.t3m = s.t3a;
+  if (field === 'ftm' && s.ftm > s.fta) s.fta = s.ftm;
+  if (field === 'fta' && s.fta < s.ftm) s.ftm = s.fta;
+  // Also sync pts
+  s.pts = calcPts(s);
+  if (_detailPid === pid) renderStatDetail();
+  pushStats();
+  saveState();
+}
+
+function renderPlayerGrids() {
+  ['away', 'home'].forEach(team => {
+    const grid = document.getElementById(team + 'PlayerGrid');
+    const players = (S[team].players || []).filter(p => p.name);
+    if (!players.length) {
+      grid.innerHTML = '<div class="no-roster">No roster loaded.<br>Load one in the producer first.</div>';
+      return;
+    }
+    grid.innerHTML = players.map(p => {
+      const st = STATS[p.id] || {};
+      const pts = calcPts(st);
+      const pf = st.pf || 0;
+      const cls = pf >= 5 ? ' foul5' : pf === 4 ? ' foul4' : '';
+      const pips = [1,2,3,4,5].map(n => `<div class="pbtn-pip${n<=pf?' on':''}"></div>`).join('');
+      return `<button class="pbtn${cls}" onclick="openStatDetail('${team}','${p.id}')">
+        <div class="pbtn-num">${p.num || '?'}</div>
+        <div class="pbtn-name">${p.name.split(' ').pop()}</div>
+        <div class="pbtn-pts">${pts}pts</div>
+        <div class="pbtn-pips">${pips}</div>
+      </button>`;
+    }).join('');
+    // Update team score labels
+    document.getElementById('stats' + (team === 'away' ? 'Away' : 'Home') + 'Label').textContent = S[team].name;
+    document.getElementById('stats' + (team === 'away' ? 'Away' : 'Home') + 'Score').textContent = S[team].score;
+  });
+}
+
+function openStatDetail(team, pid) {
+  _detailTeam = team; _detailPid = pid;
+  document.getElementById('statDetail').classList.remove('hidden');
+  renderStatDetail();
+}
+function closeStatDetail() {
+  document.getElementById('statDetail').classList.add('hidden');
+  _detailTeam = null; _detailPid = null;
+  renderPlayerGrids();
+}
+
+function renderStatDetail() {
+  if (!_detailTeam || !_detailPid) return;
+  const p = (S[_detailTeam].players || []).find(x => x.id === _detailPid);
+  if (!p) return;
+  const st = getStats(_detailPid);
+  const pts = calcPts(st);
+  document.getElementById('detailPlayerName').textContent = '#' + (p.num||'?') + ' ' + p.name + ' · ' + S[_detailTeam].name;
+  document.getElementById('detailPlayerPts').textContent = pts + ' PTS';
+
+  const row = (label, field, val, sub) => `
+    <div class="stat-row">
+      <div class="stat-row-label">${label}</div>
+      <button class="stat-adj minus" onclick="adjStat('${_detailPid}','${field}',-1)">−</button>
+      <div class="stat-val" id="sv_${field}">${val}</div>
+      <button class="stat-adj plus" onclick="adjStat('${_detailPid}','${field}',1)">+</button>
+      ${sub ? `<div class="stat-sub">${sub}</div>` : '<div class="stat-sub"></div>'}
+    </div>`;
+
+  const reb = (st.off||0) + (st.def||0);
+  document.getElementById('statRows').innerHTML = `
+    <div class="stat-group-label">Shooting</div>
+    <div class="stat-row-grid">
+      ${row('FG Made','fgm', st.fgm||0, (st.fgm||0)+'/'+(st.fga||0)+' FG')}
+      ${row('FG Att','fga', st.fga||0)}
+    </div>
+    <div class="stat-row-grid">
+      ${row('3PT Made','t3m', st.t3m||0, (st.t3m||0)+'/'+(st.t3a||0)+' 3P')}
+      ${row('3PT Att','t3a', st.t3a||0)}
+    </div>
+    <div class="stat-row-grid">
+      ${row('FT Made','ftm', st.ftm||0, (st.ftm||0)+'/'+(st.fta||0)+' FT')}
+      ${row('FT Att','fta', st.fta||0)}
+    </div>
+    <div class="stat-group-label">Rebounds &amp; Misc</div>
+    <div class="stat-row-grid">
+      ${row('Off Reb','off', st.off||0, reb+' REB')}
+      ${row('Def Reb','def', st.def||0)}
+    </div>
+    <div class="stat-row-grid">
+      ${row('Assists','ast', st.ast||0)}
+      ${row('Steals','stl', st.stl||0)}
+    </div>
+    <div class="stat-row-grid">
+      ${row('Blocks','blk', st.blk||0)}
+      ${row('Turnovers','to', st.to||0)}
+    </div>
+    <div class="stat-group-label">Fouls</div>
+    ${row('Personal Fouls','pf', st.pf||0)}
+  `;
+}
+
+// Push full player stats to server
+function pushStats() {
+  const toStatObj = (team) => ({
+    name: S[team].name,
+    fouls: S[team].fouls || 0,
+    players: (S[team].players || []).map(p => {
+      const st = STATS[p.id] || {};
+      return {
+        id: p.id||'', num: p.num||'', name: p.name||'', photo: p.photo||'',
+        fgm: st.fgm||0, fga: st.fga||0, t3m: st.t3m||0, t3a: st.t3a||0,
+        ftm: st.ftm||0, fta: st.fta||0, off: st.off||0, def: st.def||0,
+        ast: st.ast||0, stl: st.stl||0, blk: st.blk||0, to: st.to||0,
+        pf: st.pf||0, pts: calcPts(st)
+      };
+    })
+  });
+  NSMTClient.send({ type: 'patch', stats: { away: toStatObj('away'), home: toStatObj('home') }});
+}
+
+// Load roster from incoming server stats (only if we don't have one locally)
+function loadRosterFromServer(statsState) {
+  if (!statsState) return;
+  ['away','home'].forEach(team => {
+    const t = statsState[team];
+    if (!t || !t.players || !t.players.length) return;
+    // Only populate names/nums — don't overwrite local stats
+    const hasRoster = (S[team].players || []).some(p => p.name);
+    if (!hasRoster) {
+      S[team].players = t.players.map(p => ({
+        id: p.id || ('p_' + p.num + '_' + team),
+        num: p.num || '', name: p.name || '', photo: p.photo || ''
+      })).filter(p => p.name);
+      // Init stat tracking for each player
+      S[team].players.forEach(p => { if (!STATS[p.id]) STATS[p.id] = statDefaults(); });
+    }
+    if (t.name && !S[team].name.match(/Away|Home/)) S[team].name = t.name;
+    else if (t.name) S[team].name = t.name;
+  });
+}
+
+// ═══════════════════════════════════
+// WEBSOCKET PUSH
+// ═══════════════════════════════════
+function pushBug(extra) {
+  saveState();
+  NSMTClient.send({ type: 'patch', bug: {
+    awayScore: S.away.score, homeScore: S.home.score,
+    awayFouls: S.away.fouls, homeFouls: S.home.fouls,
+    awayTOs: S.away.timeouts, homeTOs: S.home.timeouts,
+    clock: S.clock.display, clockRunning: S.clock.running, clockSecs: S.clock.secs,
+    quarter: getPeriodLabel(), periodNum: S.period,
+    ...(extra || {})
+  }});
+}
+
+// ═══════════════════════════════════
+// RENDER
+// ═══════════════════════════════════
+function renderScore(team) {
+  const els = [
+    document.getElementById(team + 'ScoreDisplay'),
+    document.getElementById('tb' + (team === 'away' ? 'Away' : 'Home') + 'Score'),
+    document.getElementById('stats' + (team === 'away' ? 'Away' : 'Home') + 'Score'),
+  ];
+  els.forEach(el => { if (el) el.textContent = S[team].score; });
+}
+function renderClock() {
+  const d = document.getElementById('clockDisplay');
+  const t = document.getElementById('tbClock');
+  if (d) { d.textContent = S.clock.display; d.classList.toggle('running', S.clock.running); }
+  if (t) { t.textContent = S.clock.display; t.classList.toggle('running', S.clock.running); }
+}
+function renderFouls(team) {
+  const el = document.getElementById(team + 'FoulPips'); if (!el) return;
+  let html = '';
+  for (let i = 1; i <= 7; i++) {
+    const on = i <= S[team].fouls;
+    html += `<div class="foul-pip${on ? (i >= 7 ? ' red' : ' on') : ''}"></div>`;
+  }
+  el.innerHTML = html;
+}
+function renderTOs(team) {
+  const el = document.getElementById(team + 'ToPips'); if (!el) return;
+  let html = '';
+  for (let i = 1; i <= 4; i++) html += `<div class="to-pip${i > S[team].timeouts ? ' used' : ''}"></div>`;
+  el.innerHTML = html;
+}
+function renderPeriod() {
+  const lbl = document.getElementById('periodLabel');
+  const tlbl = document.getElementById('tbPeriod');
+  const pStr = getPeriodLabel();
+  if (lbl) lbl.textContent = pStr;
+  if (tlbl) tlbl.textContent = pStr;
+  const pills = document.getElementById('periodPills'); if (!pills) return;
+  let html = '';
+  for (let i = 1; i <= S.totalPeriods; i++) {
+    const ot = i > S.periods;
+    html += `<button class="period-pill${ot?' ot':''}${i===S.period?' active':''}" onclick="setPeriod(${i})">${getPeriodLabel(i)}</button>`;
+  }
+  html += `<button class="period-pill" onclick="addOT()">+OT</button>`;
+  pills.innerHTML = html;
+}
+function renderAll() {
+  renderScore('away'); renderScore('home'); renderClock();
+  renderFouls('away'); renderFouls('home');
+  renderTOs('away'); renderTOs('home'); renderPeriod();
+  const an = document.getElementById('awayNameDisplay');
+  const hn = document.getElementById('homeNameDisplay');
+  const tba = document.getElementById('tbAwayName');
+  const tbh = document.getElementById('tbHomeName');
+  if (an) an.textContent = S.away.name;
+  if (hn) hn.textContent = S.home.name;
+  if (tba) tba.textContent = S.away.name;
+  if (tbh) tbh.textContent = S.home.name;
+}
+
+// ═══════════════════════════════════
+// PERSISTENCE
 // ═══════════════════════════════════
 const STORAGE_KEY = 'nsmt_ipad_state';
+const STATS_KEY   = 'nsmt_ipad_stats';
 
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      away: { name: S.away.name, code: S.away.code, score: S.away.score, fouls: S.away.fouls, timeouts: S.away.timeouts },
-      home: { name: S.home.name, code: S.home.code, score: S.home.score, fouls: S.home.fouls, timeouts: S.home.timeouts },
-      clock: { secs: S.clock.secs, display: S.clock.display },
-      period: S.period,
-      totalPeriods: S.totalPeriods,
-      periods: S.periods,
-      periodLen: S.periodLen,
+      away: { name:S.away.name, code:S.away.code, score:S.away.score, fouls:S.away.fouls, timeouts:S.away.timeouts, players:S.away.players, primary:S.away.primary },
+      home: { name:S.home.name, code:S.home.code, score:S.home.score, fouls:S.home.fouls, timeouts:S.home.timeouts, players:S.home.players, primary:S.home.primary },
+      clock: { secs:S.clock.secs, display:S.clock.display },
+      period:S.period, totalPeriods:S.totalPeriods, periods:S.periods, periodLen:S.periodLen,
       savedAt: Date.now()
     }));
-  } catch(e) { /* storage full or unavailable */ }
+    localStorage.setItem(STATS_KEY, JSON.stringify(STATS));
+  } catch(e) {}
 }
 
 function restoreState() {
@@ -666,109 +1012,26 @@ function restoreState() {
     if (saved.totalPeriods != null) S.totalPeriods = saved.totalPeriods;
     if (saved.periods != null) S.periods = saved.periods;
     if (saved.periodLen != null) S.periodLen = saved.periodLen;
+    // Restore player stats
+    const rawStats = localStorage.getItem(STATS_KEY);
+    if (rawStats) Object.assign(STATS, JSON.parse(rawStats));
     return true;
   } catch(e) { return false; }
 }
 
 function resetGame() {
-  if (!confirm('Reset game? This will clear all scores, clock, timeouts, and fouls.')) return;
+  if (!confirm('Reset game? Clears scores, clock, timeouts, fouls, and all player stats.')) return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STATS_KEY);
   S.away.score = 0; S.away.fouls = 0; S.away.timeouts = 4;
   S.home.score = 0; S.home.fouls = 0; S.home.timeouts = 4;
   S.clock.secs = S.periodLen * 60; S.clock.display = fmtClock(S.clock.secs); S.clock.running = false;
   clearInterval(_clockInterval); _clockInterval = null;
   S.period = 1; S.totalPeriods = S.periods;
-  renderAll();
-  pushBug();
+  // Clear stats but keep roster
+  Object.keys(STATS).forEach(k => { STATS[k] = statDefaults(); });
+  renderAll(); renderPlayerGrids(); pushBug(); pushStats();
   toast('Game reset');
-}
-
-// ═══════════════════════════════════
-// WEBSOCKET PUSH
-// ═══════════════════════════════════
-function pushBug(extra) {
-  saveState();
-  NSMTClient.send({ type: 'patch', bug: {
-    awayScore: S.away.score,
-    homeScore: S.home.score,
-    awayFouls: S.away.fouls,
-    homeFouls: S.home.fouls,
-    awayTOs: S.away.timeouts,
-    homeTOs: S.home.timeouts,
-    clock: S.clock.display,
-    clockRunning: S.clock.running,
-    clockSecs: S.clock.secs,
-    quarter: getPeriodLabel(),
-    periodNum: S.period,
-    ...(extra || {})
-  }});
-}
-
-// ═══════════════════════════════════
-// RENDER
-// ═══════════════════════════════════
-function renderScore(team) {
-  const el = document.getElementById(team + 'ScoreDisplay');
-  if (el) el.textContent = S[team].score;
-}
-
-function renderClock() {
-  const el = document.getElementById('clockDisplay');
-  if (!el) return;
-  el.textContent = S.clock.display;
-  el.classList.toggle('running', S.clock.running);
-}
-
-function renderFouls(team) {
-  const el = document.getElementById(team + 'FoulPips');
-  if (!el) return;
-  let html = '';
-  for (let i = 1; i <= 7; i++) {
-    const on = i <= S[team].fouls;
-    const red = on && i >= 7;
-    html += `<div class="foul-pip${on ? (red ? ' red' : ' on') : ''}"></div>`;
-  }
-  el.innerHTML = html;
-}
-
-function renderTOs(team) {
-  const el = document.getElementById(team + 'ToPips');
-  if (!el) return;
-  let html = '';
-  for (let i = 1; i <= 4; i++) {
-    html += `<div class="to-pip${i > S[team].timeouts ? ' used' : ''}"></div>`;
-  }
-  el.innerHTML = html;
-}
-
-function renderPeriod() {
-  const lbl = document.getElementById('periodLabel');
-  if (lbl) lbl.textContent = getPeriodLabel();
-  const pills = document.getElementById('periodPills');
-  if (!pills) return;
-  let html = '';
-  for (let i = 1; i <= S.totalPeriods; i++) {
-    const ot = i > S.periods;
-    html += `<button class="period-pill${ot ? ' ot' : ''}${i === S.period ? ' active' : ''}" onclick="setPeriod(${i})">${getPeriodLabel(i)}</button>`;
-  }
-  html += `<button class="period-pill" onclick="addOT()">+OT</button>`;
-  pills.innerHTML = html;
-}
-
-function addOT() {
-  S.totalPeriods++;
-  renderPeriod();
-}
-
-function renderAll() {
-  renderScore('away'); renderScore('home');
-  renderClock();
-  renderFouls('away'); renderFouls('home');
-  renderTOs('away'); renderTOs('home');
-  renderPeriod();
-  document.getElementById('awayNameDisplay').textContent = S.away.name;
-  document.getElementById('homeNameDisplay').textContent = S.home.name;
-  document.getElementById('tbGame').textContent = S.away.name + ' vs ' + S.home.name;
 }
 
 // ═══════════════════════════════════
@@ -777,40 +1040,29 @@ function renderAll() {
 let _toastTimer;
 function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
 // ═══════════════════════════════════
-// INCOMING STATE SYNC
+// INCOMING STATE
 // ═══════════════════════════════════
 function applyServerState(state) {
-  const b = state && state.bug;
-  if (!b) return;
-  // Sync names
-  if (b.awayName) { S.away.name = b.awayName; }
-  if (b.homeNames) { S.home.name = b.homeNames; }
-  if (b.homeName) { S.home.name = b.homeName; }
-  if (b.awayCode) S.away.code = b.awayCode;
-  if (b.homeCode) S.home.code = b.homeCode;
-  // Sync scores (only if not currently running our own clock — always accept scores)
-  if (b.awayScore != null) S.away.score = b.awayScore;
-  if (b.homeScore != null) S.home.score = b.homeScore;
-  // Fouls & TOs
-  if (b.awayFouls != null) S.away.fouls = b.awayFouls;
-  if (b.homeFouls != null) S.home.fouls = b.homeFouls;
-  if (b.awayTOs != null) S.away.timeouts = b.awayTOs;
-  if (b.homeTOs != null) S.home.timeouts = b.homeTOs;
-  // Clock (only accept if we're not running it)
-  if (!S.clock.running && b.clock) {
-    S.clock.secs = b.clockSecs != null ? b.clockSecs : parseClock(b.clock);
-    S.clock.display = b.clock;
+  if (!state) return;
+  const b = state.bug;
+  if (b) {
+    if (b.awayName) S.away.name = b.awayName;
+    if (b.homeName) S.home.name = b.homeName;
+    if (b.awayCode) S.away.code = b.awayCode;
+    if (b.homeCode) S.home.code = b.homeCode;
+    if (b.awayPrimary) S.away.primary = b.awayPrimary;
+    if (b.homePrimary) S.home.primary = b.homePrimary;
   }
-  // Period
-  if (b.periodNum != null) S.period = b.periodNum;
+  // Load roster from server if we don't have one
+  if (state.stats) loadRosterFromServer(state.stats);
   renderAll();
+  renderPlayerGrids();
 }
 
 // ═══════════════════════════════════
@@ -819,24 +1071,20 @@ function applyServerState(state) {
 NSMTClient.onConnect(() => {
   document.getElementById('wsDot').classList.add('ok');
   document.getElementById('wsLabel').textContent = 'LIVE';
-  // Push local state to server so overlay stays in sync after any reconnect
-  pushBug();
-  toast('Connected');
+  pushBug();    // push game state to overlay
+  pushStats();  // push player stats to overlay
+  toast('Connected ●');
 });
-
 NSMTClient.onDisconnect(() => {
   document.getElementById('wsDot').classList.remove('ok');
   document.getElementById('wsLabel').textContent = 'WS';
 });
-
 NSMTClient.onMessage((data) => {
-  if (data.type === 'state' || data.type === 'patch_ack') {
-    applyServerState(data.state || data);
-  } else if (data.bug || data.state) {
-    applyServerState(data.state || data);
-  }
+  // Server sends {type:'snapshot', data: STATE} on connect
+  // and {type:'state', data: STATE} on broadcasts
+  const state = data.data || (data.bug ? data : null);
+  if (state) applyServerState(state);
 });
-
 NSMTClient.connect();
 
 // ═══════════════════════════════════
@@ -846,15 +1094,9 @@ const _restored = restoreState();
 renderAll();
 if (_restored) toast('Game restored ✓');
 
-// Close modals on backdrop tap
-document.getElementById('clockModal').addEventListener('click', function(e) {
-  if (e.target === this) closeClockModal();
-});
-document.getElementById('scoreModal').addEventListener('click', function(e) {
-  if (e.target === this) closeScoreModal();
-});
-
-// Enter key on modal inputs
+// Modal backdrop tap to close
+document.getElementById('clockModal').addEventListener('click', function(e) { if (e.target === this) closeClockModal(); });
+document.getElementById('scoreModal').addEventListener('click', function(e) { if (e.target === this) closeScoreModal(); });
 document.getElementById('clockInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyClock(); });
 document.getElementById('scoreInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyScore(); });
 </script>
