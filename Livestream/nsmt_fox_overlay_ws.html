@@ -238,6 +238,21 @@
   .pc-stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
   .pc-stat span{font-family:'Anton',Impact,sans-serif;font-size:24px;color:#fff;line-height:1;}
   .pc-stat label{font-family:'Rubik',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+  /* ── All-Star Intro Overlay ── */
+  .intro-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.88);z-index:300;animation:introFadeIn 0.5s ease-out;}
+  .intro-overlay.hidden{display:none;}
+  .intro-overlay.dismissing{animation:introFadeOut 0.4s ease-in forwards;pointer-events:none;}
+  @keyframes introFadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes introFadeOut{from{opacity:1;}to{opacity:0;}}
+  .intro-card{display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;padding:64px 90px;background:linear-gradient(160deg,#0a0b0f 0%,#131620 100%);border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.9);min-width:640px;animation:introCardIn 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes introCardIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .intro-presenter{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.28);}
+  .intro-event-name{font-family:'Anton',Impact,sans-serif;font-size:72px;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .intro-accent-bar{width:90px;height:5px;border-radius:3px;background:#0E80FC;}
+  .intro-matchup{display:flex;align-items:center;gap:28px;margin-top:4px;}
+  .intro-team{font-family:'Anton',Impact,sans-serif;font-size:34px;text-transform:uppercase;letter-spacing:1px;color:#fff;}
+  .intro-vs{font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.28);}
+  .intro-tipoff{font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px;}
 </style>
 </head>
 <body>
@@ -340,6 +355,20 @@
     </div>
   </div>
   <div id="ticker"><div id="tickerText"></div></div>
+  <!-- All-Star Intro Overlay -->
+  <div id="introOverlay" class="intro-overlay hidden">
+    <div class="intro-card">
+      <div class="intro-presenter">NOVA SPORTS MEDIA TEAM PRESENTS</div>
+      <div class="intro-event-name" id="introEventName">ALL-STAR</div>
+      <div class="intro-accent-bar" id="introAccentBar"></div>
+      <div class="intro-matchup">
+        <div class="intro-team" id="introAwayTeam">AWAY</div>
+        <div class="intro-vs">VS</div>
+        <div class="intro-team" id="introHomeTeam">HOME</div>
+      </div>
+      <div class="intro-tipoff">TIP OFF</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -582,6 +611,8 @@
     if(b.graphic) showGraphic(b.graphic, b.durations);
     // Player spotlight
     applySpotlight(b.spotlight);
+    // All-star intro overlay
+    applyIntro(b);
     // Overlay visibility toggles
     const bw=document.getElementById('bugWrap');
     if(bw && b.showScorebug!==undefined) bw.style.display=b.showScorebug?'':'none';
@@ -673,6 +704,26 @@
         card.classList.add('dismissing');
         setTimeout(function(){ card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
       }, sp.dismissAfter);
+    }
+  }
+  function applyIntro(b) {
+    const overlay = document.getElementById('introOverlay');
+    if (!overlay) return;
+    const show = !!(b && b.showIntro);
+    if (show) {
+      const eventKey = (b.allStarEvent || '').toLowerCase();
+      const names    = { nova24: 'NOVA 24', pvp: 'PUBLIC vs PRIVATE' };
+      const colors   = { nova24: '#0E80FC', pvp: '#F5C518' };
+      document.getElementById('introEventName').textContent = names[eventKey] || 'ALL-STAR';
+      document.getElementById('introAccentBar').style.background = colors[eventKey] || '#0E80FC';
+      document.getElementById('introAwayTeam').textContent = (b.awayName || 'AWAY').toUpperCase();
+      document.getElementById('introHomeTeam').textContent = (b.homeName || 'HOME').toUpperCase();
+      overlay.classList.remove('hidden', 'dismissing');
+    } else {
+      if (!overlay.classList.contains('hidden')) {
+        overlay.classList.add('dismissing');
+        setTimeout(() => { overlay.classList.add('hidden'); overlay.classList.remove('dismissing'); }, 400);
+      }
     }
   }
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
