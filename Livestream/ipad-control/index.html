@@ -385,6 +385,7 @@ html, body {
 
     <div class="spotlight-row">
       <button class="dismiss-btn" onclick="dismissSpotlight()">✕ Dismiss Card</button>
+      <button class="dismiss-btn" onclick="resetGame()" style="color:var(--red);border-color:rgba(229,63,63,.3);">↺ Reset Game</button>
     </div>
   </div>
 
@@ -634,9 +635,59 @@ function dismissSpotlight() {
 }
 
 // ═══════════════════════════════════
+// PERSISTENCE (localStorage)
+// ═══════════════════════════════════
+const STORAGE_KEY = 'nsmt_ipad_state';
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      away: { name: S.away.name, code: S.away.code, score: S.away.score, fouls: S.away.fouls, timeouts: S.away.timeouts },
+      home: { name: S.home.name, code: S.home.code, score: S.home.score, fouls: S.home.fouls, timeouts: S.home.timeouts },
+      clock: { secs: S.clock.secs, display: S.clock.display },
+      period: S.period,
+      totalPeriods: S.totalPeriods,
+      periods: S.periods,
+      periodLen: S.periodLen,
+      savedAt: Date.now()
+    }));
+  } catch(e) { /* storage full or unavailable */ }
+}
+
+function restoreState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    if (saved.away) Object.assign(S.away, saved.away);
+    if (saved.home) Object.assign(S.home, saved.home);
+    if (saved.clock) { S.clock.secs = saved.clock.secs; S.clock.display = saved.clock.display; }
+    if (saved.period != null) S.period = saved.period;
+    if (saved.totalPeriods != null) S.totalPeriods = saved.totalPeriods;
+    if (saved.periods != null) S.periods = saved.periods;
+    if (saved.periodLen != null) S.periodLen = saved.periodLen;
+    return true;
+  } catch(e) { return false; }
+}
+
+function resetGame() {
+  if (!confirm('Reset game? This will clear all scores, clock, timeouts, and fouls.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  S.away.score = 0; S.away.fouls = 0; S.away.timeouts = 4;
+  S.home.score = 0; S.home.fouls = 0; S.home.timeouts = 4;
+  S.clock.secs = S.periodLen * 60; S.clock.display = fmtClock(S.clock.secs); S.clock.running = false;
+  clearInterval(_clockInterval); _clockInterval = null;
+  S.period = 1; S.totalPeriods = S.periods;
+  renderAll();
+  pushBug();
+  toast('Game reset');
+}
+
+// ═══════════════════════════════════
 // WEBSOCKET PUSH
 // ═══════════════════════════════════
 function pushBug(extra) {
+  saveState();
   NSMTClient.send({ type: 'patch', bug: {
     awayScore: S.away.score,
     homeScore: S.home.score,
@@ -768,8 +819,8 @@ function applyServerState(state) {
 NSMTClient.onConnect(() => {
   document.getElementById('wsDot').classList.add('ok');
   document.getElementById('wsLabel').textContent = 'LIVE';
-  // Request current state to sync on connect
-  NSMTClient.send({ type: 'get_state' });
+  // Push local state to server so overlay stays in sync after any reconnect
+  pushBug();
   toast('Connected');
 });
 
@@ -791,7 +842,9 @@ NSMTClient.connect();
 // ═══════════════════════════════════
 // INIT
 // ═══════════════════════════════════
+const _restored = restoreState();
 renderAll();
+if (_restored) toast('Game restored ✓');
 
 // Close modals on backdrop tap
 document.getElementById('clockModal').addEventListener('click', function(e) {

@@ -8,6 +8,10 @@
 import asyncio, json, threading, os, time, mimetypes
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
+# ── Disk persistence ──────────────────────────────────────
+ROOT_DIR   = os.path.dirname(os.path.abspath(__file__))
+STATE_FILE = os.path.join(ROOT_DIR, 'game_state.json')
+
 try:
     import websockets
 except Exception:
@@ -99,6 +103,39 @@ STATE["bug"].update({
 
 CLIENTS = set()
 
+# ── State persistence ─────────────────────────────────────
+def load_state():
+    """Merge saved game_state.json into STATE on startup."""
+    if not os.path.exists(STATE_FILE):
+        return
+    try:
+        with open(STATE_FILE, 'r') as f:
+            saved = json.load(f)
+        for k in ('bug', 'ticker', 'stats'):
+            if k in saved and isinstance(saved[k], dict):
+                STATE[k].update(saved[k])
+        print(f"[STATE] Restored from game_state.json")
+    except Exception as e:
+        print(f"[STATE] Could not load saved state: {e}")
+
+_save_handle = None
+
+def _write_state():
+    """Write STATE to disk (runs inside asyncio event loop)."""
+    try:
+        with open(STATE_FILE, 'w') as f:
+            json.dump(STATE, f)
+    except Exception as e:
+        print(f"[STATE] Save failed: {e}")
+
+def schedule_save():
+    """Debounce disk write: 500 ms after last change."""
+    global _save_handle
+    loop = asyncio.get_event_loop()
+    if _save_handle:
+        _save_handle.cancel()
+    _save_handle = loop.call_later(0.5, _write_state)
+
 async def ws_handler(websocket):
     CLIENTS.add(websocket)
     # Send current snapshot immediately
@@ -111,11 +148,13 @@ async def ws_handler(websocket):
                 for k in ("bug","ticker","stats"):
                     if k in data:
                         STATE[k] = data[k]
+                schedule_save()
                 await broadcast({"type":"state","data":STATE})
             elif kind == "patch":
                 for k in ("bug","ticker","stats"):
                     if k in data:
                         STATE[k].update(data[k])
+                schedule_save()
                 await broadcast({"type":"state","data":STATE})
             elif kind == "get_state":
                 await websocket.send(json.dumps({"type":"snapshot","data":STATE}))
@@ -198,6 +237,7 @@ async def start_ws():
         await asyncio.Future()  # run forever
 
 if __name__ == "__main__":
+    load_state()
     threading.Thread(target=start_http, daemon=True).start()
     try:
         asyncio.run(start_ws())
