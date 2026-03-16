@@ -126,6 +126,43 @@ Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-cont
 
 ---
 
+## NOVA 24 ROSTERS
+
+### Team Lin (12 players)
+| Name | School | Instagram |
+|------|--------|-----------|
+| Will Robinson | Westfield | @Williamrobinson.24 |
+| Adam Perdue | Broad Run | @adam_perdue22 |
+| Landon Judy | Hayfield | @Landonkj33 |
+| Max Lawson | Riverside | @maxlawson_3 |
+| Shreyas Vaidya | Marshall | @shootashrey |
+| Charlie Boone | Freedom SR | @Charlie_Boone |
+| Medwyn Opoku | Potomac | @1upmed |
+| Nathan Pewett | Annandale | @nathanpewett |
+| Mason Ogburn | Independence | @mason_ogburn13 |
+| Kaci Jones-Carr | Woodbridge | @sh0wtime.k3_ |
+| Makhai Ramos | South Lakes | @Khaiclutchh_ |
+| Will Davis | Meridian | @willldaviss |
+
+### Team Rivers (11 players)
+| Name | School | Instagram |
+|------|--------|-----------|
+| Brian Burns | South County | @brianburnsll |
+| Noah Conrad | Patriot | @noahjawnts |
+| Colin Stemberger | Westfield | @Colstem |
+| Denari Nesbitt | Edison | @nari3s |
+| Jacob Bell | McLean | @jake.bell03 |
+| Isaac Heaton | West Springfield | @isaac.heaton11 |
+| Barrett Medhurst | Woodson | @barrettmedhurst26 |
+| Devon Pettibone | Briar Woods | @devon.pettibone |
+| Antonio Jones | Forest Park | @571.tonio |
+| Caleb Roach | Woodgrove | @calebroach_ |
+| Ty Wilkerson | Brooke Point | @Tj2shiftyyyy |
+
+> Both rosters are pre-loaded in the Producer → Rosters tab as "Nova 24 — Team Lin" and "Nova 24 — Team Rivers". Assign them to away/home teams in the wizard before the game.
+
+---
+
 ## ALL-STAR GAME MODE (Nova 24 / Public vs Private)
 
 1. On the MBP Producer → **Broadcast** tab

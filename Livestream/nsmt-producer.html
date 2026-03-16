@@ -1183,6 +1183,49 @@ const DB = {
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){console.warn(e)}}
 };
 
+// ── Seed Nova 24 rosters (always present) ─────────────────
+(function seedNova24(){
+  const LIN_ID    = 'r_NOVA24_LIN';
+  const RIVERS_ID = 'r_NOVA24_RIVERS';
+  const mkP = (name, school, ig) => ({
+    id: 'p_N24_' + name.replace(/\s+/g,'_'),
+    num: '', name, pos: '', fouls: 0, photo: '', ig
+  });
+  const teamLin = { id: LIN_ID, name: 'Nova 24 — Team Lin', players: [
+    mkP('Will Robinson',  'Westfield',    'Williamrobinson.24'),
+    mkP('Adam Perdue',    'Broad Run',    'adam_perdue22'),
+    mkP('Landon Judy',    'Hayfield',     'Landonkj33'),
+    mkP('Max Lawson',     'Riverside',    'maxlawson_3'),
+    mkP('Shreyas Vaidya', 'Marshall',     'shootashrey'),
+    mkP('Charlie Boone',  'Freedom SR',   'Charlie_Boone'),
+    mkP('Medwyn Opoku',   'Potomac',      '1upmed'),
+    mkP('Nathan Pewett',  'Annandale',    'nathanpewett'),
+    mkP('Mason Ogburn',   'Independence', 'mason_ogburn13'),
+    mkP('Kaci Jones-Carr','Woodbridge',   'sh0wtime.k3_'),
+    mkP('Makhai Ramos',   'South Lakes',  'Khaiclutchh_'),
+    mkP('Will Davis',     'Meridian',     'willldaviss'),
+  ]};
+  const teamRivers = { id: RIVERS_ID, name: 'Nova 24 — Team Rivers', players: [
+    mkP('Brian Burns',     'South County',    'brianburnsll'),
+    mkP('Noah Conrad',     'Patriot',         'noahjawnts'),
+    mkP('Colin Stemberger','Westfield',       'Colstem'),
+    mkP('Denari Nesbitt',  'Edison',          'nari3s'),
+    mkP('Jacob Bell',      'McLean',          'jake.bell03'),
+    mkP('Isaac Heaton',    'West Springfield','isaac.heaton11'),
+    mkP('Barrett Medhurst','Woodson',         'barrettmedhurst26'),
+    mkP('Devon Pettibone', 'Briar Woods',     'devon.pettibone'),
+    mkP('Antonio Jones',   'Forest Park',     '571.tonio'),
+    mkP('Caleb Roach',     'Woodgrove',       'calebroach_'),
+    mkP('Ty Wilkerson',    'Brooke Point',    'Tj2shiftyyyy'),
+  ]};
+  const rosters  = DB.get('nsmt_rosters', []);
+  const hasLin    = rosters.some(r => r.id === LIN_ID);
+  const hasRivers = rosters.some(r => r.id === RIVERS_ID);
+  if (!hasLin)    rosters.unshift(teamLin);
+  if (!hasRivers) rosters.unshift(teamRivers);
+  if (!hasLin || !hasRivers) DB.set('nsmt_rosters', rosters);
+})();
+
 // ── Seed test rosters (always present, never deleted by normal use) ──
 (function seedTestRosters(){
   const TEST_AWAY_ID = 'r_TEST_AWAY';

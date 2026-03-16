@@ -358,7 +358,7 @@
   <!-- All-Star Intro Overlay -->
   <div id="introOverlay" class="intro-overlay hidden">
     <div class="intro-card">
-      <div class="intro-presenter">NOVA SPORTS MEDIA TEAM PRESENTS</div>
+      <div class="intro-presenter" id="introPresenter">NOVA SPORTS MEDIA TEAM PRESENTS</div>
       <div class="intro-event-name" id="introEventName">ALL-STAR</div>
       <div class="intro-accent-bar" id="introAccentBar"></div>
       <div class="intro-matchup">
@@ -714,10 +714,18 @@
       const eventKey = (b.allStarEvent || '').toLowerCase();
       const names    = { nova24: 'NOVA 24', pvp: 'PUBLIC vs PRIVATE' };
       const colors   = { nova24: '#0E80FC', pvp: '#F5C518' };
-      document.getElementById('introEventName').textContent = names[eventKey] || 'ALL-STAR';
+      const presenters = {
+        nova24: 'NOVA SPORTS MEDIA TEAM PRESENTS',
+        pvp:    'NOVA SPORTS MEDIA TEAM PRESENTS',
+      };
+      // For Nova 24, use canonical team names if homeName/awayName haven't been set
+      const awayDefault = eventKey === 'nova24' ? 'TEAM LIN' : 'AWAY';
+      const homeDefault = eventKey === 'nova24' ? 'TEAM RIVERS' : 'HOME';
+      document.getElementById('introPresenter').textContent  = presenters[eventKey] || 'NOVA SPORTS MEDIA TEAM PRESENTS';
+      document.getElementById('introEventName').textContent  = names[eventKey] || 'ALL-STAR';
       document.getElementById('introAccentBar').style.background = colors[eventKey] || '#0E80FC';
-      document.getElementById('introAwayTeam').textContent = (b.awayName || 'AWAY').toUpperCase();
-      document.getElementById('introHomeTeam').textContent = (b.homeName || 'HOME').toUpperCase();
+      document.getElementById('introAwayTeam').textContent   = (b.awayName || awayDefault).toUpperCase();
+      document.getElementById('introHomeTeam').textContent   = (b.homeName || homeDefault).toUpperCase();
       overlay.classList.remove('hidden', 'dismissing');
     } else {
       if (!overlay.classList.contains('hidden')) {
