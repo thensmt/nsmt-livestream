@@ -30,7 +30,8 @@ node nsmt-server-node.js
 |-----------|-----|
 | Producer (MBP) | `http://localhost:8000/nsmt-producer.html` |
 | OBS Browser Source | `http://localhost:8000/nsmt_fox_overlay_ws.html` |
-| iPad stats | `http://<local_ip>:8000/nsmt-stats.html` |
+| **iPad Game Controller** | `http://<local_ip>:8000/ipad-control/` |
+| iPad stat tracker | `http://<local_ip>:8000/nsmt-stats.html` |
 
 ### OBS Setup
 - Browser Source: `http://localhost:8000/nsmt_fox_overlay_ws.html`
@@ -69,6 +70,7 @@ MBP (nsmt-producer.html) ───┘
 | `nsmt-server-node.js` | Node.js drop-in alternative |
 | `nsmt-ws-client.js` | Shared WS client (auto-reconnect; included by all pages) |
 | `nsmt-producer.html` | Producer control panel (MBP) |
+| `ipad-control/index.html` | **iPad primary game controller** — scores, clock, TOs, fouls, periods |
 | `nsmt-stats.html` | iPad stat tracker (PWA, Firebase sync) |
 | `nsmt_fox_overlay_ws.html` | OBS scorebug overlay (FOX-style, 1920×1080) |
 | `nsmt-overlay.html` | Legacy/alternate overlay |
