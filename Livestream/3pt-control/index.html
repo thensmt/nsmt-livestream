@@ -180,6 +180,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
   // ── Local state ───────────────────────────────────────────
   const EMPTY_RACKS = () => Array.from({length:5}, () => Array(5).fill(false));
+  const otherKey = court === 1 ? 'court2' : 'court1';
 
   let S = {
     show: false,
@@ -187,6 +188,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
     moneyRack: 4,         // 0-indexed; default to rack 5 (last)
     racks: EMPTY_RACKS()
   };
+
+  // Cache of the OTHER court's data — needed so we don't wipe it when patching
+  let otherCourt = { shooter: '', moneyRack: 4, racks: EMPTY_RACKS() };
 
   // ── WebSocket ─────────────────────────────────────────────
   const WS_HOST = location.hostname === 'localhost' ? 'localhost' : location.hostname;
@@ -213,34 +217,46 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
     if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
   }
 
-  // ── Sync from server (initial snapshot) ──────────────────
+  // ── Sync from server ──────────────────────────────────────
   function syncFromServer(state) {
     const tp = state && state.bug && state.bug.threePoint;
     if (!tp) return;
-    // Pull shared fields
-    if (tp.show !== undefined) S.show = tp.show;
-    if (tp.round)              S.round = tp.round;
+    // Always cache shared fields
+    if (tp.show  !== undefined) S.show  = tp.show;
+    if (tp.round !== undefined) S.round = tp.round;
+    // Cache the OTHER court so we can include it in every push
+    if (tp[otherKey]) {
+      otherCourt = {
+        shooter:   tp[otherKey].shooter   || '',
+        moneyRack: tp[otherKey].moneyRack != null ? tp[otherKey].moneyRack : 4,
+        racks:     tp[otherKey].racks ? tp[otherKey].racks.map(r => [...r]) : EMPTY_RACKS()
+      };
+    }
     // Pull this court's data
     const ct = tp[courtKey];
     if (ct) {
       if (ct.moneyRack != null) S.moneyRack = ct.moneyRack;
       if (ct.racks)             S.racks = ct.racks.map(r => [...r]);
-      if (ct.shooter)           document.getElementById('shooterName').value = ct.shooter;
+      if (ct.shooter != null)   document.getElementById('shooterName').value = ct.shooter;
     }
     renderAll();
   }
 
   // ── Push to server ────────────────────────────────────────
+  // Always sends the FULL threePoint object (both courts) so neither court
+  // overwrites the other's data via the server's shallow-merge patch.
   function pushState() {
     const shooter = document.getElementById('shooterName').value.trim();
-    const courtData = { shooter, moneyRack: S.moneyRack, racks: S.racks };
+    const myData  = { shooter, moneyRack: S.moneyRack, racks: S.racks };
 
-    const patch = { threePoint: { show: S.show, round: S.round, [courtKey]: courtData } };
-    // Court 1 is authoritative for show/round
-    if (court !== 1) delete patch.threePoint.show;
-    if (court !== 1) delete patch.threePoint.round;
-
-    send({ type: 'patch', bug: patch });
+    send({ type: 'patch', bug: {
+      threePoint: {
+        show:       S.show,
+        round:      S.round,
+        [courtKey]: myData,
+        [otherKey]: otherCourt
+      }
+    }});
   }
 
   // ── Round ─────────────────────────────────────────────────
@@ -251,21 +267,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
     pushState();
   };
 
-  // ── Overlay visibility ────────────────────────────────────
+  // ── Overlay visibility (court 1 is authoritative) ────────
   window.setShow = function(show) {
     S.show = show;
     document.getElementById('btnShow').classList.toggle('active', show);
     document.getElementById('btnHide').classList.toggle('active', !show);
-    // Only court 1 sends show (authoritative)
     if (court === 1) pushState();
-    else {
-      // Court 2 just changes local state display but doesn't control show
-      S.show = show;
-    }
-    if (court === 1) {
-      document.getElementById('btnShow').classList.toggle('active', show);
-      document.getElementById('btnHide').classList.toggle('active', !show);
-    }
   };
 
   // ── Money rack ────────────────────────────────────────────
