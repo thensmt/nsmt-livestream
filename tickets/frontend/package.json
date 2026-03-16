@@ -13,7 +13,8 @@
     "react-dom": "^18.x",
     "react-router-dom": "^6.x",
     "qrcode": "^1.5.x",
-    "jspdf": "^2.5.x"
+    "jspdf": "^2.5.x",
+    "firebase": "^10.12.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.x",

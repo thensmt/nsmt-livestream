@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../App';
+import { useAuth } from '../AuthContext';
 import '../styles.css';
 
 function fmtDateTime(iso) {
@@ -14,9 +15,10 @@ function centsToDisplay(cents) {
 }
 
 export default function EventDetail() {
-  const { slug } = useParams();
-  const [ev, setEv]             = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const { slug }  = useParams();
+  const { user, signIn, signOut } = useAuth();
+  const [ev, setEv]                     = useState(null);
+  const [loading, setLoading]           = useState(true);
   const [selectedTier, setSelectedTier] = useState(null);
   const [showDrawer, setShowDrawer]     = useState(false);
 
@@ -28,18 +30,14 @@ export default function EventDetail() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return (
-    <><Nav /><div className="loading">Loading…</div></>
-  );
-  if (!ev) return (
-    <><Nav /><div className="not-found"><h2>Event not found</h2><p>This event may no longer be available.</p></div></>
-  );
+  if (loading) return <><NavBar user={user} signIn={signIn} signOut={signOut} /><div className="loading">Loading…</div></>;
+  if (!ev)     return <><NavBar user={user} signIn={signIn} signOut={signOut} /><div className="not-found"><h2>Event not found</h2><p>This event may no longer be available.</p></div></>;
 
   const availableTiers = (ev.tiers || []).filter((t) => t.active !== false);
 
   return (
     <>
-      <Nav />
+      <NavBar user={user} signIn={signIn} signOut={signOut} />
       <div className="page">
         {ev.coverImageUrl && <img className="event-hero" src={ev.coverImageUrl} alt={ev.title} />}
         <h1 className="event-title">{ev.title}</h1>
@@ -58,7 +56,7 @@ export default function EventDetail() {
           <>
             <div className="section-label">Select Tickets</div>
             {availableTiers.map((tier) => {
-              const soldOut = tier.capacity > 0 && tier.sold >= tier.capacity;
+              const soldOut  = tier.capacity > 0 && tier.sold >= tier.capacity;
               const lowStock = !soldOut && tier.capacity > 0 && (tier.capacity - tier.sold) <= Math.ceil(tier.capacity * 0.2);
               return (
                 <div
@@ -71,7 +69,7 @@ export default function EventDetail() {
                     <span className="tier-price">{centsToDisplay(tier.price)}</span>
                   </div>
                   {tier.description && <div className="tier-desc">{tier.description}</div>}
-                  {soldOut && <div className="tier-avail">Sold out</div>}
+                  {soldOut  && <div className="tier-avail">Sold out</div>}
                   {lowStock && <div className="tier-avail low">Only {tier.capacity - tier.sold} left</div>}
                 </div>
               );
@@ -97,6 +95,7 @@ export default function EventDetail() {
         <CheckoutDrawer
           event={ev}
           tier={selectedTier}
+          user={user}
           onClose={() => setShowDrawer(false)}
         />
       )}
@@ -104,20 +103,27 @@ export default function EventDetail() {
   );
 }
 
-function Nav() {
+function NavBar({ user, signIn, signOut }) {
   return (
     <nav className="nav">
       <div className="nav-brand"><span className="blue">NSMT</span> Tickets</div>
-      <Link to="/" className="nav-back">← All Events</Link>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Link to="/" className="nav-back">← Events</Link>
+        {user
+          ? <button onClick={signOut} style={{ background: 'none', border: '1px solid #ddd', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 13 }}>Sign out</button>
+          : <button onClick={signIn}  style={{ background: 'none', border: '1px solid #ddd', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 13 }}>Sign in</button>
+        }
+      </div>
     </nav>
   );
 }
 
 // ── Checkout Drawer ────────────────────────────────────────────────────────────
 
-function CheckoutDrawer({ event: ev, tier, onClose }) {
-  const [name, setName]         = useState('');
-  const [email, setEmail]       = useState('');
+function CheckoutDrawer({ event: ev, tier, user, onClose }) {
+  // Pre-fill from Google profile if signed in
+  const [name, setName]         = useState(user?.displayName || '');
+  const [email, setEmail]       = useState(user?.email || '');
   const [qty, setQty]           = useState(1);
   const [promo, setPromo]       = useState('');
   const [promoMsg, setPromoMsg] = useState('');
@@ -125,9 +131,9 @@ function CheckoutDrawer({ event: ev, tier, onClose }) {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
 
-  const unitPrice  = tier.price;
-  const subtotal   = unitPrice * qty;
-  const total      = Math.max(0, subtotal - discount);
+  const unitPrice = tier.price;
+  const subtotal  = unitPrice * qty;
+  const total     = Math.max(0, subtotal - discount);
 
   async function applyPromo() {
     if (!promo) return;
@@ -165,9 +171,8 @@ function CheckoutDrawer({ event: ev, tier, onClose }) {
       if (!r.ok) { setError(d.error || 'Something went wrong.'); setLoading(false); return; }
 
       if (d.sessionUrl) {
-        window.location.href = d.sessionUrl; // redirect to Stripe
+        window.location.href = d.sessionUrl;
       } else {
-        // Free order fulfilled inline
         window.location.href = `/orders?orderId=${d.orderId}&email=${encodeURIComponent(email.trim())}`;
       }
     } catch {
@@ -180,6 +185,12 @@ function CheckoutDrawer({ event: ev, tier, onClose }) {
     <div className="drawer-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="drawer">
         <h2>Get Tickets — {ev.title}</h2>
+
+        {user && (
+          <p style={{ fontSize: 13, color: '#71717a', marginBottom: 16 }}>
+            Signed in as <strong>{user.email}</strong>
+          </p>
+        )}
 
         <div className="form-field">
           <label>Quantity</label>
@@ -198,7 +209,16 @@ function CheckoutDrawer({ event: ev, tier, onClose }) {
 
         <div className="form-field">
           <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@example.com" autoComplete="email" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="jane@example.com"
+            autoComplete="email"
+            readOnly={!!user}
+            style={user ? { background: '#f4f4f5', color: '#71717a' } : {}}
+          />
+          {user && <div style={{ fontSize: 12, color: '#71717a', marginTop: 4 }}>From your Google account</div>}
         </div>
 
         <div className="form-field">
@@ -207,7 +227,7 @@ function CheckoutDrawer({ event: ev, tier, onClose }) {
             <input type="text" value={promo} onChange={(e) => { setPromo(e.target.value.toUpperCase()); setPromoMsg(''); setDiscount(0); }} placeholder="NSMT10" autoComplete="off" autoCapitalize="characters" />
             <button className="promo-apply" onClick={applyPromo}>Apply</button>
           </div>
-          {promoMsg && <div className={`discount-badge`} style={{ color: discount > 0 ? '#22c55e' : '#ef4444' }}>{promoMsg}</div>}
+          {promoMsg && <div className="discount-badge" style={{ color: discount > 0 ? '#22c55e' : '#ef4444' }}>{promoMsg}</div>}
         </div>
 
         <div className="order-summary">

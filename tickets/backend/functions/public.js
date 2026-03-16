@@ -5,7 +5,8 @@
  * Routes:
  *   GET /tickets/events               — list published events for an org
  *   GET /tickets/events/{slug}        — event detail + tiers
- *   GET /tickets/order/{orderId}      — self-service order lookup (requires ?email=)
+ *   GET /tickets/orders?email=        — list all orders for an email (My Tickets / signed-in view)
+ *   GET /tickets/order/{orderId}      — single order lookup (requires ?email=)
  */
 
 const { ddb, TABLES } = require('../shared/db');
@@ -31,6 +32,9 @@ exports.handler = async (event) => {
     if (method === 'GET' && path.startsWith('/tickets/events/')) {
       const slug = decodeURIComponent(path.split('/tickets/events/')[1]);
       return await getEvent(event, slug);
+    }
+    if (method === 'GET' && path === '/tickets/orders') {
+      return await listOrdersByEmail(event);
     }
     if (method === 'GET' && path.startsWith('/tickets/order/')) {
       const orderId = path.split('/tickets/order/')[1];
@@ -109,6 +113,37 @@ async function getOrder(event, orderId) {
   // Fetch associated tickets
   const tickets = await fetchTickets(order.ticketIds, order.eventId);
   return ok({ order: sanitizeOrder(order), tickets });
+}
+
+// ── GET /tickets/orders?email= ────────────────────────────────────────────────
+
+async function listOrdersByEmail(event) {
+  const qs    = event.queryStringParameters || {};
+  const email = (qs.email || '').toLowerCase().trim();
+
+  if (!email) return err('email is required', 400);
+
+  const result = await ddb.send(new QueryCommand({
+    TableName:                 TABLES.ORDERS,
+    IndexName:                 'email-index',
+    KeyConditionExpression:    'buyerEmail = :email',
+    FilterExpression:          '#st IN (:paid, :free)',
+    ExpressionAttributeNames:  { '#st': 'status' },
+    ExpressionAttributeValues: { ':email': email, ':paid': 'paid', ':free': 'free' },
+    ScanIndexForward:          false, // newest first
+  }));
+
+  const rawOrders = result.Items || [];
+
+  // Fetch tickets for each order in parallel (batched per order)
+  const orders = await Promise.all(
+    rawOrders.map(async (order) => {
+      const tickets = await fetchTickets(order.ticketIds || [], order.eventId);
+      return { order: sanitizeOrder(order), tickets };
+    })
+  );
+
+  return ok({ orders });
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
