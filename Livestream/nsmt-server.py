@@ -7,6 +7,7 @@
 
 import asyncio, json, threading, os, time, mimetypes
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs, unquote
 
 # ── Disk persistence ──────────────────────────────────────
 ROOT_DIR   = os.path.dirname(os.path.abspath(__file__))
@@ -175,18 +176,23 @@ async def broadcast(msg: dict):
     for ws in dead:
         CLIENTS.discard(ws)
 
-UPLOADS_DIR = os.path.join(os.path.dirname(__file__) or '.', 'uploads')
+UPLOADS_DIR  = os.path.join(os.path.dirname(__file__) or '.', 'uploads')
+PLAYERS_DIR  = os.path.join(UPLOADS_DIR, 'players')
 os.makedirs(UPLOADS_DIR, exist_ok=True)
+os.makedirs(PLAYERS_DIR, exist_ok=True)
 
 def start_http():
     class Handler(SimpleHTTPRequestHandler):
         def log_message(self, fmt, *args):
             return
         def do_GET(self):
-            if self.path == '/list-logos':
+            parsed = urlparse(self.path)
+            path   = parsed.path
+            exts   = ('.png','.jpg','.jpeg','.svg','.gif','.webp')
+
+            if path == '/list-logos':
                 logos = []
                 root = os.path.dirname(os.path.abspath(__file__))
-                exts = ('.png','.jpg','.jpeg','.svg','.gif','.webp')
                 for f in sorted(os.listdir(root)):
                     if f.lower().endswith(exts) and not f.startswith('.'):
                         logos.append({'url': '/' + f, 'name': f})
@@ -201,18 +207,50 @@ def start_http():
                 self.end_headers()
                 self.wfile.write(body)
                 return
+
+            if path == '/list-player-photos':
+                # Returns { "Player Name": "/uploads/players/Player Name/first-image.jpg", ... }
+                photos = {}
+                if os.path.isdir(PLAYERS_DIR):
+                    for name in sorted(os.listdir(PLAYERS_DIR)):
+                        folder = os.path.join(PLAYERS_DIR, name)
+                        if not os.path.isdir(folder): continue
+                        for fname in sorted(os.listdir(folder)):
+                            if fname.lower().endswith(exts) and not fname.startswith('.'):
+                                photos[name] = '/uploads/players/' + name + '/' + fname
+                                break
+                body = json.dumps({'photos': photos}).encode()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(body)
+                return
+
             super().do_GET()
         def do_POST(self):
-            if self.path == '/upload':
+            parsed = urlparse(self.path)
+            if parsed.path == '/upload':
+                qs = parse_qs(parsed.query)
+                folder_param = qs.get('folder', [None])[0]  # e.g. "players/James Miller"
                 ct = self.headers.get('Content-Type', '')
                 ext = '.png' if 'png' in ct else '.svg' if 'svg' in ct else '.gif' if 'gif' in ct else '.jpg'
-                filename = str(int(time.time() * 1000)) + ext
-                dest = os.path.join(UPLOADS_DIR, filename)
                 length = int(self.headers.get('Content-Length', 0))
                 data = self.rfile.read(length)
+                if folder_param:
+                    # Sanitize: strip leading/trailing slashes and ".." segments
+                    parts = [p for p in folder_param.replace('\\','/').split('/') if p and p != '..']
+                    dest_dir = os.path.join(UPLOADS_DIR, *parts)
+                    os.makedirs(dest_dir, exist_ok=True)
+                    filename = str(int(time.time() * 1000)) + ext
+                    dest = os.path.join(dest_dir, filename)
+                    url = '/uploads/' + '/'.join(parts) + '/' + filename
+                else:
+                    filename = str(int(time.time() * 1000)) + ext
+                    dest = os.path.join(UPLOADS_DIR, filename)
+                    url = '/uploads/' + filename
                 with open(dest, 'wb') as f:
                     f.write(data)
-                url = '/uploads/' + filename
                 body = json.dumps({'url': url}).encode()
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')

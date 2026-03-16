@@ -155,6 +155,21 @@ textarea{resize:vertical;min-height:80px}
 .player-table input:focus{background:var(--surf3);border-color:var(--gold)}
 .player-table .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:color .15s}
 .player-table .del-btn:hover{color:var(--red)}
+.pt-photo-thumb{width:28px;height:28px;border-radius:4px;object-fit:cover;border:1px solid var(--border);cursor:pointer;vertical-align:middle}
+.pt-photo-btn{background:none;border:1px dashed var(--border2);color:var(--muted);cursor:pointer;font-size:15px;width:28px;height:28px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s}
+.pt-photo-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* Photo picker modal */
+.photo-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center}
+.photo-modal-bg.open{display:flex}
+.photo-modal{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r3);padding:20px;width:480px;max-width:95vw;max-height:80vh;display:flex;flex-direction:column;gap:12px}
+.photo-modal-hdr{display:flex;align-items:center;justify-content:space-between}
+.photo-modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
+.photo-modal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;overflow-y:auto;max-height:320px}
+.photo-modal-item{position:relative;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:border-color .15s}
+.photo-modal-item:hover{border-color:var(--gold)}
+.photo-modal-item img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.photo-modal-item .pm-name{font-size:8px;padding:2px 4px;background:rgba(0,0,0,.6);color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.photo-modal-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px}
 
 /* CSV drop zone */
 .csv-drop{border:2px dashed var(--border2);border-radius:var(--r2);padding:20px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
@@ -2081,7 +2096,7 @@ function renderRosterEditor(r) {
     </div>
     <div class="info-box" style="margin-bottom:10px">CSV format: <code>Number, Name, Position</code> — one player per row. Header row optional.</div>
     <table class="player-table">
-      <thead><tr><th style="width:60px">#</th><th>Name</th><th style="width:80px">Position</th><th style="width:32px"></th></tr></thead>
+      <thead><tr><th style="width:36px">Photo</th><th style="width:60px">#</th><th>Name</th><th style="width:80px">Position</th><th style="width:32px"></th></tr></thead>
       <tbody id="playerTableBody_${r.id}"></tbody>
     </table>
     <button class="btn btn-surf btn-full" style="margin-top:10px" onclick="addPlayerRow('${r.id}')">+ Add Player</button>
@@ -2092,13 +2107,22 @@ function renderRosterEditor(r) {
 function renderPlayerRows(r) {
   const tb = id('playerTableBody_' + r.id);
   if (!tb) return;
-  tb.innerHTML = r.players.map(p => `
+  tb.innerHTML = r.players.map(p => {
+    const hasPhoto = p.photo && p.photo.trim();
+    const photoCell = hasPhoto
+      ? `<img id="photo_thumb_${p.id}" class="pt-photo-thumb" src="${p.photo}" onclick="openPhotoModal('${r.id}','${p.id}')" style="display:inline">
+         <button id="photo_btn_${p.id}" class="pt-photo-btn" onclick="openPhotoModal('${r.id}','${p.id}')" style="display:none">📷</button>`
+      : `<img id="photo_thumb_${p.id}" class="pt-photo-thumb" src="" onclick="openPhotoModal('${r.id}','${p.id}')" style="display:none">
+         <button id="photo_btn_${p.id}" class="pt-photo-btn" onclick="openPhotoModal('${r.id}','${p.id}')">📷</button>`;
+    return `
     <tr id="pr_${p.id}">
+      <td style="text-align:center">${photoCell}</td>
       <td><input value="${p.num||''}" placeholder="#" style="width:52px;text-align:center" onchange="updatePlayer('${r.id}','${p.id}','num',this.value)"></td>
       <td><input value="${p.name||''}" placeholder="Player name" onchange="updatePlayer('${r.id}','${p.id}','name',this.value)"></td>
       <td><input value="${p.pos||''}" placeholder="PG" onchange="updatePlayer('${r.id}','${p.id}','pos',this.value)"></td>
       <td><button class="del-btn" onclick="removePlayer('${r.id}','${p.id}')">✕</button></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 window.addPlayerRow = function(rid) {
@@ -2130,10 +2154,11 @@ window.saveRoster = function(rid) {
   const r = rosters.find(x=>x.id===rid); if (!r) return;
   r.players.forEach(p => {
     const row = id('pr_'+p.id); if (!row) return;
-    const inputs = row.querySelectorAll('input');
-    p.num  = inputs[0].value.trim();
-    p.name = inputs[1].value.trim();
-    p.pos  = inputs[2].value.trim();
+    const inputs = row.querySelectorAll('input[type="text"],input:not([type])');
+    p.num  = inputs[0] ? inputs[0].value.trim() : p.num;
+    p.name = inputs[1] ? inputs[1].value.trim() : p.name;
+    p.pos  = inputs[2] ? inputs[2].value.trim() : p.pos;
+    // photo is saved immediately when selected — no need to read from DOM here
   });
   r.players = r.players.filter(p=>p.name);
   DB.set('nsmt_rosters', rosters);
@@ -2769,7 +2794,111 @@ function init() {
 }
 
 init();
+
+// ═══════════════════════════════════
+// PLAYER PHOTO PICKER
+// ═══════════════════════════════════
+let _photoModal = null; // { rid, pid }
+
+window.openPhotoModal = function(rid, pid) {
+  _photoModal = { rid, pid };
+  const bg = id('photoModalBg');
+  const rosters = DB.get('nsmt_rosters', []);
+  const r = rosters.find(x=>x.id===rid);
+  const p = r && r.players.find(x=>x.id===pid);
+  id('photoModalPlayerName').textContent = p ? (p.name || 'Player') : 'Player';
+  bg.classList.add('open');
+  loadPhotoGrid(p ? p.name : '');
+};
+
+window.closePhotoModal = function() {
+  id('photoModalBg').classList.remove('open');
+  _photoModal = null;
+};
+
+async function loadPhotoGrid(playerName) {
+  const grid = id('photoModalGrid');
+  grid.innerHTML = '<div class="photo-modal-empty">Loading…</div>';
+  try {
+    const res = await fetch('/list-player-photos');
+    const { photos } = await res.json();
+    const entries = Object.entries(photos);
+    if (!entries.length) {
+      grid.innerHTML = '<div class="photo-modal-empty">No photos found in uploads/players/</div>';
+      return;
+    }
+    grid.innerHTML = entries.map(([name, url]) => `
+      <div class="photo-modal-item" onclick="selectPhoto('${url.replace(/'/g,"\\'")}')">
+        <img src="${url}" loading="lazy" alt="${name}">
+        <div class="pm-name">${name}</div>
+      </div>`).join('');
+  } catch(e) {
+    grid.innerHTML = '<div class="photo-modal-empty">Could not load photos — is the server running?</div>';
+  }
+}
+
+window.selectPhoto = function(url) {
+  if (!_photoModal) return;
+  const { rid, pid } = _photoModal;
+  const rosters = DB.get('nsmt_rosters', []);
+  const r = rosters.find(x=>x.id===rid); if (!r) return;
+  const p = r.players.find(x=>x.id===pid); if (!p) return;
+  p.photo = url;
+  DB.set('nsmt_rosters', rosters);
+  // Update thumbnail in row
+  const thumb = id('photo_thumb_' + pid);
+  const btn   = id('photo_btn_' + pid);
+  if (thumb) { thumb.src = url; thumb.style.display = 'inline'; }
+  if (btn)   { btn.style.display = 'none'; }
+  closePhotoModal();
+  toast('Photo set ✓');
+};
+
+window.uploadPlayerPhoto = function(input) {
+  if (!_photoModal || !input.files[0]) return;
+  const { rid, pid } = _photoModal;
+  const rosters = DB.get('nsmt_rosters', []);
+  const r = rosters.find(x=>x.id===rid); if (!r) return;
+  const p = r.players.find(x=>x.id===pid); if (!p) return;
+  const playerName = p.name || ('player_' + pid);
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const blob = new Blob([e.target.result], { type: file.type });
+    const res = await fetch('/upload?folder=players/' + encodeURIComponent(playerName), {
+      method: 'POST',
+      headers: { 'Content-Type': file.type },
+      body: blob
+    });
+    const { url } = await res.json();
+    selectPhoto(url);
+    input.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+};
 </script>
+
+<!-- Photo picker modal -->
+<div class="photo-modal-bg" id="photoModalBg" onclick="if(event.target===this)closePhotoModal()">
+  <div class="photo-modal">
+    <div class="photo-modal-hdr">
+      <div>
+        <div class="photo-modal-title">Set Player Photo</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="photoModalPlayerName"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="btn btn-surf btn-sm" style="cursor:pointer">
+          ⬆ Upload
+          <input type="file" accept="image/*" style="display:none" onchange="uploadPlayerPhoto(this)">
+        </label>
+        <button class="btn btn-ghost btn-sm" onclick="closePhotoModal()">✕</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted)">Showing all photos in <code>uploads/players/</code>. Drop any image into a player name folder to add it.</div>
+    <div class="photo-modal-grid" id="photoModalGrid"></div>
+  </div>
+</div>
+
 </body>
 </html>
 
