@@ -1226,6 +1226,52 @@ const DB = {
   if (!hasLin || !hasRivers) DB.set('nsmt_rosters', rosters);
 })();
 
+// ── Seed Public vs Private rosters ──
+(function seedPvP(){
+  const PRIVATE_ID = 'r_PVP_PRIVATE';
+  const PUBLIC_ID  = 'r_PVP_PUBLIC';
+  const mkP = (name, school, ig) => ({
+    id: 'p_PVP_' + name.replace(/\s+/g,'_'),
+    num: '', name, pos: '', fouls: 0, photo: '', ig
+  });
+  const teamPrivate = { id: PRIVATE_ID, name: 'PvP — Team Private', players: [
+    mkP('Darius Bivins',   "Bishop O'Connell",        '_dariusbivins'),
+    mkP('Akim Iscandari',  'The Potomac School',      'theakimiscandari'),
+    mkP('Marcus Hancock',  "St Stephen's St Agnes",   'Marcushoops2'),
+    mkP('Messiah Dixon',   'Fairfax Christian',       'Bigdotsiah'),
+    mkP('RJ Jones',        'Virginia Academy',        'rjjonesss'),
+    mkP('Jafet Valencia',  'Evergreen Christian',     'Jafetvalencia10'),
+    mkP('Frank Siaca Bey', 'Fairfax Christian',       'siacabeyf'),
+    mkP('Jake Bahr',       'Bishop Ireton',           'jake.bahrr'),
+    mkP('Silas Devonish',  'Bishop Ireton',           'Ldf_silas'),
+    mkP('Ripp Kodi',       'Highland School',         'rippkodi'),
+    mkP('Justin Edwards',  "Bishop O'Connell",        'J3dwards_'),
+    mkP('Jahda Swann',     'The St. James',           'Yk.jahda'),
+    mkP('Cole Forbrich',   'Evergreen Christian',     'coleforbrich'),
+  ]};
+  const teamPublic = { id: PUBLIC_ID, name: 'PvP — Team Public', players: [
+    mkP('Ryan Brzezanski',     'Broad Run',         'ryanbrzezanski'),
+    mkP('Ryan Corallo',        'C.G. Woodson',      'Ryan.corallo'),
+    mkP('Elijah Gaskins',      'Patriot',           'elijah.gaskins'),
+    mkP('Johnathan Anderson',  'South County',      'j_anderson.1'),
+    mkP('Sean Madrigal',       'Patriot',           'theseanmadrigal'),
+    mkP('Jemon Price',         'Westfield',         'thejemonprice'),
+    mkP('Colin Spencer Byrd',  'Tuscarora',         '_cbyrd'),
+    mkP('Dominic Julian Mack', 'Potomac Senior',    'Dominic.jm'),
+    mkP('Ethan Jeremiah Poole','Wakefield',         'jeremiah.poole.3'),
+    mkP('Rodney Carmichael',   'Hayfield',          'rodney.carmichael5'),
+    mkP('Nate McComb',         'Lake Braddock',     'natemccomb'),
+    mkP('Jacob Coulam',        'Yorktown',          'jakecoulam11'),
+    mkP('Isaiah Brown',        'Westfield',         '_zay.brown_'),
+  ]};
+  const rosters     = DB.get('nsmt_rosters', []);
+  const hasPrivate  = rosters.some(r => r.id === PRIVATE_ID);
+  const hasPublic   = rosters.some(r => r.id === PUBLIC_ID);
+  if (!hasPrivate) rosters.unshift(teamPrivate);
+  if (!hasPublic)  rosters.unshift(teamPublic);
+  if (!hasPrivate || !hasPublic) DB.set('nsmt_rosters', rosters);
+})();
+
 // ── Seed test rosters (always present, never deleted by normal use) ──
 (function seedTestRosters(){
   const TEST_AWAY_ID = 'r_TEST_AWAY';

@@ -163,6 +163,46 @@ Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-cont
 
 ---
 
+## PUBLIC VS PRIVATE ROSTERS
+
+### Team Private (13 players)
+| Name | School | Instagram |
+|------|--------|-----------|
+| Darius Bivins | Bishop O'Connell | @_dariusbivins |
+| Akim Iscandari | The Potomac School | @theakimiscandari |
+| Marcus Hancock | St Stephen's St Agnes | @Marcushoops2 |
+| Messiah Dixon | Fairfax Christian | @Bigdotsiah |
+| RJ Jones | Virginia Academy | @rjjonesss |
+| Jafet Valencia | Evergreen Christian | @Jafetvalencia10 |
+| Frank Siaca Bey | Fairfax Christian | @siacabeyf |
+| Jake Bahr | Bishop Ireton | @jake.bahrr |
+| Silas Devonish | Bishop Ireton | @Ldf_silas |
+| Ripp Kodi | Highland School | @rippkodi |
+| Justin Edwards | Bishop O'Connell | @J3dwards_ |
+| Jahda Swann | The St. James | @Yk.jahda |
+| Cole Forbrich | Evergreen Christian | @coleforbrich |
+
+### Team Public (13 players)
+| Name | School | Instagram |
+|------|--------|-----------|
+| Ryan Brzezanski | Broad Run | @ryanbrzezanski |
+| Ryan Corallo | C.G. Woodson | @Ryan.corallo |
+| Elijah Gaskins | Patriot | @elijah.gaskins |
+| Johnathan Anderson | South County | @j_anderson.1 |
+| Sean Madrigal | Patriot | @theseanmadrigal |
+| Jemon Price | Westfield | @thejemonprice |
+| Colin Spencer Byrd | Tuscarora | @_cbyrd |
+| Dominic Julian Mack | Potomac Senior | @Dominic.jm |
+| Ethan Jeremiah Poole | Wakefield | @jeremiah.poole.3 |
+| Rodney Carmichael | Hayfield | @rodney.carmichael5 |
+| Nate McComb | Lake Braddock | @natemccomb |
+| Jacob Coulam | Yorktown | @jakecoulam11 |
+| Isaiah Brown | Westfield | @_zay.brown_ |
+
+> Both rosters are pre-loaded in the Producer → Rosters tab as "PvP — Team Private" and "PvP — Team Public". Assign them in the wizard before the game.
+
+---
+
 ## ALL-STAR GAME MODE (Nova 24 / Public vs Private)
 
 1. On the MBP Producer → **Broadcast** tab
@@ -178,7 +218,7 @@ The event type also affects the accent color on the intro card:
 
 ---
 
-## 3-POINT CONTEST ROSTER (14 players)
+## 3-POINT CONTEST ROSTER (18 players)
 
 | # | Name | School | Instagram |
 |---|------|--------|-----------|
@@ -196,6 +236,10 @@ The event type also affects the accent color on the intro card:
 | 12 | Isaac Heaton | West Springfield High School | @isaac.heaton11 |
 | 13 | Harlem Lyons | Potomac Senior | @harlem_wrld3 |
 | 14 | Wisdom Mintz | The St. James | @wizmintz |
+| 15 | Jemon Price | Westfield | @thejemonprice |
+| 16 | Colin Spencer Byrd | Tuscarora | @_cbyrd |
+| 17 | Ethan Jeremiah Poole | Wakefield | @jeremiah.poole.3 |
+| 18 | Jacob Coulam | Yorktown | @jakecoulam11 |
 
 > School and Instagram auto-populate on the overlay when you select a name from the scorer.
 
