@@ -30,8 +30,8 @@ node nsmt-server-node.js
 |-----------|-----|
 | Producer (MBP) | `http://localhost:8000/nsmt-producer.html` |
 | OBS Browser Source | `http://localhost:8000/nsmt_fox_overlay_ws.html` |
-| **iPad Game Controller** | `http://192.168.1.36:8000/ipad-control/` |
-| iPad stat tracker | `http://192.168.1.36:8000/nsmt-stats.html` |
+| **iPad Game Controller** | `http://MBP.local:8000/ipad-control/` |
+| iPad stat tracker | `http://MBP.local:8000/nsmt-stats.html` |
 
 ### OBS Setup
 - Browser Source: `http://localhost:8000/nsmt_fox_overlay_ws.html`
@@ -180,7 +180,8 @@ const SPOTLIGHT_MILESTONES = [10, 15, 20, 25, 30];
 - No external CDN dependencies for anything running inside OBS
 - Touch targets 60px+ on any iPad-facing UI
 - State updates: use `patch()` for partial updates, `set_state` only when replacing entirely
-- iPad connects via local IP: `192.168.1.36` — server binds `0.0.0.0`
+- iPad connects via Bonjour hostname `MBP.local` — works on any local network, no IP lookup needed
+- IP fallback: run `ipconfig getifaddr en0` on MBP if `.local` doesn't resolve
 
 ---
 

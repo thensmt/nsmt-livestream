@@ -10,11 +10,21 @@ lsof -ti:8000 | xargs kill -9 2>/dev/null
 lsof -ti:8765 | xargs kill -9 2>/dev/null
 sleep 1
 
+LOCAL=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "unknown")
+BONJOUR="MBP.local"
+
 echo "========================================="
 echo "  NSMT Livestream Server"
+echo ""
+echo "  MBP (this machine):"
 echo "  Producer : http://localhost:8000/nsmt-producer.html"
-echo "  Overlay  : http://localhost:8000/nsmt-overlay.html"
-echo "  Stats    : http://localhost:8000/nsmt-stats.html"
+echo "  Overlay  : http://localhost:8000/nsmt_fox_overlay_ws.html"
+echo ""
+echo "  iPad (use either URL):"
+echo "  Game Ctrl: http://${BONJOUR}:8000/ipad-control/"
+echo "  Stats    : http://${BONJOUR}:8000/nsmt-stats.html"
+echo ""
+echo "  IP backup: http://${LOCAL}:8000/ipad-control/"
 echo "========================================="
 echo ""
 
