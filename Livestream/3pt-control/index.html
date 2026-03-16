@@ -122,8 +122,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
   <!-- Shooter -->
   <div class="card">
-    <div class="card-title">Shooter Name</div>
-    <input class="shooter-input" id="shooterName" type="text" placeholder="Enter player name…" oninput="pushState()" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="card-title">Shooter</div>
+    <input class="shooter-input" id="shooterName" type="text" placeholder="Enter player name…" list="contestantList" oninput="onShooterInput()" autocorrect="off" spellcheck="false">
+    <datalist id="contestantList"></datalist>
+    <div style="margin-top:8px;font-size:12px;color:var(--muted)" id="shooterMeta"></div>
   </div>
 
   <!-- Round + Visibility (court 1 only shows these) -->
@@ -170,6 +172,41 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 </div>
 
 <script>
+  // ── 3PT Contestants ───────────────────────────────────────
+  const CONTESTANTS = [
+    { name: 'Darius Bivins',    school: "O'Connell",                    ig: '_dariusbivins'   },
+    { name: 'Marcus Hancock',   school: "St Stephen's St Agnes",        ig: 'Marcushoops2'    },
+    { name: 'Sean Madrigal',    school: 'Patriot High School',          ig: 'theseanmadrigal' },
+    { name: 'Messiah Dixon',    school: 'Fairfax Christian',            ig: 'Bigdotsiah'      },
+    { name: 'Cole Forbrich',    school: 'Evergreen Christian School',   ig: 'coleforbrich'    },
+    { name: 'Isaiah Brown',     school: 'Westfield High School',        ig: '_zay.brown_'     },
+    { name: 'Aiden Moore',      school: 'Hayfield',                     ig: '0nly_aiden'      },
+    { name: 'Silas Devonish',   school: 'Bishop Ireton High School',    ig: 'Ldf_silas'       },
+    { name: 'Ripp Kodi',        school: 'Highland School',              ig: 'rippkodi'        },
+    { name: 'Shreyas Vaidya',   school: 'George C Marshall High School',ig: 'shootashrey'     },
+    { name: 'Adam Perdue',      school: 'Broad Run',                    ig: 'adam_perdue22'   },
+    { name: 'Isaac Heaton',     school: 'West Springfield High School', ig: 'isaac.heaton11'  },
+    { name: 'Harlem Lyons',     school: 'Potomac Senior',               ig: 'harlem_wrld3'    },
+    { name: 'Wisdom Mintz',     school: 'The St. James',                ig: 'wizmintz'        },
+  ];
+
+  // Populate datalist
+  const dl = document.getElementById('contestantList');
+  CONTESTANTS.forEach(c => { const o = document.createElement('option'); o.value = c.name; dl.appendChild(o); });
+
+  function getContestant(name) {
+    return CONTESTANTS.find(c => c.name.toLowerCase() === (name||'').toLowerCase()) || null;
+  }
+
+  function onShooterInput() {
+    const name = document.getElementById('shooterName').value.trim();
+    const c = getContestant(name);
+    const meta = document.getElementById('shooterMeta');
+    if (c) meta.textContent = c.school + '  ·  @' + c.ig;
+    else   meta.textContent = '';
+    pushState();
+  }
+
   // ── Court from URL param ──────────────────────────────────
   const params  = new URLSearchParams(location.search);
   const court   = params.get('court') === '2' ? 2 : 1;
@@ -237,7 +274,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
     if (ct) {
       if (ct.moneyRack != null) S.moneyRack = ct.moneyRack;
       if (ct.racks)             S.racks = ct.racks.map(r => [...r]);
-      if (ct.shooter != null)   document.getElementById('shooterName').value = ct.shooter;
+      if (ct.shooter != null) {
+        document.getElementById('shooterName').value = ct.shooter;
+        const c = getContestant(ct.shooter);
+        const meta = document.getElementById('shooterMeta');
+        if (c) meta.textContent = c.school + '  ·  @' + c.ig;
+      }
     }
     renderAll();
   }
@@ -247,7 +289,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   // overwrites the other's data via the server's shallow-merge patch.
   function pushState() {
     const shooter = document.getElementById('shooterName').value.trim();
-    const myData  = { shooter, moneyRack: S.moneyRack, racks: S.racks };
+    const c = getContestant(shooter);
+    const myData  = { shooter, moneyRack: S.moneyRack, racks: S.racks,
+                      school: c ? c.school : '', ig: c ? c.ig : '' };
 
     send({ type: 'patch', bug: {
       threePoint: {

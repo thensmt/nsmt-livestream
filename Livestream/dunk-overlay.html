@@ -40,7 +40,9 @@
   .dk-photo.no-photo{display:none;}
   .dk-dunker-info{display:flex;flex-direction:column;gap:2px;}
   .dk-dunker-name{font-family:'Anton',Impact,sans-serif;font-size:44px;text-transform:uppercase;letter-spacing:1px;line-height:1;}
-  .dk-dunker-sub{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);}
+  .dk-dunker-school{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:3px;}
+  .dk-dunker-ig{font-size:11px;font-weight:600;letter-spacing:.5px;color:#0E80FC;margin-top:1px;}
+  .dk-dunker-sub{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:4px;}
 
   /* ── Judge scores ── */
   .dk-judges{display:flex;gap:10px;justify-content:center;}
@@ -87,6 +89,8 @@
       </div>
       <div class="dk-dunker-info">
         <div class="dk-dunker-name" id="dkDunkerName">—</div>
+        <div class="dk-dunker-school" id="dkDunkerSchool"></div>
+        <div class="dk-dunker-ig" id="dkDunkerIg"></div>
         <div class="dk-dunker-sub" id="dkDunkerSub"></div>
       </div>
     </div>
@@ -130,7 +134,9 @@
     wrap.classList.remove('hidden');
 
     // Dunker info
-    document.getElementById('dkDunkerName').textContent = (dk.dunker || '—').toUpperCase();
+    document.getElementById('dkDunkerName').textContent   = (dk.dunker || '—').toUpperCase();
+    document.getElementById('dkDunkerSchool').textContent = dk.dunkerSchool || '';
+    document.getElementById('dkDunkerIg').textContent     = dk.dunkerIg ? '@' + dk.dunkerIg : '';
     document.getElementById('dkDunkerSub').textContent =
       [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ');
     document.getElementById('dkRoundInfo').textContent =

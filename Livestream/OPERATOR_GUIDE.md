@@ -141,6 +141,29 @@ The event type also affects the accent color on the intro card:
 
 ---
 
+## 3-POINT CONTEST ROSTER (14 players)
+
+| # | Name | School | Instagram |
+|---|------|--------|-----------|
+| 1 | Darius Bivins | O'Connell | @_dariusbivins |
+| 2 | Marcus Hancock | St Stephen's St Agnes | @Marcushoops2 |
+| 3 | Sean Madrigal | Patriot High School | @theseanmadrigal |
+| 4 | Messiah Dixon | Fairfax Christian | @Bigdotsiah |
+| 5 | Cole Forbrich | Evergreen Christian School | @coleforbrich |
+| 6 | Isaiah Brown | Westfield High School | @_zay.brown_ |
+| 7 | Aiden Moore | Hayfield | @0nly_aiden |
+| 8 | Silas Devonish | Bishop Ireton High School | @Ldf_silas |
+| 9 | Ripp Kodi | Highland School | @rippkodi |
+| 10 | Shreyas Vaidya | George C Marshall High School | @shootashrey |
+| 11 | Adam Perdue | Broad Run | @adam_perdue22 |
+| 12 | Isaac Heaton | West Springfield High School | @isaac.heaton11 |
+| 13 | Harlem Lyons | Potomac Senior | @harlem_wrld3 |
+| 14 | Wisdom Mintz | The St. James | @wizmintz |
+
+> School and Instagram auto-populate on the overlay when you select a name from the scorer.
+
+---
+
 ## 3-POINT CONTEST
 
 ### Setup (add Browser Source before contest starts)
@@ -167,6 +190,21 @@ The event type also affects the accent color on the intro card:
 - Regular ball made: **1 point**
 - Money rack ball made: **2 points**
 - Maximum score: **30 points** (5 racks × 5 balls; 4 racks × 5×1pt + 1 rack × 5×2pt)
+
+---
+
+## DUNK CONTEST ROSTER (6 players)
+
+| # | Name | School | Instagram |
+|---|------|--------|-----------|
+| 1 | Elijah Gaskins | Patriot High School | @elijah.gaskins |
+| 2 | Noah Conrad | Patriot High School | @noahjawnts |
+| 3 | RJ Jones | Virginia Academy | @rjonesss |
+| 4 | Dominic Julian Mack | Potomac Senior High School | @Dominic.jm |
+| 5 | Jeremiah Nelson | Annandale High School | @officialjeremia |
+| 6 | Jahda Swann | The St. James | @Yk.jahda |
+
+> Select the dunker from the dropdown on the head table controller — school and Instagram auto-populate on the overlay.
 
 ---
 

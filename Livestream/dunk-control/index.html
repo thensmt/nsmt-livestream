@@ -126,10 +126,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   <div class="card">
     <div class="card-title">Dunker</div>
     <div class="field-row">
-      <div class="field-lbl">Name</div>
-      <input class="text-input" id="dunkerName" type="text" placeholder="Player name…" oninput="pushSetup()" autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="field-lbl">Select Contestant</div>
+      <select class="text-input" id="dunkerSelect" onchange="selectDunker(this.value)" style="font-size:15px">
+        <option value="">— Choose dunker —</option>
+      </select>
     </div>
-    <div class="field-row">
+    <div style="margin-top:4px;font-size:12px;color:var(--muted)" id="dunkerMeta"></div>
+    <div class="field-row" style="margin-top:10px">
       <div class="field-lbl">Photo URL (optional)</div>
       <input class="text-input" id="dunkerPhoto" type="text" placeholder="uploads/players/Name/photo.jpg" oninput="pushSetup()" autocomplete="off">
     </div>
@@ -182,11 +185,36 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 </div>
 
 <script>
+  // ── Dunk Contestants ──────────────────────────────────────
+  const DUNKERS = [
+    { name: 'Elijah Gaskins',     school: 'Patriot High School',        ig: 'elijah.gaskins'    },
+    { name: 'Noah Conrad',        school: 'Patriot High School',        ig: 'noahjawnts'        },
+    { name: 'RJ Jones',           school: 'Virginia Academy',           ig: 'rjonesss'          },
+    { name: 'Dominic Julian Mack',school: 'Potomac Senior High School', ig: 'Dominic.jm'        },
+    { name: 'Jeremiah Nelson',    school: 'Annandale High School',      ig: 'officialjeremia'   },
+    { name: 'Jahda Swann',        school: 'The St. James',              ig: 'Yk.jahda'          },
+  ];
+
+  // Populate select
+  const sel = document.getElementById('dunkerSelect');
+  DUNKERS.forEach(d => { const o = document.createElement('option'); o.value = d.name; o.textContent = d.name; sel.appendChild(o); });
+
+  window.selectDunker = function(name) {
+    const d = DUNKERS.find(x => x.name === name);
+    S.dunker      = name;
+    S.dunkerSchool = d ? d.school : '';
+    S.dunkerIg     = d ? d.ig : '';
+    document.getElementById('dunkerMeta').textContent = d ? d.school + '  ·  @' + d.ig : '';
+    pushAll();
+  };
+
   // ── State ─────────────────────────────────────────────────
   let S = {
     show:    false,
     dunker:  '',
     dunkerPhoto: '',
+    dunkerSchool: '',
+    dunkerIg: '',
     round:   1,
     attempt: 1,
     scores:   [null,null,null,null,null],
@@ -217,11 +245,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   function syncFromServer(state) {
     const dk = state && state.bug && state.bug.dunk;
     if (!dk) return;
-    if (dk.show     !== undefined) S.show        = dk.show;
-    if (dk.dunker   !== undefined) S.dunker      = dk.dunker;
-    if (dk.dunkerPhoto !== undefined) S.dunkerPhoto = dk.dunkerPhoto;
-    if (dk.round    !== undefined) S.round       = dk.round;
-    if (dk.attempt  !== undefined) S.attempt     = dk.attempt;
+    if (dk.show         !== undefined) S.show         = dk.show;
+    if (dk.dunker       !== undefined) S.dunker       = dk.dunker;
+    if (dk.dunkerPhoto  !== undefined) S.dunkerPhoto  = dk.dunkerPhoto;
+    if (dk.dunkerSchool !== undefined) S.dunkerSchool = dk.dunkerSchool;
+    if (dk.dunkerIg     !== undefined) S.dunkerIg     = dk.dunkerIg;
+    if (dk.round        !== undefined) S.round        = dk.round;
+    if (dk.attempt      !== undefined) S.attempt      = dk.attempt;
     if (dk.scores)   S.scores   = [...dk.scores];
     if (dk.revealed) S.revealed = [...dk.revealed];
 
@@ -231,8 +261,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       if (judge >= 0 && judge < 5) S.scores[judge] = score;
     }
 
-    document.getElementById('dunkerName').value  = S.dunker || '';
-    document.getElementById('dunkerPhoto').value = S.dunkerPhoto || '';
+    document.getElementById('dunkerSelect').value = S.dunker || '';
+    document.getElementById('dunkerPhoto').value  = S.dunkerPhoto || '';
+    const d = DUNKERS.find(x => x.name === S.dunker);
+    document.getElementById('dunkerMeta').textContent = d ? d.school + '  ·  @' + d.ig : '';
     document.getElementById('roundVal').textContent   = S.round;
     document.getElementById('attemptVal').textContent = S.attempt;
 
@@ -243,13 +275,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   // ── Push full dunk state ──────────────────────────────────
   function pushAll() {
     send({ type:'patch', bug: { dunk: {
-      show:        S.show,
-      dunker:      S.dunker,
-      dunkerPhoto: S.dunkerPhoto,
-      round:       S.round,
-      attempt:     S.attempt,
-      scores:      S.scores,
-      revealed:    S.revealed
+      show:         S.show,
+      dunker:       S.dunker,
+      dunkerPhoto:  S.dunkerPhoto,
+      dunkerSchool: S.dunkerSchool,
+      dunkerIg:     S.dunkerIg,
+      round:        S.round,
+      attempt:      S.attempt,
+      scores:       S.scores,
+      revealed:     S.revealed
     }}});
   }
 
@@ -323,12 +357,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   };
 
   window.resetAll = function() {
-    S.dunker      = '';
-    S.dunkerPhoto = '';
-    S.scores      = [null,null,null,null,null];
-    S.revealed    = [false,false,false,false,false];
-    document.getElementById('dunkerName').value  = '';
-    document.getElementById('dunkerPhoto').value = '';
+    S.dunker       = '';
+    S.dunkerPhoto  = '';
+    S.dunkerSchool = '';
+    S.dunkerIg     = '';
+    S.scores       = [null,null,null,null,null];
+    S.revealed     = [false,false,false,false,false];
+    document.getElementById('dunkerSelect').value = '';
+    document.getElementById('dunkerPhoto').value  = '';
+    document.getElementById('dunkerMeta').textContent = '';
     renderJudges();
     pushAll();
   };
