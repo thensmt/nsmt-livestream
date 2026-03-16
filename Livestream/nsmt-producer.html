@@ -188,6 +188,9 @@ textarea{resize:vertical;min-height:80px}
 .sp-card-fouls{display:flex;gap:2px;margin-top:2px}
 .sp-card-fp{width:5px;height:5px;border-radius:50%;background:var(--border2);flex-shrink:0}
 .sp-card-fp.on{background:var(--red)}
+.sp-card-spotlight{position:absolute;top:2px;right:2px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:11px;padding:1px 3px;border-radius:3px;line-height:1;transition:color .15s,background .15s;}
+.sp-card-spotlight:hover,.sp-card-spotlight:active{color:#fbbf24;background:rgba(251,191,36,.1);}
+.sp-card{position:relative;}
 /* Inline stat panel — replaces player grid when a player is selected */
 .stat-panel{flex:1;display:flex;flex-direction:column;padding:6px 8px;gap:5px;overflow:hidden}
 .spanel-hdr{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-bottom:4px;border-bottom:1px solid var(--border)}
@@ -807,6 +810,12 @@ textarea{resize:vertical;min-height:80px}
 
   </div>
 
+  <!-- SPOTLIGHT DISMISS BAR -->
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0">
+    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#fbbf24">★ PLAYER SPOTLIGHT</span>
+    <span style="font-size:9px;color:var(--muted);flex:1">Click ★ on any player card below to spotlight them on the overlay. Auto-fires at 10, 15, 20, 25, 30 pts.</span>
+    <button class="btn btn-ghost btn-xs" onclick="dismissSpotlight()">✕ Dismiss</button>
+  </div>
   <!-- LIVE STATS SECTION -->
   <div class="stats-section">
     <div class="stats-team-col">
@@ -2652,6 +2661,7 @@ function renderStatsTab() {
         <div class="sp-card-name">${p.name.split(' ').pop()}</div>
         <div class="sp-card-pts">${p.pts||0}pts</div>
         <div class="sp-card-fouls">${pips}</div>
+        <button class="sp-card-spotlight" title="Spotlight on overlay" onclick="event.stopPropagation();fireSpotlight('${team}','${p.id}')">★</button>
       </button>`;
     }).join('');
   });
@@ -2662,14 +2672,59 @@ function pushStats() {
     name: G[team].name || cap(team),
     fouls: G[team].fouls || 0,
     players: (G[team].players||[]).map(p => ({
-      id:p.id||'', num:p.num||'', name:p.name||'', pos:p.pos||'',
+      id:p.id||'', num:p.num||'', name:p.name||'', pos:p.pos||'', photo:p.photo||'',
       fgm:p.fgm||0, fga:p.fga||0, t3m:p.t3m||0, t3a:p.t3a||0,
       ftm:p.ftm||0, fta:p.fta||0, off:p.off||0, def:p.def||0,
       ast:p.ast||0, stl:p.stl||0, blk:p.blk||0, to:p.to||0,
       pf:p.pf||0, pts:p.pts||0, min:p.min||0, pm:p.pm||0
     }))
   });
+  _checkMilestones('away');
+  _checkMilestones('home');
   wsSend({ type:'patch', stats:{ away:toStatObj('away'), home:toStatObj('home') }});
+}
+
+// ═══════════════════════════════════
+// PLAYER SPOTLIGHT
+// ═══════════════════════════════════
+const SPOTLIGHT_MILESTONES = [10, 15, 20, 25, 30];
+const _prevPts = {}; // pid → pts at last push, for milestone detection
+
+function fireSpotlight(team, pid) {
+  const p = (G[team].players||[]).find(x => x.id === pid);
+  if (!p) return;
+  wsSend({ type: 'patch', bug: { spotlight: {
+    active: true,
+    playerName: p.name || '',
+    playerNum: p.num || '',
+    playerPhoto: p.photo || '',
+    teamName: G[team].name || cap(team),
+    teamColor: G[team].primary || '#0E80FC',
+    stats: {
+      pts: p.pts || 0,
+      reb: (p.off||0) + (p.def||0),
+      ast: p.ast || 0,
+      stl: p.stl || 0,
+      blk: p.blk || 0
+    },
+    dismissAfter: 8000
+  }}});
+  toast('★ Spotlight: ' + p.name);
+}
+
+function dismissSpotlight() {
+  wsSend({ type: 'patch', bug: { spotlight: { active: false } } });
+}
+
+function _checkMilestones(team) {
+  (G[team].players||[]).forEach(p => {
+    const prev = _prevPts[p.id] || 0;
+    const cur = p.pts || 0;
+    if (SPOTLIGHT_MILESTONES.some(m => prev < m && cur >= m)) {
+      fireSpotlight(team, p.id);
+    }
+    _prevPts[p.id] = cur;
+  });
 }
 
 // ═══════════════════════════════════

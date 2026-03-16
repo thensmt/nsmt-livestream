@@ -211,6 +211,33 @@
   .go-detail{font-size:15px;color:#c0c0c0;letter-spacing:0.3px;}
   .go-meta{font-size:12px;color:#666;margin-top:1px;}
   .go-warn{font-size:13px;color:#ef4444;font-weight:700;}
+  /* ── Player Spotlight Card ── */
+  .pc-wrap{
+    position:absolute; left:50%; bottom:320px;
+    transform:translateX(-50%);
+    display:flex; flex-direction:row;
+    background:linear-gradient(135deg,#0a0a0c 0%,#161820 100%);
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:12px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.9);
+    z-index:210; min-width:360px; max-width:520px;
+    animation:pcSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .pc-wrap.hidden{display:none;}
+  .pc-wrap.dismissing{animation:pcSlideOut 0.3s ease-in forwards;}
+  @keyframes pcSlideIn{from{opacity:0;transform:translateX(-50%) translateY(32px) scale(0.91);}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}}
+  @keyframes pcSlideOut{from{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}to{opacity:0;transform:translateX(-50%) translateY(32px) scale(0.91);}}
+  .pc-accent-bar{width:6px;flex-shrink:0;background:#0E80FC;}
+  .pc-photo-wrap{width:120px;flex-shrink:0;overflow:hidden;background:#111;}
+  .pc-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .pc-info{padding:14px 20px;display:flex;flex-direction:column;justify-content:center;gap:5px;}
+  .pc-team{font-family:'Rubik',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+  .pc-num-name{font-family:'Anton',Impact,sans-serif;font-size:27px;text-transform:uppercase;letter-spacing:0.5px;color:#fff;line-height:1;}
+  .pc-num-name .pc-num{color:rgba(255,255,255,.4);margin-right:6px;font-size:22px;}
+  .pc-stats{display:flex;gap:16px;margin-top:6px;}
+  .pc-stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
+  .pc-stat span{font-family:'Anton',Impact,sans-serif;font-size:24px;color:#fff;line-height:1;}
+  .pc-stat label{font-family:'Rubik',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);}
 </style>
 </head>
 <body>
@@ -283,6 +310,21 @@
     <div class="timeoutBanner timeout-home" id="timeoutBannerHome">Full Timeout</div>
   </div>
   <div class="go-wrap hidden" id="graphicOverlay"></div>
+  <div id="playerCard" class="pc-wrap hidden">
+    <div class="pc-accent-bar" id="pcAccentBar"></div>
+    <div class="pc-photo-wrap" id="pcPhotoWrap"><img id="pcPhoto" src="" alt=""></div>
+    <div class="pc-info">
+      <div class="pc-team" id="pcTeamName"></div>
+      <div class="pc-num-name"><span class="pc-num" id="pcNum"></span><span id="pcName"></span></div>
+      <div class="pc-stats">
+        <div class="pc-stat"><span id="pcPts">0</span><label>PTS</label></div>
+        <div class="pc-stat"><span id="pcReb">0</span><label>REB</label></div>
+        <div class="pc-stat"><span id="pcAst">0</span><label>AST</label></div>
+        <div class="pc-stat"><span id="pcStl">0</span><label>STL</label></div>
+        <div class="pc-stat"><span id="pcBlk">0</span><label>BLK</label></div>
+      </div>
+    </div>
+  </div>
   <div id="statsPanel">
     <div class="sp-team" id="spAway">
       <div class="sp-hdr" id="spAwayHdr">AWAY</div>
@@ -538,6 +580,8 @@
     if(s.stats) applyStats(s.stats, s.bug);
     // Broadcast graphic
     if(b.graphic) showGraphic(b.graphic, b.durations);
+    // Player spotlight
+    applySpotlight(b.spotlight);
     // Overlay visibility toggles
     const bw=document.getElementById('bugWrap');
     if(bw && b.showScorebug!==undefined) bw.style.display=b.showScorebug?'':'none';
@@ -588,6 +632,47 @@
     if(timeoutBannerHome){
       timeoutBannerHome.textContent = text;
       timeoutBannerHome.style.display = (show && b && b.timeoutTeam === 'home') ? 'block' : 'none';
+    }
+  }
+  let _spotlightTimer = null;
+  function applySpotlight(sp) {
+    const card = document.getElementById('playerCard');
+    if (!card) return;
+    if (!sp || !sp.active) {
+      if (!card.classList.contains('hidden')) {
+        card.classList.add('dismissing');
+        setTimeout(function(){ card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
+      }
+      return;
+    }
+    clearTimeout(_spotlightTimer);
+    document.getElementById('pcName').textContent = sp.playerName || '';
+    document.getElementById('pcNum').textContent = sp.playerNum ? '#' + sp.playerNum : '';
+    document.getElementById('pcTeamName').textContent = sp.teamName || '';
+    const st = sp.stats || {};
+    document.getElementById('pcPts').textContent = st.pts != null ? st.pts : 0;
+    document.getElementById('pcReb').textContent = st.reb != null ? st.reb : 0;
+    document.getElementById('pcAst').textContent = st.ast != null ? st.ast : 0;
+    document.getElementById('pcStl').textContent = st.stl != null ? st.stl : 0;
+    document.getElementById('pcBlk').textContent = st.blk != null ? st.blk : 0;
+    const photoEl = document.getElementById('pcPhoto');
+    const photoWrap = document.getElementById('pcPhotoWrap');
+    if (sp.playerPhoto) {
+      photoEl.src = resolveAsset(sp.playerPhoto);
+      photoWrap.style.width = '120px';
+    } else {
+      photoEl.src = '';
+      photoWrap.style.width = '0';
+    }
+    const accentBar = document.getElementById('pcAccentBar');
+    if (accentBar) accentBar.style.background = sp.teamColor || '#0E80FC';
+    card.classList.remove('hidden', 'dismissing');
+    void card.offsetWidth;
+    if (sp.dismissAfter && sp.dismissAfter > 0) {
+      _spotlightTimer = setTimeout(function(){
+        card.classList.add('dismissing');
+        setTimeout(function(){ card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
+      }, sp.dismissAfter);
     }
   }
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}

@@ -350,6 +350,9 @@ label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-tra
 .pbtn-fouls{display:flex;gap:2px;margin-top:2px;}
 .pbtn-fpip{width:5px;height:5px;border-radius:50%;background:var(--border);}
 .pbtn-fpip.on{background:var(--red);}
+.pbtn{position:relative;}
+.pbtn-spotlight{position:absolute;top:3px;right:4px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;touch-action:manipulation;}
+.pbtn-spotlight:active{color:#fbbf24;background:rgba(251,191,36,.15);}
 
 /* event type grid */
 .evt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px;}
@@ -1998,11 +2001,43 @@ function renderPlayerSelect(){
           <div class="pbtn-name">${p.name.split(' ').pop()}</div>
           <div class="pbtn-stat">${pts}pts</div>
           <div class="pbtn-fouls">${[1,2,3,4,5].map(n=>`<div class="pbtn-fpip${n<=pf?' on':''}"></div>`).join('')}</div>
+          <button class="pbtn-spotlight" title="Spotlight on overlay" onclick="event.stopPropagation();fireSpotlightFromStats('${team}','${p.id}')">★</button>
         </button>`;
       }).join('')}
     </div>`;
   };
-  return `<div class="teams-split">${mkTeam('away')}${mkTeam('home')}</div>`;
+  const dismissBtn = `<div style="text-align:center;padding:4px 0 2px">
+    <button class="btn btn-ghost btn-xs" onclick="dismissSpotlightFromStats()" style="font-size:11px;padding:4px 14px;">✕ Dismiss Spotlight</button>
+  </div>`;
+  return `${dismissBtn}<div class="teams-split">${mkTeam('away')}${mkTeam('home')}</div>`;
+}
+
+function fireSpotlightFromStats(team, pid) {
+  if (!window.NSMTClient || !NSMTClient.connected) return;
+  const p = (G[team].players||[]).find(x => x.id === pid);
+  if (!p) return;
+  const s = G.stats[p.id] || {};
+  NSMTClient.send({ type: 'patch', bug: { spotlight: {
+    active: true,
+    playerName: p.name || '',
+    playerNum: p.num || '',
+    playerPhoto: p.photo || '',
+    teamName: G[team].name || team,
+    teamColor: G[team].primary || '#0E80FC',
+    stats: {
+      pts: s.pts || 0,
+      reb: (s.oreb||0) + (s.dreb||0),
+      ast: s.ast || 0,
+      stl: s.stl || 0,
+      blk: s.blk || 0
+    },
+    dismissAfter: 8000
+  }}});
+}
+
+function dismissSpotlightFromStats() {
+  if (!window.NSMTClient || !NSMTClient.connected) return;
+  NSMTClient.send({ type: 'patch', bug: { spotlight: { active: false } } });
 }
 
 function selectPlayer(team, pid){
