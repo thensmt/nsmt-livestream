@@ -124,6 +124,11 @@
     font-size: 14px; margin: 12px 0; color: #0050a0;
   }
 
+  /* LINKS */
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a code { color: var(--blue); }
+
   /* CODE */
   code {
     background: #f1f3f5; border-radius: 4px;
@@ -199,7 +204,7 @@
       <li><input type="checkbox"><span>Producer → <strong>Rosters</strong> tab → assign photos to players (📷 button next to each player)</span></li>
       <li><input type="checkbox"><span>Verify rosters are complete — correct numbers, names, spelling</span></li>
       <li><input type="checkbox"><span>Double-click <code>Start NSMT.command</code> at home — confirm server starts and producer opens</span></li>
-      <li><input type="checkbox"><span>Open <code>http://localhost:8000/nsmt_fox_overlay_ws.html</code> — confirm scorebug loads</span></li>
+      <li><input type="checkbox"><span>Open <a href="http://localhost:8000/nsmt_fox_overlay_ws.html"><code>http://localhost:8000/nsmt_fox_overlay_ws.html</code></a> — confirm scorebug loads</span></li>
       <li><input type="checkbox"><span>Close server when done testing</span></li>
       <li><input type="checkbox"><span>Charge MBP fully</span></li>
       <li><input type="checkbox"><span>Charge all iPad/tablet devices</span></li>
@@ -240,10 +245,10 @@
   <div class="section-body">
     <div class="tip">Every Browser Source: Width <strong>1920</strong>, Height <strong>1080</strong>, transparent background ON, "Shutdown when not visible" OFF, "Refresh on scene activation" OFF.</div>
     <ol>
-      <li>In your main game scene, add a Browser Source:<br>URL: <code>http://localhost:8000/nsmt_fox_overlay_ws.html</code></li>
+      <li>In your main game scene, add a Browser Source:<br>URL: <a href="http://localhost:8000/nsmt_fox_overlay_ws.html"><code>http://localhost:8000/nsmt_fox_overlay_ws.html</code></a></li>
       <li>Confirm the scorebug appears in the OBS preview</li>
-      <li><strong>If 3-Point Contest:</strong> add a second Browser Source in your 3PT scene:<br>URL: <code>http://localhost:8000/3pt-overlay.html</code></li>
-      <li><strong>If Dunk Contest:</strong> add a third Browser Source in your Dunk scene:<br>URL: <code>http://localhost:8000/dunk-overlay.html</code></li>
+      <li><strong>If 3-Point Contest:</strong> add a second Browser Source in your 3PT scene:<br>URL: <a href="http://localhost:8000/3pt-overlay.html"><code>http://localhost:8000/3pt-overlay.html</code></a></li>
+      <li><strong>If Dunk Contest:</strong> add a third Browser Source in your Dunk scene:<br>URL: <a href="http://localhost:8000/dunk-overlay.html"><code>http://localhost:8000/dunk-overlay.html</code></a></li>
     </ol>
   </div>
 </div>
@@ -280,23 +285,23 @@
   <div class="section-body">
     <h3>Primary device</h3>
     <ol>
-      <li>Open browser → <code>http://MBP.local:8000/ipad-control/</code></li>
+      <li>Open browser → <a href="http://MBP.local:8000/ipad-control/"><code>http://MBP.local:8000/ipad-control/</code></a></li>
       <li>Wait for the green dot in the top-right corner</li>
       <li>Tap <strong>Stats</strong> tab → confirm both team rosters show player grids</li>
     </ol>
     <h3>3PT — Court 2 device</h3>
     <ol>
-      <li>Open: <code>http://MBP.local:8000/ipad-control/?court=2</code></li>
+      <li>Open: <a href="http://MBP.local:8000/ipad-control/?court=2"><code>http://MBP.local:8000/ipad-control/?court=2</code></a></li>
       <li>3PT tab opens automatically with Court 2 selected</li>
     </ol>
     <h3>Dunk — Judge devices</h3>
     <table>
       <tr><th>Judge</th><th>URL</th></tr>
-      <tr><td>Judge 1</td><td><code>…/ipad-control/?judge=1</code></td></tr>
-      <tr><td>Judge 2</td><td><code>…/ipad-control/?judge=2</code></td></tr>
-      <tr><td>Judge 3</td><td><code>…/ipad-control/?judge=3</code></td></tr>
-      <tr><td>Judge 4</td><td><code>…/ipad-control/?judge=4</code></td></tr>
-      <tr><td>Judge 5</td><td><code>…/ipad-control/?judge=5</code></td></tr>
+      <tr><td>Judge 1</td><td><a href="http://MBP.local:8000/ipad-control/?judge=1"><code>MBP.local:8000/ipad-control/?judge=1</code></a></td></tr>
+      <tr><td>Judge 2</td><td><a href="http://MBP.local:8000/ipad-control/?judge=2"><code>MBP.local:8000/ipad-control/?judge=2</code></a></td></tr>
+      <tr><td>Judge 3</td><td><a href="http://MBP.local:8000/ipad-control/?judge=3"><code>MBP.local:8000/ipad-control/?judge=3</code></a></td></tr>
+      <tr><td>Judge 4</td><td><a href="http://MBP.local:8000/ipad-control/?judge=4"><code>MBP.local:8000/ipad-control/?judge=4</code></a></td></tr>
+      <tr><td>Judge 5</td><td><a href="http://MBP.local:8000/ipad-control/?judge=5"><code>MBP.local:8000/ipad-control/?judge=5</code></a></td></tr>
     </table>
     <div class="tip">Judge URLs are also shown at the bottom of the Dunk tab for easy copy/share.</div>
   </div>
@@ -504,7 +509,7 @@
     </ol>
     <h3>Judges — Each on their own device</h3>
     <ol>
-      <li>Open <code>http://MBP.local:8000/ipad-control/?judge=N</code></li>
+      <li>Open your judge URL (see Section 4 above, or the Dunk tab on the primary iPad)</li>
       <li>See dunker name, round, attempt (read-only)</li>
       <li>Tap a score: <strong>1 through 10</strong></li>
       <li>Tap <strong>✓ Submit Score</strong> — score locks, head table card turns blue</li>
