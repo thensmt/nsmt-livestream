@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NSMT Runbook">
+<title>NSMT Broadcast Runbook</title>
+<style>
+  :root {
+    --blue: #0E80FC;
+    --gold: #F5C518;
+    --text: #1a1a1a;
+    --muted: #666;
+    --border: #e0e0e0;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --green: #16a34a;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; padding-bottom: 60px;
+  }
+
+  /* HEADER */
+  .header {
+    background: #000; color: #fff;
+    padding: 16px 20px 12px;
+    border-bottom: 3px solid var(--gold);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-brand { font-size: 11px; font-weight: 800; letter-spacing: 3px; color: var(--blue); text-transform: uppercase; margin-bottom: 2px; }
+  .header-title { font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+  .header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+  /* PROGRESS BAR */
+  .toc {
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 10px 16px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .toc a {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--blue); text-decoration: none;
+    background: #e8f1ff; border-radius: 20px;
+    padding: 4px 10px; white-space: nowrap;
+  }
+  .toc a:active { background: var(--blue); color: #fff; }
+
+  /* CONTENT */
+  .content { max-width: 800px; margin: 0 auto; padding: 0 16px; }
+
+  /* SECTIONS */
+  .section {
+    background: var(--card); border-radius: 12px;
+    margin: 16px 0; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .section-header {
+    background: #000; color: #fff;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-num {
+    background: var(--gold); color: #000;
+    font-size: 11px; font-weight: 900;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+  .section-body { padding: 16px; }
+
+  /* STEPS */
+  ol { padding-left: 0; list-style: none; counter-reset: steps; }
+  ol li {
+    counter-increment: steps;
+    display: flex; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 15px; align-items: flex-start;
+  }
+  ol li:last-child { border-bottom: none; }
+  ol li::before {
+    content: counter(steps);
+    background: var(--blue); color: #fff;
+    font-size: 11px; font-weight: 900;
+    min-width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type=checkbox] {
+    width: 22px; height: 22px; flex-shrink: 0;
+    accent-color: var(--blue); cursor: pointer; margin-top: 1px;
+  }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+  th { background: var(--bg); font-weight: 700; text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border); font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 600; }
+
+  /* CALLOUTS */
+  .note {
+    background: #fffbea; border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0; padding: 10px 14px;
+    font-size: 14px; margin: 12px 0; color: #7a6000;
+  }
+  .tip {
+    background: #f0f8ff; border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0; padding: 10px 14px;
+    font-size: 14px; margin: 12px 0; color: #0050a0;
+  }
+
+  /* CODE */
+  code {
+    background: #f1f3f5; border-radius: 4px;
+    padding: 2px 6px; font-family: 'SF Mono', 'Courier New', monospace;
+    font-size: 13px; color: #c7254e;
+  }
+
+  /* SUBSECTIONS */
+  h3 {
+    font-size: 13px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+    margin: 16px 0 8px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  p { font-size: 15px; margin: 8px 0; }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+  .stat-cell {
+    background: var(--bg); border-radius: 8px; padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .stat-value { font-size: 14px; font-weight: 600; }
+
+  /* BADGE */
+  .badge {
+    display: inline-flex; align-items: center;
+    background: var(--blue); color: #fff;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+    border-radius: 20px; padding: 3px 10px;
+  }
+  .badge.gold { background: var(--gold); color: #000; }
+  .badge.green { background: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">NSMT Sports</div>
+  <div class="header-title">Broadcast Runbook</div>
+  <div class="header-sub">Hoopfest 2026 &amp; Special Events</div>
+</div>
+
+<div class="toc">
+  <a href="#s0">Day Before</a>
+  <a href="#s1">Arrive</a>
+  <a href="#s2">OBS</a>
+  <a href="#s3">Setup</a>
+  <a href="#s4">iPads</a>
+  <a href="#s5">All-Star</a>
+  <a href="#s6">Game</a>
+  <a href="#s7">Stats</a>
+  <a href="#s8">Graphics</a>
+  <a href="#s9">Halftime</a>
+  <a href="#s10">Final</a>
+  <a href="#s11">3PT</a>
+  <a href="#s12">Dunk</a>
+  <a href="#s13">Wrap-Up</a>
+</div>
+
+<div class="content">
+
+<!-- SECTION 0 -->
+<div class="section" id="s0">
+  <div class="section-header">
+    <div class="section-num">0</div>
+    <div class="section-title">THE DAY BEFORE</div>
+  </div>
+  <div class="section-body">
+    <ul class="checklist">
+      <li><input type="checkbox"><span>Upload player photos — drag each photo into <code>uploads/players/&lt;Player Name&gt;/</code></span></li>
+      <li><input type="checkbox"><span>Producer → <strong>Rosters</strong> tab → assign photos to players (📷 button next to each player)</span></li>
+      <li><input type="checkbox"><span>Verify rosters are complete — correct numbers, names, spelling</span></li>
+      <li><input type="checkbox"><span>Double-click <code>Start NSMT.command</code> at home — confirm server starts and producer opens</span></li>
+      <li><input type="checkbox"><span>Open <code>http://localhost:8000/nsmt_fox_overlay_ws.html</code> — confirm scorebug loads</span></li>
+      <li><input type="checkbox"><span>Close server when done testing</span></li>
+      <li><input type="checkbox"><span>Charge MBP fully</span></li>
+      <li><input type="checkbox"><span>Charge all iPad/tablet devices</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div class="section-title">VENUE ARRIVAL — SERVER &amp; NETWORK</div>
+  </div>
+  <div class="section-body">
+    <h3>Network</h3>
+    <ol>
+      <li>Connect MBP to venue WiFi — or start a personal hotspot on your phone (more reliable)</li>
+      <li>Open Terminal and run: <code>ipconfig getifaddr en0</code></li>
+      <li>Write down the IP address — needed if <code>MBP.local</code> doesn't load on iPads</li>
+    </ol>
+    <h3>Start the Server</h3>
+    <ol>
+      <li>Open the <code>Livestream</code> folder</li>
+      <li>Double-click <strong>Start NSMT.command</strong></li>
+      <li>Terminal opens — <strong>do not close it</strong> for the entire event</li>
+      <li>The producer control panel opens automatically in the browser</li>
+      <li>Check the top-right of the producer — confirm the green <span class="badge green">WS</span> badge is showing</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div class="section-title">OBS — BROWSER SOURCES</div>
+  </div>
+  <div class="section-body">
+    <div class="tip">Every Browser Source: Width <strong>1920</strong>, Height <strong>1080</strong>, transparent background ON, "Shutdown when not visible" OFF, "Refresh on scene activation" OFF.</div>
+    <ol>
+      <li>In your main game scene, add a Browser Source:<br>URL: <code>http://localhost:8000/nsmt_fox_overlay_ws.html</code></li>
+      <li>Confirm the scorebug appears in the OBS preview</li>
+      <li><strong>If 3-Point Contest:</strong> add a second Browser Source in your 3PT scene:<br>URL: <code>http://localhost:8000/3pt-overlay.html</code></li>
+      <li><strong>If Dunk Contest:</strong> add a third Browser Source in your Dunk scene:<br>URL: <code>http://localhost:8000/dunk-overlay.html</code></li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div class="section-title">GAME SETUP WIZARD (Producer — Tab 1)</div>
+  </div>
+  <div class="section-body">
+    <div class="note">Run this wizard for every game, including between games on a multi-game day.</div>
+    <h3>Step 1: Game Info</h3>
+    <p>Event name · Venue · # of Periods (4 for quarters, 2 for halves) · Period length (8 min default) · Sponsor label</p>
+    <h3>Step 2: Away Team</h3>
+    <p>Team name · Code (3–4 chars for scorebug, e.g. "WST") · Logo · Colors · Roster assignment</p>
+    <h3>Step 3: Home Team</h3>
+    <p>Same fields as Away.</p>
+    <h3>Step 4: Review &amp; Start</h3>
+    <ol>
+      <li>Review both teams in the summary</li>
+      <li>Tap <strong>▶ Start Broadcast</strong></li>
+      <li>✓ Scorebug in OBS updates with team names, logos, colors, 0–0</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div class="section-title">CONNECT iPADS</div>
+  </div>
+  <div class="section-body">
+    <h3>Primary device</h3>
+    <ol>
+      <li>Open browser → <code>http://MBP.local:8000/ipad-control/</code></li>
+      <li>Wait for the green dot in the top-right corner</li>
+      <li>Tap <strong>Stats</strong> tab → confirm both team rosters show player grids</li>
+    </ol>
+    <h3>3PT — Court 2 device</h3>
+    <ol>
+      <li>Open: <code>http://MBP.local:8000/ipad-control/?court=2</code></li>
+      <li>3PT tab opens automatically with Court 2 selected</li>
+    </ol>
+    <h3>Dunk — Judge devices</h3>
+    <table>
+      <tr><th>Judge</th><th>URL</th></tr>
+      <tr><td>Judge 1</td><td><code>…/ipad-control/?judge=1</code></td></tr>
+      <tr><td>Judge 2</td><td><code>…/ipad-control/?judge=2</code></td></tr>
+      <tr><td>Judge 3</td><td><code>…/ipad-control/?judge=3</code></td></tr>
+      <tr><td>Judge 4</td><td><code>…/ipad-control/?judge=4</code></td></tr>
+      <tr><td>Judge 5</td><td><code>…/ipad-control/?judge=5</code></td></tr>
+    </table>
+    <div class="tip">Judge URLs are also shown at the bottom of the Dunk tab for easy copy/share.</div>
+  </div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div class="section-title">ALL-STAR GAME INTRO</div>
+  </div>
+  <div class="section-body">
+    <div class="note">Nova 24 and Public vs Private events only. Do this right before tip-off.</div>
+    <ol>
+      <li>iPad → tap <strong>★ All-Star</strong> tab</li>
+      <li>Tap the event button: <strong>Nova 24</strong> or <strong>Public vs Private</strong> (button highlights to confirm)</li>
+      <li>When players are on the court: tap <strong>▶ Show Intro</strong>
+        <br>→ Full-screen overlay appears with event name, matchup, accent color</li>
+      <li>When the ref is about to throw the ball up: tap <strong>✕ Dismiss</strong>
+        <br>→ Overlay fades, scorebug goes live</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 6 -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div class="section-title">RUNNING THE GAME</div>
+  </div>
+  <div class="section-body">
+    <h3>Scoring — iPad Game Tab</h3>
+    <table>
+      <tr><th>Action</th><th>Button</th></tr>
+      <tr><td>3-pointer made</td><td><strong>+3</strong> on that team's side</td></tr>
+      <tr><td>2-pointer made</td><td><strong>+2</strong></td></tr>
+      <tr><td>Free throw made</td><td><strong>+1</strong></td></tr>
+      <tr><td>Undo a point</td><td><strong>−1</strong></td></tr>
+      <tr><td>Override score</td><td>Tap the score number → type → Apply</td></tr>
+    </table>
+    <h3>Clock — iPad Game Tab</h3>
+    <table>
+      <tr><th>Action</th><th>Button</th></tr>
+      <tr><td>Start clock</td><td><strong>▶ Play</strong></td></tr>
+      <tr><td>Stop clock</td><td><strong>⏸ Pause</strong></td></tr>
+      <tr><td>Reset to full period</td><td><strong>↺ Reset</strong></td></tr>
+      <tr><td>Set specific time</td><td>Tap the clock → type MM:SS → Set &amp; Stop</td></tr>
+    </table>
+    <h3>Periods</h3>
+    <ol>
+      <li>Tap period pills (<strong>Q1</strong>, <strong>Q2</strong>, etc.) to jump to any period</li>
+      <li>Tap <strong>End Period ▸</strong> to advance to the next period</li>
+      <li>Tap <strong>+OT</strong> to add overtime</li>
+    </ol>
+    <h3>Timeouts</h3>
+    <ol>
+      <li>Tap <strong>⏱ Use Timeout</strong> on the correct team's side</li>
+      <li>Timeout dot consumed; TIMEOUT graphic fires automatically on stream</li>
+      <li>To reset manually: tap <strong>Reset TOs</strong></li>
+    </ol>
+    <h3>Fouls</h3>
+    <table>
+      <tr><th>Action</th><th>Where</th></tr>
+      <tr><td>Add a team foul</td><td>iPad Game tab → <strong>Foul +</strong></td></tr>
+      <tr><td>Fire PERSONAL FOUL graphic</td><td>MBP Producer → Broadcast tab → <strong>Foul</strong> → select player → Fire</td></tr>
+    </table>
+    <div class="note">When a player hits foul trouble (5 fouls), the ⚠️ FOUL TROUBLE warning appears in the graphic automatically.</div>
+  </div>
+</div>
+
+<!-- SECTION 7 -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div class="section-title">LIVE STAT TRACKING — iPad Stats Tab</div>
+  </div>
+  <div class="section-body">
+    <ol>
+      <li>Tap a player button in the away or home grid</li>
+      <li>Player detail panel opens</li>
+      <li>Tap the correct stat as each event happens:</li>
+    </ol>
+    <div class="stat-grid">
+      <div class="stat-cell"><div class="stat-label">Made FG</div><div class="stat-value">FG +</div></div>
+      <div class="stat-cell"><div class="stat-label">Made 3PT</div><div class="stat-value">3P + (also FG +)</div></div>
+      <div class="stat-cell"><div class="stat-label">Free throw</div><div class="stat-value">FT +</div></div>
+      <div class="stat-cell"><div class="stat-label">Off rebound</div><div class="stat-value">REB OFF +</div></div>
+      <div class="stat-cell"><div class="stat-label">Def rebound</div><div class="stat-value">REB DEF +</div></div>
+      <div class="stat-cell"><div class="stat-label">Assist</div><div class="stat-value">AST +</div></div>
+      <div class="stat-cell"><div class="stat-label">Turnover</div><div class="stat-value">TO +</div></div>
+      <div class="stat-cell"><div class="stat-label">Steal</div><div class="stat-value">STL +</div></div>
+      <div class="stat-cell"><div class="stat-label">Block</div><div class="stat-value">BLK +</div></div>
+      <div class="stat-cell"><div class="stat-label">Undo last</div><div class="stat-value">Tap − on stat</div></div>
+    </div>
+    <h3>Player Spotlight</h3>
+    <ol>
+      <li>In the player detail panel, tap <strong>★ Spotlight</strong></li>
+      <li>Player card fires on stream: photo, name, number, live stats</li>
+      <li>Tap <strong>✕ Dismiss</strong> on Game tab to remove manually</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 8 -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div class="section-title">BROADCAST GRAPHICS — MBP Producer → Broadcast Tab</div>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Graphic</th><th>When</th><th>How</th></tr>
+      <tr><td>Timeout</td><td>After timeout called</td><td>Timeout button → modal → Fire</td></tr>
+      <tr><td>Substitution</td><td>Players entering game</td><td>Sub button → pick team, IN/OUT players → Fire</td></tr>
+      <tr><td>Personal Foul</td><td>After foul called</td><td>Foul button → pick player → Fire</td></tr>
+      <tr><td>Halftime</td><td>End of first half</td><td>Halftime button (instant)</td></tr>
+      <tr><td>Media Timeout</td><td>TV stoppage</td><td>Media Timeout button (instant)</td></tr>
+      <tr><td>Officials Timeout</td><td>Ref stoppage</td><td>Officials Timeout button (instant)</td></tr>
+      <tr><td>End of Game</td><td>Final buzzer</td><td>End of Game button (instant)</td></tr>
+    </table>
+    <div class="tip">All graphics auto-dismiss after ~5 seconds.</div>
+  </div>
+</div>
+
+<!-- SECTION 9 -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <div class="section-title">HALFTIME</div>
+  </div>
+  <div class="section-body">
+    <ol>
+      <li>iPad Game tab → tap <strong>End Period ▸</strong> (advances from Q2 → H2)</li>
+      <li>MBP Producer → Broadcast tab → tap <strong>Halftime</strong>
+        <br>→ HALFTIME graphic fires with both scores</li>
+      <li>During the break: update roster if needed — no need to reset scores</li>
+      <li>When second half begins: tap <strong>Q3</strong> pill and start the clock</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 10 -->
+<div class="section" id="s10">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div class="section-title">END OF GAME</div>
+  </div>
+  <div class="section-body">
+    <ol>
+      <li>MBP Producer → Broadcast tab → tap <strong>End of Game</strong>
+        <br>→ FINAL graphic fires with the final score</li>
+      <li>iPad → Game tab → tap <strong>↺ Reset Game</strong> → confirm
+        <br>→ Clears scores to 0–0, resets clock, clears stats, keeps rosters for next game</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 11 -->
+<div class="section" id="s11">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <div class="section-title">3-POINT CONTEST</div>
+  </div>
+  <div class="section-body">
+    <div class="note">Switch to your 3PT scene in OBS first.</div>
+    <h3>Round 1 — Two courts simultaneously</h3>
+    <p><strong>Primary device (Court 1):</strong></p>
+    <ol>
+      <li>iPad → 🏀 <strong>3PT</strong> tab → tap <strong>Court 1</strong> → tap <strong>Round 1</strong></li>
+      <li>Type shooter's name (or select from dropdown)</li>
+      <li>Tap the <strong>★ Money Rack</strong> button (1–5) — shooter picks which rack is 2 pts</li>
+      <li>Tap <strong>▶ Show</strong> to display the overlay</li>
+      <li>As each ball is thrown, tap the ball button in that rack row (made = filled, missed = empty)</li>
+      <li>When shooter finishes: tap <strong>Next Shooter ▶</strong> → balls clear, name field resets</li>
+    </ol>
+    <p><strong>Second device (Court 2):</strong> runs the same workflow independently. Both courts appear side-by-side on the overlay.</p>
+    <h3>Finals — Single shooter</h3>
+    <ol>
+      <li>Primary device → 3PT tab → tap <strong>Finals</strong> (overlay switches to single centered panel)</li>
+      <li>Enter finalist's name, select money rack, tap Show</li>
+      <li>Same ball-tapping workflow as Round 1</li>
+      <li>Tap <strong>Next Shooter ▶</strong> to advance to the next finalist</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 12 -->
+<div class="section" id="s12">
+  <div class="section-header">
+    <div class="section-num">12</div>
+    <div class="section-title">DUNK CONTEST</div>
+  </div>
+  <div class="section-body">
+    <div class="note">Switch to your Dunk scene in OBS first.</div>
+    <h3>Head Table — iPad Dunk Tab</h3>
+    <ol>
+      <li>Dropdown: select dunker's name (school + Instagram auto-fill on overlay)</li>
+      <li>Optional: paste a photo URL</li>
+      <li>Set <strong>Round</strong> and <strong>Attempt</strong> numbers (−/+ buttons)</li>
+      <li>Tap <strong>▶ Show</strong> to display the overlay</li>
+      <li>Watch judge cards — they turn blue as each judge submits (score stays hidden)</li>
+      <li>Reveal scores: tap <strong>▶ Reveal</strong> one judge at a time for drama — or <strong>Reveal All</strong> for instant</li>
+      <li>After dunk: tap <strong>↺ Reset Dunk</strong> (keeps dunker, clears scores for next attempt)</li>
+      <li>New dunker: tap <strong>New Dunker</strong></li>
+    </ol>
+    <h3>Judges — Each on their own device</h3>
+    <ol>
+      <li>Open <code>http://MBP.local:8000/ipad-control/?judge=N</code></li>
+      <li>See dunker name, round, attempt (read-only)</li>
+      <li>Tap a score: <strong>1 through 10</strong></li>
+      <li>Tap <strong>✓ Submit Score</strong> — score locks, head table card turns blue</li>
+      <li>Page auto-resets after head table taps Reset Dunk</li>
+    </ol>
+    <div class="tip">If a judge refreshes by accident: just reopen the URL and resubmit — it replaces the previous score.</div>
+  </div>
+</div>
+
+<!-- SECTION 13 -->
+<div class="section" id="s13">
+  <div class="section-header">
+    <div class="section-num">13</div>
+    <div class="section-title">WRAP-UP</div>
+  </div>
+  <div class="section-body">
+    <ul class="checklist">
+      <li><input type="checkbox"><span>OBS: stop recording and/or end stream</span></li>
+      <li><input type="checkbox"><span>iPad: close browser (no save needed)</span></li>
+      <li><input type="checkbox"><span>MBP: close the Terminal window with the server</span></li>
+      <li><input type="checkbox"><span>State is saved in <code>game_state.json</code> — restores on next startup</span></li>
+      <li><input type="checkbox"><span>Pack all cables, iPads, MBP</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- QUICK REFERENCE -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--blue);">★</div>
+    <div class="section-title">QUICK REFERENCE — WHAT LIVES WHERE</div>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Task</th><th>Where</th></tr>
+      <tr><td>Score points</td><td>iPad → <strong>Game tab</strong></td></tr>
+      <tr><td>Start/stop clock</td><td>iPad → <strong>Game tab</strong></td></tr>
+      <tr><td>Track player stats</td><td>iPad → <strong>Stats tab</strong></td></tr>
+      <tr><td>All-Star intro</td><td>iPad → <strong>All-Star tab</strong></td></tr>
+      <tr><td>3PT contest</td><td>iPad → <strong>3PT tab</strong></td></tr>
+      <tr><td>Dunk contest (head table)</td><td>iPad → <strong>Dunk tab</strong></td></tr>
+      <tr><td>Judge scoring</td><td>Each judge's device → <strong>Judge tab</strong></td></tr>
+      <tr><td>Fire broadcast graphics</td><td>MBP Producer → <strong>Broadcast tab</strong></td></tr>
+      <tr><td>Set team names/logos/colors</td><td>MBP Producer → <strong>Game Setup tab</strong></td></tr>
+      <tr><td>Manage rosters</td><td>MBP Producer → <strong>Rosters tab</strong></td></tr>
+      <tr><td>Score ticker</td><td>MBP Producer → <strong>Ticker tab</strong></td></tr>
+      <tr><td>Ads / sponsor logos</td><td>MBP Producer → <strong>Overlay &amp; Ads tab</strong></td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /content -->
+</body>
+</html>
