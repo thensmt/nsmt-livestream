@@ -230,11 +230,15 @@
   .pc-accent-bar{width:6px;flex-shrink:0;background:#0E80FC;}
   .pc-photo-wrap{width:120px;flex-shrink:0;overflow:hidden;background:#111;}
   .pc-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
-  .pc-info{padding:14px 20px;display:flex;flex-direction:column;justify-content:center;gap:5px;}
+  .pc-info{padding:14px 20px;display:flex;flex-direction:column;justify-content:center;gap:4px;}
   .pc-team{font-family:'Rubik',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.45);}
   .pc-num-name{font-family:'Anton',Impact,sans-serif;font-size:27px;text-transform:uppercase;letter-spacing:0.5px;color:#fff;line-height:1;}
   .pc-num-name .pc-num{color:rgba(255,255,255,.4);margin-right:6px;font-size:22px;}
-  .pc-stats{display:flex;gap:16px;margin-top:6px;}
+  .pc-profile{font-family:'Rubik',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:0.5px;}
+  .pc-avgs{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:0.5px;}
+  .pc-commit{font-family:'Rubik',sans-serif;font-size:11px;font-weight:600;color:#F5C518;letter-spacing:0.5px;}
+  .pc-profile.hidden,.pc-avgs.hidden,.pc-commit.hidden{display:none;}
+  .pc-stats{display:flex;gap:16px;margin-top:4px;}
   .pc-stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
   .pc-stat span{font-family:'Anton',Impact,sans-serif;font-size:24px;color:#fff;line-height:1;}
   .pc-stat label{font-family:'Rubik',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);}
@@ -331,6 +335,9 @@
     <div class="pc-info">
       <div class="pc-team" id="pcTeamName"></div>
       <div class="pc-num-name"><span class="pc-num" id="pcNum"></span><span id="pcName"></span></div>
+      <div class="pc-profile hidden" id="pcProfile"></div>
+      <div class="pc-avgs hidden" id="pcAvgs"></div>
+      <div class="pc-commit hidden" id="pcCommit"></div>
       <div class="pc-stats">
         <div class="pc-stat"><span id="pcPts">0</span><label>PTS</label></div>
         <div class="pc-stat"><span id="pcReb">0</span><label>REB</label></div>
@@ -686,6 +693,21 @@
     document.getElementById('pcAst').textContent = st.ast != null ? st.ast : 0;
     document.getElementById('pcStl').textContent = st.stl != null ? st.stl : 0;
     document.getElementById('pcBlk').textContent = st.blk != null ? st.blk : 0;
+    // Profile line: "6'1 · G"
+    var profileParts = [sp.height, sp.pos].filter(Boolean);
+    var profileEl = document.getElementById('pcProfile');
+    if (profileParts.length) { profileEl.textContent = profileParts.join(' · '); profileEl.classList.remove('hidden'); }
+    else { profileEl.classList.add('hidden'); }
+    // Season averages: "18.0 PPG · 4.3 RPG · 5.0 APG"
+    var avgsEl = document.getElementById('pcAvgs');
+    if (sp.ppg || sp.rpg || sp.apg) {
+      avgsEl.textContent = parseFloat(sp.ppg||0).toFixed(1)+' PPG · '+parseFloat(sp.rpg||0).toFixed(1)+' RPG · '+parseFloat(sp.apg||0).toFixed(1)+' APG';
+      avgsEl.classList.remove('hidden');
+    } else { avgsEl.classList.add('hidden'); }
+    // College commitment
+    var commitEl = document.getElementById('pcCommit');
+    if (sp.commitment) { commitEl.textContent = '→ ' + sp.commitment; commitEl.classList.remove('hidden'); }
+    else { commitEl.classList.add('hidden'); }
     const photoEl = document.getElementById('pcPhoto');
     const photoWrap = document.getElementById('pcPhotoWrap');
     if (sp.playerPhoto) {

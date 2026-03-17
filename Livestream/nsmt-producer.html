@@ -1230,46 +1230,58 @@ const DB = {
 (function seedPvP(){
   const PRIVATE_ID = 'r_PVP_PRIVATE';
   const PUBLIC_ID  = 'r_PVP_PUBLIC';
-  const mkP = (name, school, ig) => ({
+  const PRIVATE_VER = 2; // bump to re-seed with profile data
+  const mkP = (name, school, ig, pos, height, ppg, rpg, apg, commitment) => ({
     id: 'p_PVP_' + name.replace(/\s+/g,'_'),
-    num: '', name, pos: '', fouls: 0, photo: '', ig
+    num: '', name, pos, fouls: 0, photo: '', ig,
+    height, ppg, rpg, apg, commitment: commitment||'', awards:''
   });
-  const teamPrivate = { id: PRIVATE_ID, name: 'PvP — Team Private', players: [
-    mkP('Darius Bivins',   "Bishop O'Connell",        '_dariusbivins'),
-    mkP('Akim Iscandari',  'The Potomac School',      'theakimiscandari'),
-    mkP('Marcus Hancock',  "St Stephen's St Agnes",   'Marcushoops2'),
-    mkP('Messiah Dixon',   'Fairfax Christian',       'Bigdotsiah'),
-    mkP('RJ Jones',        'Virginia Academy',        'rjjonesss'),
-    mkP('Jafet Valencia',  'Evergreen Christian',     'Jafetvalencia10'),
-    mkP('Frank Siaca Bey', 'Fairfax Christian',       'siacabeyf'),
-    mkP('Jake Bahr',       'Bishop Ireton',           'jake.bahrr'),
-    mkP('Silas Devonish',  'Bishop Ireton',           'Ldf_silas'),
-    mkP('Ripp Kodi',       'Highland School',         'rippkodi'),
-    mkP('Justin Edwards',  "Bishop O'Connell",        'J3dwards_'),
-    mkP('Jahda Swann',     'The St. James',           'Yk.jahda'),
-    mkP('Cole Forbrich',   'Evergreen Christian',     'coleforbrich'),
+  const teamPrivate = { id: PRIVATE_ID, name: 'PvP — Team Private', _ver: PRIVATE_VER, players: [
+    mkP('Darius Bivins',   "O'Connell",             '_dariusbivins',   'G',  "6'1", 18,   4.3, 5,   ''),
+    mkP('Akim Iscandari',  'The Potomac School',    'theakimiscandari','G',  "6'0", 16.2, 6,   5,   'Navy'),
+    mkP('Marcus Hancock',  "St Stephen's St Agnes", 'Marcushoops2',    'G',  "6'2", 15.3, 4,   0.4, ''),
+    mkP('Messiah Dixon',   'Fairfax Christian',     'Bigdotsiah',      'G',  "6'0", 13,   3,   4,   'Clarion'),
+    mkP('RJ Jones',        'Virginia Academy',      'rjjonesss',       'G',  "6'4", 13,   3,   2,   'Marymount'),
+    mkP('Jafet Valencia',  'Evergreen Christian',   'Jafetvalencia10', 'W',  "6'7", 12,   8.3, 7,   'Delaware'),
+    mkP('Frank Siaca Bey', 'Fairfax Christian',     'siacabeyf',       'F',  "6'9", 17,   7.5, 1.2, 'Fordham'),
+    mkP('Jake Bahr',       'Bishop Ireton',         'jake.bahrr',      'G',  "6'4", 14,   8,   4.5, ''),
+    mkP('Silas Devonish',  'Bishop Ireton',         'Ldf_silas',       'G',  "5'10",19,   2,   2.5, ''),
+    mkP('Ripp Kodi',       'Highland School',       'rippkodi',        'WF', "6'8", 9,    5,   1.3, ''),
+    mkP('Justin Edwards',  "Bishop O'Connell",      'J3dwards_',       'W',  "6'5", 12,   7,   2,   'Gannon'),
+    mkP('Jahda Swann',     'The St. James',         'Yk.jahda',        'W',  "6'6", 0,    0,   0,   ''),
+    mkP('Cole Forbrich',   'Evergreen Christian',   'coleforbrich',    'G',  "5'10",12,   2,   1,   ''),
   ]};
+  const mkPub = (name, school, ig) => ({
+    id: 'p_PVP_' + name.replace(/\s+/g,'_'),
+    num: '', name, pos: '', fouls: 0, photo: '', ig,
+    height:'', ppg:0, rpg:0, apg:0, commitment:'', awards:''
+  });
   const teamPublic = { id: PUBLIC_ID, name: 'PvP — Team Public', players: [
-    mkP('Ryan Brzezanski',     'Broad Run',         'ryanbrzezanski'),
-    mkP('Ryan Corallo',        'C.G. Woodson',      'Ryan.corallo'),
-    mkP('Elijah Gaskins',      'Patriot',           'elijah.gaskins'),
-    mkP('Johnathan Anderson',  'South County',      'j_anderson.1'),
-    mkP('Sean Madrigal',       'Patriot',           'theseanmadrigal'),
-    mkP('Jemon Price',         'Westfield',         'thejemonprice'),
-    mkP('Colin Spencer Byrd',  'Tuscarora',         '_cbyrd'),
-    mkP('Dominic Julian Mack', 'Potomac Senior',    'Dominic.jm'),
-    mkP('Ethan Jeremiah Poole','Wakefield',         'jeremiah.poole.3'),
-    mkP('Rodney Carmichael',   'Hayfield',          'rodney.carmichael5'),
-    mkP('Nate McComb',         'Lake Braddock',     'natemccomb'),
-    mkP('Jacob Coulam',        'Yorktown',          'jakecoulam11'),
-    mkP('Isaiah Brown',        'Westfield',         '_zay.brown_'),
+    mkPub('Ryan Brzezanski',     'Broad Run',         'ryanbrzezanski'),
+    mkPub('Ryan Corallo',        'C.G. Woodson',      'Ryan.corallo'),
+    mkPub('Elijah Gaskins',      'Patriot',           'elijah.gaskins'),
+    mkPub('Johnathan Anderson',  'South County',      'j_anderson.1'),
+    mkPub('Sean Madrigal',       'Patriot',           'theseanmadrigal'),
+    mkPub('Jemon Price',         'Westfield',         'thejemonprice'),
+    mkPub('Colin Spencer Byrd',  'Tuscarora',         '_cbyrd'),
+    mkPub('Dominic Julian Mack', 'Potomac Senior',    'Dominic.jm'),
+    mkPub('Ethan Jeremiah Poole','Wakefield',         'jeremiah.poole.3'),
+    mkPub('Rodney Carmichael',   'Hayfield',          'rodney.carmichael5'),
+    mkPub('Nate McComb',         'Lake Braddock',     'natemccomb'),
+    mkPub('Jacob Coulam',        'Yorktown',          'jakecoulam11'),
+    mkPub('Isaiah Brown',        'Westfield',         '_zay.brown_'),
   ]};
-  const rosters     = DB.get('nsmt_rosters', []);
-  const hasPrivate  = rosters.some(r => r.id === PRIVATE_ID);
-  const hasPublic   = rosters.some(r => r.id === PUBLIC_ID);
-  if (!hasPrivate) rosters.unshift(teamPrivate);
-  if (!hasPublic)  rosters.unshift(teamPublic);
-  if (!hasPrivate || !hasPublic) DB.set('nsmt_rosters', rosters);
+  const rosters = DB.get('nsmt_rosters', []);
+  const existPrivate = rosters.find(r => r.id === PRIVATE_ID);
+  const hasPublic    = rosters.some(r => r.id === PUBLIC_ID);
+  // Re-seed Team Private if missing or on older version (no profile data)
+  if (!existPrivate || (existPrivate._ver||0) < PRIVATE_VER) {
+    const idx = rosters.findIndex(r => r.id === PRIVATE_ID);
+    if (idx >= 0) rosters.splice(idx, 1, teamPrivate);
+    else rosters.unshift(teamPrivate);
+  }
+  if (!hasPublic) rosters.unshift(teamPublic);
+  DB.set('nsmt_rosters', rosters);
 })();
 
 // ── Seed test rosters (always present, never deleted by normal use) ──
@@ -2199,7 +2211,7 @@ function renderRosterEditor(r) {
     </div>
     <div class="info-box" style="margin-bottom:10px">CSV format: <code>Number, Name, Position</code> — one player per row. Header row optional.</div>
     <table class="player-table">
-      <thead><tr><th style="width:36px">Photo</th><th style="width:60px">#</th><th>Name</th><th style="width:80px">Position</th><th style="width:32px"></th></tr></thead>
+      <thead><tr><th style="width:36px">Photo</th><th style="width:60px">#</th><th>Name</th><th style="width:60px">Pos</th><th style="width:58px">Height</th><th style="width:54px">PPG</th><th style="width:54px">RPG</th><th style="width:54px">APG</th><th>Commitment</th><th style="width:32px"></th></tr></thead>
       <tbody id="playerTableBody_${r.id}"></tbody>
     </table>
     <button class="btn btn-surf btn-full" style="margin-top:10px" onclick="addPlayerRow('${r.id}')">+ Add Player</button>
@@ -2222,7 +2234,12 @@ function renderPlayerRows(r) {
       <td style="text-align:center">${photoCell}</td>
       <td><input value="${p.num||''}" placeholder="#" style="width:52px;text-align:center" onchange="updatePlayer('${r.id}','${p.id}','num',this.value)"></td>
       <td><input value="${p.name||''}" placeholder="Player name" onchange="updatePlayer('${r.id}','${p.id}','name',this.value)"></td>
-      <td><input value="${p.pos||''}" placeholder="PG" onchange="updatePlayer('${r.id}','${p.id}','pos',this.value)"></td>
+      <td><input value="${p.pos||''}" placeholder="PG" style="width:56px" onchange="updatePlayer('${r.id}','${p.id}','pos',this.value)"></td>
+      <td><input value="${p.height||''}" placeholder="6'2" style="width:54px" onchange="updatePlayer('${r.id}','${p.id}','height',this.value)"></td>
+      <td><input type="number" value="${p.ppg||''}" placeholder="0" step="0.1" style="width:50px;text-align:center" onchange="updatePlayer('${r.id}','${p.id}','ppg',parseFloat(this.value)||0)"></td>
+      <td><input type="number" value="${p.rpg||''}" placeholder="0" step="0.1" style="width:50px;text-align:center" onchange="updatePlayer('${r.id}','${p.id}','rpg',parseFloat(this.value)||0)"></td>
+      <td><input type="number" value="${p.apg||''}" placeholder="0" step="0.1" style="width:50px;text-align:center" onchange="updatePlayer('${r.id}','${p.id}','apg',parseFloat(this.value)||0)"></td>
+      <td><input value="${p.commitment||''}" placeholder="College / Uncommitted" onchange="updatePlayer('${r.id}','${p.id}','commitment',this.value)"></td>
       <td><button class="del-btn" onclick="removePlayer('${r.id}','${p.id}')">✕</button></td>
     </tr>`;
   }).join('');
@@ -2231,7 +2248,7 @@ function renderPlayerRows(r) {
 window.addPlayerRow = function(rid) {
   const rosters = DB.get('nsmt_rosters', []);
   const r = rosters.find(x=>x.id===rid); if (!r) return;
-  r.players.push({ id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), num:'', name:'', pos:'', fouls:0 });
+  r.players.push({ id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), num:'', name:'', pos:'', fouls:0, height:'', ppg:0, rpg:0, apg:0, commitment:'', awards:'' });
   DB.set('nsmt_rosters', rosters);
   renderPlayerRows(r);
 };
@@ -2258,9 +2275,14 @@ window.saveRoster = function(rid) {
   r.players.forEach(p => {
     const row = id('pr_'+p.id); if (!row) return;
     const inputs = row.querySelectorAll('input[type="text"],input:not([type])');
-    p.num  = inputs[0] ? inputs[0].value.trim() : p.num;
-    p.name = inputs[1] ? inputs[1].value.trim() : p.name;
-    p.pos  = inputs[2] ? inputs[2].value.trim() : p.pos;
+    p.num        = inputs[0] ? inputs[0].value.trim() : p.num;
+    p.name       = inputs[1] ? inputs[1].value.trim() : p.name;
+    p.pos        = inputs[2] ? inputs[2].value.trim() : p.pos;
+    p.height     = inputs[3] ? inputs[3].value.trim() : (p.height||'');
+    p.ppg        = inputs[4] ? parseFloat(inputs[4].value)||0 : (p.ppg||0);
+    p.rpg        = inputs[5] ? parseFloat(inputs[5].value)||0 : (p.rpg||0);
+    p.apg        = inputs[6] ? parseFloat(inputs[6].value)||0 : (p.apg||0);
+    p.commitment = inputs[7] ? inputs[7].value.trim() : (p.commitment||'');
     // photo is saved immediately when selected — no need to read from DOM here
   });
   r.players = r.players.filter(p=>p.name);
@@ -2573,7 +2595,8 @@ const _flow = {
 const _lastStat = { away: null, home: null };
 
 function _statDefaults(p) {
-  return { fgm:0,fga:0,t3m:0,t3a:0,ftm:0,fta:0,off:0,def:0,ast:0,stl:0,blk:0,to:0,pf:0,pts:0,min:0,pm:0, ...p };
+  return { fgm:0,fga:0,t3m:0,t3a:0,ftm:0,fta:0,off:0,def:0,ast:0,stl:0,blk:0,to:0,pf:0,pts:0,min:0,pm:0,
+           height:'',ppg:0,rpg:0,apg:0,commitment:'',awards:'', ...p };
 }
 
 const _STAT_EVENTS = [
@@ -2828,6 +2851,12 @@ function fireSpotlight(team, pid) {
     playerPhoto: p.photo || '',
     teamName: G[team].name || cap(team),
     teamColor: G[team].primary || '#0E80FC',
+    height: p.height || '',
+    pos: p.pos || '',
+    ppg: p.ppg || 0,
+    rpg: p.rpg || 0,
+    apg: p.apg || 0,
+    commitment: p.commitment || '',
     stats: {
       pts: p.pts || 0,
       reb: (p.off||0) + (p.def||0),

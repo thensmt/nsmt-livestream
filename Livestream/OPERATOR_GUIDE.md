@@ -237,10 +237,6 @@ The event type also affects the accent color on the intro card:
 | 12 | Isaac Heaton | West Springfield High School | @isaac.heaton11 |
 | 13 | Harlem Lyons | Potomac Senior | @harlem_wrld3 |
 | 14 | Wisdom Mintz | The St. James | @wizmintz |
-| 15 | Jemon Price | Westfield | @thejemonprice |
-| 16 | Colin Spencer Byrd | Tuscarora | @_cbyrd |
-| 17 | Ethan Jeremiah Poole | Wakefield | @jeremiah.poole.3 |
-| 18 | Jacob Coulam | Yorktown | @jakecoulam11 |
 
 > School and Instagram auto-populate on the overlay when you select a name from the scorer.
 

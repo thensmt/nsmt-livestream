@@ -731,7 +731,7 @@ function spotlightCurrentPlayer() {
   if (!_detailTeam||!_detailPid) return;
   const p=(S[_detailTeam].players||[]).find(x=>x.id===_detailPid); if(!p)return;
   const st=STATS[_detailPid]||{};
-  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[_detailTeam].name,teamColor:S[_detailTeam].primary||'#0E80FC',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
+  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[_detailTeam].name,teamColor:S[_detailTeam].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
   toast('★ Spotlight: '+p.name);
 }
 
@@ -924,10 +924,6 @@ const TP_CONTESTANTS = [
   { name:'Isaac Heaton',          school:'West Springfield High School', ig:'isaac.heaton11'   },
   { name:'Harlem Lyons',          school:'Potomac Senior',               ig:'harlem_wrld3'     },
   { name:'Wisdom Mintz',          school:'The St. James',                ig:'wizmintz'         },
-  { name:'Jemon Price',           school:'Westfield',                    ig:'thejemonprice'    },
-  { name:'Colin Spencer Byrd',    school:'Tuscarora',                    ig:'_cbyrd'           },
-  { name:'Ethan Jeremiah Poole',  school:'Wakefield',                    ig:'jeremiah.poole.3' },
-  { name:'Jacob Coulam',          school:'Yorktown',                     ig:'jakecoulam11'     },
 ];
 
 const TP_EMPTY_RACKS = () => Array.from({length:5}, () => Array(5).fill(false));
