@@ -182,6 +182,12 @@ html, body {
 .pbtn-starter-badge { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--gold); color: #000; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; line-height: 1; }
 .pbtn-spotlight { position: absolute; top: 4px; left: 4px; width: 26px; height: 26px; border-radius: 50%; background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.3); color: #F5C518; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
 .pbtn-spotlight:active { background: rgba(245,197,24,.35); transform: scale(.88); }
+.pbtn.on-court { border-color:var(--gold); background:rgba(245,197,24,.06); }
+.pbtn.out-sel { border-color:var(--red) !important; background:rgba(229,63,63,.12) !important; }
+.pbtn.can-sub-in { border-color:var(--green); background:rgba(34,197,94,.08); }
+.pbtn-status { font-size:8px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+.lineup-lock-btn { display:block; width:calc(100% - 16px); margin:8px 8px 0; padding:14px; background:var(--green); color:#000; font-size:13px; font-weight:900; border:none; border-radius:8px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; }
+.sub-section-hdr { font-size:8px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:8px 6px 4px; }
 .starter-mode-btn { height: 26px; padding: 0 8px; font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 5px; cursor: pointer; transition: all .12s; }
 .starter-mode-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
 .starter-count { font-size: 10px; font-weight: 800; color: var(--gold); }
@@ -761,6 +767,8 @@ let _events = [];
 let _flow = { step:'player', team:null, pid:null, event:null, result:null, assistPid:null };
 let _liveTab = 0;
 let _boxPeriod = null;
+let _subMode = false;
+let _subOut = { team: null, pid: null };
 
 // ═══════════════════════════════════
 // TABS
@@ -927,9 +935,31 @@ function resetFlow() {
 
 function renderFlowBar() {
   const el = document.getElementById('flowBar'); if (!el) return;
+  const btnStyle = 'height:24px;padding:0 8px;font-size:8px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--surf3);border:1px solid var(--border2);border-radius:5px;cursor:pointer';
+  let html = '';
+
+  if (_subMode) {
+    if (_subOut.pid) {
+      const p = (S[_subOut.team].players||[]).find(x=>x.id===_subOut.pid);
+      const pName = p ? p.name.split(' ').pop() : '?';
+      html = `<span class="flow-crumb done" onclick="subSelectOut(null,null)">↕ OUT: ${pName}</span><span class="flow-sep">›</span><span class="flow-crumb active">SELECT SUB IN</span>`;
+    } else {
+      html = `<span class="flow-crumb active">↕ TAP PLAYER TO SUB OUT</span>`;
+    }
+    html += `<button onclick="closeSubPanel()" style="margin-left:auto;${btnStyle};color:var(--muted)">✕ CANCEL</button>`;
+    el.innerHTML = html; return;
+  }
+
   let crumbs = [];
   if (_flow.step === 'player') {
-    crumbs.push({label:'SELECT PLAYER', state:'active'});
+    const lineupReady = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
+    const hasRoster = (S.away.players||[]).some(p=>p.name) || (S.home.players||[]).some(p=>p.name);
+    if (hasRoster && !lineupReady) {
+      const aC=(S.away.starters||[]).length, hC=(S.home.starters||[]).length;
+      crumbs.push({label:`SET LINEUP — ${S.away.code||'AWAY'} ${aC}/5 · ${S.home.code||'HOME'} ${hC}/5`, state:'active'});
+    } else {
+      crumbs.push({label:'SELECT PLAYER', state:'active'});
+    }
   } else {
     const pName = _flow.pid ? ((S[_flow.team].players||[]).find(x=>x.id===_flow.pid)?.name.split(' ').pop()||'?') : '?';
     crumbs.push({label:(_flow.team||'').toUpperCase()+' · '+pName, state:'done', onclick:'resetFlow()'});
@@ -950,21 +980,32 @@ function renderFlowBar() {
       }
     }
   }
-  let html = crumbs.map(c => {
+  html = crumbs.map(c => {
     if (c.sep) return '<span class="flow-sep">›</span>';
     const cls = c.state==='done' ? 'done' : c.state==='active' ? 'active' : '';
     const click = c.onclick ? `onclick="${c.onclick}"` : '';
     return `<span class="flow-crumb ${cls}" ${click}>${c.label}</span>`;
   }).join('');
-  if (_events.length) html += `<button onclick="undoLast()" style="margin-left:auto;height:24px;padding:0 8px;font-size:8px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--surf3);border:1px solid var(--border2);color:var(--muted);border-radius:5px;cursor:pointer">↩ UNDO</button>`;
+  const lineupReady = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
+  if (_flow.step === 'player' && lineupReady) {
+    if (_events.length) html += `<button onclick="undoLast()" style="margin-left:auto;${btnStyle};color:var(--muted)">↩ UNDO</button>`;
+    html += `<button onclick="openSubPanel()" style="${_events.length?'margin-left:6px':'margin-left:auto'};${btnStyle};color:var(--text)">↕ SUB</button>`;
+  } else if (_events.length) {
+    html += `<button onclick="undoLast()" style="margin-left:auto;${btnStyle};color:var(--muted)">↩ UNDO</button>`;
+  }
   el.innerHTML = html;
 }
 
 function renderOperatorPanel() {
   renderFlowBar();
   const el = document.getElementById('opPanel'); if (!el) return;
-  if (_flow.step === 'player') el.innerHTML = renderPlayerSelect();
-  else if (_flow.step === 'event') el.innerHTML = renderEventSelect();
+  const hasRoster = (S.away.players||[]).some(p=>p.name) || (S.home.players||[]).some(p=>p.name);
+  const lineupReady = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
+  if (_subMode) { el.innerHTML = renderSubPanel(); return; }
+  if (_flow.step === 'player') {
+    if (hasRoster && !lineupReady) { el.innerHTML = renderLineupSetup(); return; }
+    el.innerHTML = renderPlayerSelect();
+  } else if (_flow.step === 'event') el.innerHTML = renderEventSelect();
   else if (_flow.step === 'result') el.innerHTML = renderResultPanel();
   else if (_flow.step === 'rebound') el.innerHTML = renderReboundPanel();
   else if (_flow.step === 'assist') el.innerHTML = renderAssistPanel();
@@ -973,9 +1014,10 @@ function renderOperatorPanel() {
 
 function renderPlayerSelect() {
   return '<div class="teams-split">' + ['away','home'].map(team => {
-    const players = (S[team].players||[]).filter(p=>p.name);
+    const starters = S[team].starters || [];
+    const players = (S[team].players||[]).filter(p => p.name && starters.includes(p.id));
     const label = S[team].name || team.toUpperCase();
-    if (!players.length) return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="no-roster" style="padding:16px;text-align:center;font-size:11px;color:var(--muted)">No roster<br>Load a preset</div></div>`;
+    if (!players.length) return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="no-roster" style="padding:16px;text-align:center;font-size:11px;color:var(--muted)">No players<br>on court</div></div>`;
     const btns = players.map(p => {
       const st=STATS[p.id]||{},pts=calcPts(st),pf=st.pf||0;
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
@@ -990,6 +1032,86 @@ function renderPlayerSelect() {
 function flowSelectPlayer(team, pid) {
   _flow.team = team; _flow.pid = pid; _flow.step = 'event';
   renderOperatorPanel();
+}
+
+// ── LINEUP SETUP ──────────────────────────────────
+function renderLineupSetup() {
+  const mkCard = (team, p) => {
+    const isOn = (S[team].starters||[]).includes(p.id);
+    const count = (S[team].starters||[]).length;
+    const disabled = !isOn && count >= 5;
+    const cls = isOn ? ' on-court' : '';
+    const statusColor = isOn ? 'var(--gold)' : 'var(--muted)';
+    const statusText = isOn ? '✓ STARTING' : 'BENCH';
+    const disStyle = disabled ? 'opacity:.3;pointer-events:none;' : '';
+    const spot = `<div class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</div>`;
+    return `<button class="pbtn${cls}" onclick="toggleLineupPlayer('${team}','${p.id}')" style="${disStyle}">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-status" style="color:${statusColor}">${statusText}</div></button>`;
+  };
+  const mkTeam = (team) => {
+    const t = S[team];
+    const players = (t.players||[]).filter(p=>p.name);
+    const count = (t.starters||[]).length;
+    const countColor = count===5 ? 'var(--green)' : 'var(--gold)';
+    const btns = players.map(p=>mkCard(team,p)).join('');
+    return `<div class="team-split-col"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:11px">${count}/5</span></div><div class="player-col-grid">${btns}</div></div>`;
+  };
+  const bothFull = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
+  const lockBtn = bothFull ? `<button class="lineup-lock-btn" onclick="lockLineup()">✓ LOCK LINEUP — START GAME</button>` : '';
+  return `<div style="display:flex;flex-direction:column;flex:1;min-height:0"><div style="padding:8px 10px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--surf2);border-bottom:1px solid var(--border);flex-shrink:0">SELECT STARTING 5 PER TEAM</div>${lockBtn}<div class="teams-split" style="flex:1;overflow-y:auto">${mkTeam('away')}${mkTeam('home')}</div></div>`;
+}
+function toggleLineupPlayer(team, pid) {
+  if (!S[team].starters) S[team].starters = [];
+  const idx = S[team].starters.indexOf(pid);
+  if (idx >= 0) S[team].starters = S[team].starters.filter(id=>id!==pid);
+  else if (S[team].starters.length < 5) S[team].starters.push(pid);
+  renderOperatorPanel();
+}
+function lockLineup() {
+  if ((S.away.starters||[]).length!==5||(S.home.starters||[]).length!==5) return;
+  saveState();
+  renderOperatorPanel();
+  toast("Lineup locked — let's play!");
+}
+
+// ── SUB PANEL ─────────────────────────────────────
+function openSubPanel() { _subMode=true; _subOut={team:null,pid:null}; renderOperatorPanel(); }
+function closeSubPanel() { _subMode=false; _subOut={team:null,pid:null}; renderOperatorPanel(); }
+function subSelectOut(team, pid) { _subOut={team,pid}; renderOperatorPanel(); }
+function subSelectIn(inTeam, inPid) {
+  if (!_subOut.pid) return;
+  const team = _subOut.team;
+  S[team].starters = (S[team].starters||[]).filter(id=>id!==_subOut.pid);
+  if (!S[team].starters.includes(inPid)) S[team].starters.push(inPid);
+  const outP = (S[team].players||[]).find(p=>p.id===_subOut.pid);
+  const inP = (S[team].players||[]).find(p=>p.id===inPid);
+  const outName = outP?.name.split(' ').pop()||'?';
+  const inName = inP?.name.split(' ').pop()||'?';
+  _events.push({id:Date.now(),team,pid:inPid,evt:'SUB_IN',result:null,pts:0,period:S.period,clock:S.clock.display,assistPid:null,desc:`↕ ${S[team].code||team} ${inName} IN / ${outName} OUT`});
+  saveState();
+  closeSubPanel();
+  toast(`↕ ${inName} IN / ${outName} OUT`);
+}
+function renderSubPanel() {
+  const mkBtn = (team, p, role) => {
+    const isOutSel = _subOut.pid === p.id;
+    const canSubIn = _subOut.pid && _subOut.team === team && role === 'bench';
+    const cls = isOutSel ? ' out-sel' : canSubIn ? ' can-sub-in' : role==='on-court' ? ' on-court' : '';
+    const dimStyle = (_subOut.pid && _subOut.team !== team && role === 'bench') ? 'opacity:.3;pointer-events:none;' : '';
+    const click = role==='on-court' ? `subSelectOut('${team}','${p.id}')` : (canSubIn ? `subSelectIn('${team}','${p.id}')` : '');
+    const statusText = isOutSel ? '↑ SUB OUT' : canSubIn ? '↓ SUB IN?' : role==='on-court' ? 'ON COURT' : 'BENCH';
+    const statusColor = isOutSel ? 'var(--red)' : canSubIn ? 'var(--green)' : 'var(--muted)';
+    const spot = `<div class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</div>`;
+    return `<button class="pbtn${cls}" onclick="${click}" style="${dimStyle}">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-status" style="color:${statusColor}">${statusText}</div></button>`;
+  };
+  const mkTeam = (team) => {
+    const t = S[team];
+    const all = (t.players||[]).filter(p=>p.name);
+    const starters = t.starters||[];
+    const court = all.filter(p=>starters.includes(p.id));
+    const bench = all.filter(p=>!starters.includes(p.id));
+    return `<div class="team-split-col"><div class="team-split-label">${t.name}</div>${court.length?`<div class="sub-section-hdr">On Court</div><div class="player-col-grid">${court.map(p=>mkBtn(team,p,'on-court')).join('')}</div>`:''} ${bench.length?`<div class="sub-section-hdr">Bench</div><div class="player-col-grid">${bench.map(p=>mkBtn(team,p,'bench')).join('')}</div>`:''}</div>`;
+  };
+  return `<div class="teams-split">${mkTeam('away')}${mkTeam('home')}</div>`;
 }
 
 function renderEventSelect() {
@@ -1429,7 +1551,7 @@ function renderAll() {
 const STORAGE_KEY='nsmt_ipad_state', STATS_KEY='nsmt_ipad_stats', EVENTS_KEY='nsmt_ipad_events';
 function saveState() {
   try {
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({away:{name:S.away.name,code:S.away.code,score:S.away.score,fouls:S.away.fouls,timeouts:S.away.timeouts,players:S.away.players,primary:S.away.primary},home:{name:S.home.name,code:S.home.code,score:S.home.score,fouls:S.home.fouls,timeouts:S.home.timeouts,players:S.home.players,primary:S.home.primary},clock:{secs:S.clock.secs,display:S.clock.display},period:S.period,totalPeriods:S.totalPeriods,periods:S.periods,periodLen:S.periodLen,savedAt:Date.now()}));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({away:{name:S.away.name,code:S.away.code,score:S.away.score,fouls:S.away.fouls,timeouts:S.away.timeouts,players:S.away.players,primary:S.away.primary,starters:S.away.starters},home:{name:S.home.name,code:S.home.code,score:S.home.score,fouls:S.home.fouls,timeouts:S.home.timeouts,players:S.home.players,primary:S.home.primary,starters:S.home.starters},clock:{secs:S.clock.secs,display:S.clock.display},period:S.period,totalPeriods:S.totalPeriods,periods:S.periods,periodLen:S.periodLen,savedAt:Date.now()}));
     localStorage.setItem(STATS_KEY,JSON.stringify(STATS));
     localStorage.setItem(EVENTS_KEY,JSON.stringify(_events));
   } catch(e) {}
@@ -1450,7 +1572,7 @@ function restoreState() {
 function resetGame() {
   if(!confirm('Reset game? Clears scores, clock, timeouts, fouls, all player stats, and event log.'))return;
   localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(STATS_KEY);localStorage.removeItem(EVENTS_KEY);
-  S.away.score=0;S.away.fouls=0;S.away.timeouts=4;S.home.score=0;S.home.fouls=0;S.home.timeouts=4;
+  S.away.score=0;S.away.fouls=0;S.away.timeouts=4;S.away.starters=[];S.home.score=0;S.home.fouls=0;S.home.timeouts=4;S.home.starters=[];
   S.clock.secs=S.periodLen*60;S.clock.display=fmtClock(S.clock.secs);S.clock.running=false;
   clearInterval(_clockInterval);_clockInterval=null;S.period=1;S.totalPeriods=S.periods;
   Object.keys(STATS).forEach(k=>{STATS[k]=statDefaults();}); _events=[];
