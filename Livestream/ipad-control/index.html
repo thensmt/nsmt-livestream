@@ -133,6 +133,13 @@ html, body {
 .game-top .ck-btn { height: 30px; font-size: 14px; }
 .game-bottom { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .game-bottom .stats-pane { height: 100%; }
+/* Compact player cards for game tab */
+#tabGame .pbtn { min-height: 72px; padding: 7px 6px; gap: 1px; }
+#tabGame .pbtn-num { font-size: 26px; }
+#tabGame .pbtn-name { font-size: 12px; }
+#tabGame .pbtn-pts { font-size: 10px; }
+#tabGame .pbtn-pip { width: 7px; height: 7px; }
+#tabGame .pbtn-spotlight { width: 22px; height: 22px; font-size: 11px; top: 3px; left: 3px; }
 
 /* ── MODALS ── */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: flex; align-items: center; justify-content: center; z-index: 100; }
@@ -780,7 +787,7 @@ function renderPlayerGrids() {
         ? `toggleStarter('${team}','${p.id}',event)`
         : `openStatDetail('${team}','${p.id}')`;
       const spotlightBtn = !_starterMode ? `<button class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</button>` : '';
-      return `<button class="pbtn${cls}${starterCls}" onclick="${clickHandler}">${spotlightBtn}${starterBadge}<div class="pbtn-num">${p.num||'?'}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
+      return `<button class="pbtn${cls}${starterCls}" onclick="${clickHandler}">${spotlightBtn}${starterBadge}<div class="pbtn-num">${p.num||''}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
     document.getElementById('stats'+(team==='away'?'Away':'Home')+'Label').textContent=S[team].name;
     document.getElementById('stats'+(team==='away'?'Away':'Home')+'Score').textContent=S[team].score;
@@ -806,139 +813,120 @@ function pushStats() {
 function printStatReport() {
   const away = S.away, home = S.home;
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const dateStr = now.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
   const timeStr = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  const periodLabel = getPeriodLabel();
+  const gameStatus = S.clock.secs===0 && S.period>=S.totalPeriods ? 'FINAL' : getPeriodLabel()+' '+S.clock.display;
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function pct(m,a){return a?((m/a)*100).toFixed(1)+'%':'—';}
 
-  function playerRows(team) {
-    const players = (team.players||[]).filter(p=>p.name);
-    let totPts=0,totFgm=0,totFga=0,tot3m=0,tot3a=0,totFtm=0,totFta=0,totReb=0,totAst=0,totStl=0,totBlk=0,totTo=0,totPf=0;
-    const rows = players.map(p=>{
+  function buildTeamTable(team) {
+    const players=(team.players||[]).filter(p=>p.name);
+    let tPts=0,tFgm=0,tFga=0,t3m=0,t3a=0,tFtm=0,tFta=0,tOff=0,tDef=0,tAst=0,tStl=0,tBlk=0,tTo=0,tPf=0;
+    const rows=players.map(p=>{
       const s=STATS[p.id]||{};
-      const pts=calcPts(s),reb=(s.off||0)+(s.def||0);
-      totPts+=pts;totFgm+=s.fgm||0;totFga+=s.fga||0;tot3m+=s.t3m||0;tot3a+=s.t3a||0;
-      totFtm+=s.ftm||0;totFta+=s.fta||0;totReb+=reb;totAst+=s.ast||0;
-      totStl+=s.stl||0;totBlk+=s.blk||0;totTo+=s.to||0;totPf+=s.pf||0;
-      return `<tr>
-        <td>${escapeHtml(p.num||'')}</td>
-        <td class="name-cell">${escapeHtml(p.name)}</td>
-        <td class="pts">${pts}</td>
-        <td>${s.fgm||0}-${s.fga||0}</td>
-        <td>${s.t3m||0}-${s.t3a||0}</td>
-        <td>${s.ftm||0}-${s.fta||0}</td>
-        <td>${reb}</td>
-        <td>${s.ast||0}</td>
-        <td>${s.stl||0}</td>
-        <td>${s.blk||0}</td>
-        <td>${s.to||0}</td>
-        <td>${s.pf||0}</td>
-      </tr>`;
+      const pts=calcPts(s),off=s.off||0,def=s.def||0,reb=off+def;
+      tPts+=pts;tFgm+=s.fgm||0;tFga+=s.fga||0;t3m+=s.t3m||0;t3a+=s.t3a||0;
+      tFtm+=s.ftm||0;tFta+=s.fta||0;tOff+=off;tDef+=def;
+      tAst+=s.ast||0;tStl+=s.stl||0;tBlk+=s.blk||0;tTo+=s.to||0;tPf+=s.pf||0;
+      return `<tr><td>${esc(p.num||'')}</td><td class="nl">${esc(p.name)}</td><td class="b">${pts}</td><td>${(s.fgm||0)}-${(s.fga||0)}</td><td>${(s.t3m||0)}-${(s.t3a||0)}</td><td>${(s.ftm||0)}-${(s.fta||0)}</td><td>${off}</td><td>${def}</td><td>${reb}</td><td>${s.ast||0}</td><td>${s.stl||0}</td><td>${s.blk||0}</td><td>${s.to||0}</td><td>${s.pf||0}</td></tr>`;
     }).join('');
-    const totRow=`<tr class="totals-row">
-      <td></td><td class="name-cell">TOTALS</td>
-      <td class="pts">${totPts}</td>
-      <td>${totFgm}-${totFga}</td>
-      <td>${tot3m}-${tot3a}</td>
-      <td>${totFtm}-${totFta}</td>
-      <td>${totReb}</td><td>${totAst}</td><td>${totStl}</td><td>${totBlk}</td><td>${totTo}</td><td>${totPf}</td>
-    </tr>`;
-    return rows + totRow;
+    const tot=`<tr class="tr"><td></td><td class="nl">TOTAL</td><td class="b">${tPts}</td><td>${tFgm}-${tFga}</td><td>${t3m}-${t3a}</td><td>${tFtm}-${tFta}</td><td>${tOff}</td><td>${tDef}</td><td>${tOff+tDef}</td><td>${tAst}</td><td>${tStl}</td><td>${tBlk}</td><td>${tTo}</td><td>${tPf}</td></tr>`;
+    return {rows:rows+tot,tPts,tFgm,tFga,t3m,t3a,tFtm,tFta,tOff,tDef,tAst,tStl,tBlk,tTo,tPf};
   }
+  const aT=buildTeamTable(away), hT=buildTeamTable(home);
+  const periods=Array.from({length:S.period},(_,i)=>getPeriodLabel(i+1));
 
-  function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-  const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>NSMT Stat Report</title>
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Game Report</title>
 <style>
-  @page { size: letter portrait; margin: 0.4in; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 9pt; color: #111; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .report-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8pt; border-bottom: 2px solid #0E80FC; margin-bottom: 10pt; }
-  .report-logo img { height: 28pt; object-fit: contain; }
-  .report-center { text-align: center; }
-  .report-event { font-size: 13pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: #0E80FC; }
-  .report-meta { font-size: 7pt; color: #555; margin-top: 2pt; letter-spacing: .5px; text-transform: uppercase; }
-  .score-badge { font-size: 18pt; font-weight: 900; letter-spacing: 2px; white-space: nowrap; }
-  .score-sep { color: #999; margin: 0 6pt; }
-  .team-section { margin-bottom: 10pt; }
-  .team-hdr { display: flex; align-items: center; justify-content: space-between; background: #0E80FC; color: #fff; padding: 4pt 8pt; border-radius: 3pt 3pt 0 0; }
-  .team-hdr-name { font-size: 10pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-  .team-hdr-score { font-size: 14pt; font-weight: 900; }
-  table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
-  th { background: #f0f0f0; color: #333; font-size: 6pt; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; padding: 3pt 4pt; text-align: center; border-bottom: 1px solid #ccc; }
-  th.name-cell { text-align: left; }
-  td { padding: 2.5pt 4pt; text-align: center; border-bottom: 1px solid #eee; color: #111; }
-  td.name-cell { text-align: left; font-weight: 600; max-width: 100pt; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  td.pts { font-weight: 700; }
-  tr.totals-row td { border-top: 1.5px solid #999; font-weight: 700; background: #fafafa; }
-  .period-section { margin-top: 8pt; }
-  .period-hdr { font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #555; margin-bottom: 4pt; }
-  .period-table { width: auto; min-width: 200pt; }
-  .period-table th, .period-table td { min-width: 36pt; }
-  .report-footer { margin-top: 10pt; padding-top: 6pt; border-top: 1px solid #ddd; font-size: 6pt; color: #888; text-align: center; letter-spacing: .5px; text-transform: uppercase; }
-  @media print { body { font-size: 9pt; } }
-</style>
-</head><body>
-<div class="report-header">
-  <div class="report-logo"><img src="http://localhost:8000/NSMTWordmarkBlue.png" alt="NSMT"></div>
-  <div class="report-center">
-    <div class="report-event">NSMT Basketball</div>
-    <div class="report-meta">${escapeHtml(dateStr)} · ${escapeHtml(timeStr)} · ${escapeHtml(periodLabel)}</div>
+@page{size:letter portrait;margin:.35in}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:7.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rh{display:flex;align-items:center;gap:8pt;padding-bottom:6pt;border-bottom:2pt solid #111;margin-bottom:7pt}
+.rh-logo{border:1pt solid #111;padding:3pt 6pt;flex-shrink:0}
+.rh-logo img{height:22pt;display:block}
+.rh-center{flex:1;text-align:center}
+.rh-event{font-size:11pt;font-weight:900;letter-spacing:.5px}
+.rh-meta{font-size:6.5pt;color:#444;margin-top:1pt}
+.rh-status{font-size:8pt;font-weight:800;text-transform:uppercase;margin-top:1pt}
+.rh-right{text-align:right;font-size:6pt;color:#555;line-height:1.5}
+.ts{margin-bottom:7pt}
+.th{display:flex;align-items:center;background:#111;color:#fff;padding:3pt 7pt}
+.th-name{flex:1;font-size:9pt;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
+.th-score{font-size:12pt;font-weight:900;background:#fff;color:#111;padding:1pt 6pt;border-radius:2pt;min-width:24pt;text-align:center}
+table{width:100%;border-collapse:collapse}
+th{background:#f2f2f2;font-size:5.5pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2.5pt 3pt;text-align:center;border-bottom:1pt solid #ccc;border-right:1pt solid #e0e0e0}
+th.nl{text-align:left;border-right:1pt solid #ccc}
+td{padding:2pt 3pt;text-align:center;border-bottom:.5pt solid #eee;border-right:.5pt solid #f0f0f0;font-size:7pt}
+td.nl{text-align:left;font-weight:600;max-width:90pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+td.b{font-weight:800}
+tr.tr td{border-top:1.5pt solid #999;font-weight:700;background:#f8f8f8}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-top:7pt}
+.sum-box{}
+.sum-title{font-size:6.5pt;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#555;border-bottom:1pt solid #ccc;padding-bottom:2pt;margin-bottom:3pt}
+.sum-table{width:100%;border-collapse:collapse}
+.sum-table th{font-size:5pt;padding:2pt 3pt;background:#f2f2f2}
+.sum-table td{font-size:6.5pt;padding:2pt 3pt;border-bottom:.5pt solid #f0f0f0;text-align:center}
+.sum-table td.nl{text-align:left}
+.rf{margin-top:7pt;padding-top:4pt;border-top:.5pt solid #ccc;font-size:5.5pt;color:#888;text-align:center;letter-spacing:.5px}
+</style></head><body>
+<div class="rh">
+  <div class="rh-logo"><img src="http://localhost:8000/NSMTWordmarkBlue.png" alt="NSMT"></div>
+  <div class="rh-center">
+    <div class="rh-event">NSMT Hoopfest 2026</div>
+    <div class="rh-meta">${esc(dateStr)} ${esc(timeStr)} · The St. James · Springfield, VA</div>
+    <div class="rh-status">${esc(gameStatus)}</div>
   </div>
-  <div class="score-badge">${away.score}<span class="score-sep">—</span>${home.score}</div>
+  <div class="rh-right">Nova Sports Media Team<br>thensmt.com</div>
 </div>
 
-<div class="team-section">
-  <div class="team-hdr">
-    <span class="team-hdr-name">${escapeHtml(away.name)}</span>
-    <span class="team-hdr-score">${away.score}</span>
-  </div>
-  <table>
-    <thead><tr>
-      <th style="width:22pt">#</th><th class="name-cell">Player</th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
-    </tr></thead>
-    <tbody>${playerRows(away)}</tbody>
-  </table>
+<div class="ts">
+  <div class="th"><span class="th-name">${esc(away.name)}</span><span class="th-score">${away.score}</span></div>
+  <table><thead><tr>
+    <th style="width:18pt">#</th><th class="nl">PLAYER</th>
+    <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
+  </tr></thead><tbody>${aT.rows}</tbody></table>
 </div>
 
-<div class="team-section">
-  <div class="team-hdr">
-    <span class="team-hdr-name">${escapeHtml(home.name)}</span>
-    <span class="team-hdr-score">${home.score}</span>
-  </div>
-  <table>
-    <thead><tr>
-      <th style="width:22pt">#</th><th class="name-cell">Player</th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
-    </tr></thead>
-    <tbody>${playerRows(home)}</tbody>
-  </table>
+<div class="ts">
+  <div class="th"><span class="th-name">${esc(home.name)}</span><span class="th-score">${home.score}</span></div>
+  <table><thead><tr>
+    <th style="width:18pt">#</th><th class="nl">PLAYER</th>
+    <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
+  </tr></thead><tbody>${hT.rows}</tbody></table>
 </div>
 
-<div class="period-section">
-  <div class="period-hdr">Score by Period</div>
-  <table class="period-table">
-    <thead><tr>
-      <th style="text-align:left">Team</th>
-      ${Array.from({length:S.period},(_,i)=>`<th>${getPeriodLabel(i+1)}</th>`).join('')}
-      <th>FINAL</th>
-    </tr></thead>
+<div class="summary">
+  <div class="sum-box">
+    <div class="sum-title">Scoring</div>
+    <table class="sum-table"><thead><tr><th class="nl">Team</th>${periods.map(p=>`<th>${esc(p)}</th>`).join('')}<th>Final</th></tr></thead>
     <tbody>
-      <tr><td class="name-cell">${escapeHtml(away.name)}</td>${Array.from({length:S.period},()=>'<td>—</td>').join('')}<td class="pts">${away.score}</td></tr>
-      <tr><td class="name-cell">${escapeHtml(home.name)}</td>${Array.from({length:S.period},()=>'<td>—</td>').join('')}<td class="pts">${home.score}</td></tr>
-    </tbody>
-  </table>
+      <tr><td class="nl">${esc(away.name)}</td>${periods.map(()=>'<td>—</td>').join('')}<td><b>${away.score}</b></td></tr>
+      <tr><td class="nl">${esc(home.name)}</td>${periods.map(()=>'<td>—</td>').join('')}<td><b>${home.score}</b></td></tr>
+    </tbody></table>
+  </div>
+  <div class="sum-box">
+    <div class="sum-title">Team Stats</div>
+    <table class="sum-table"><thead><tr><th class="nl">Stat</th><th>${esc(away.code||away.name)}</th><th>${esc(home.code||home.name)}</th></tr></thead>
+    <tbody>
+      <tr><td class="nl">FG%</td><td>${pct(aT.tFgm,aT.tFga)}</td><td>${pct(hT.tFgm,hT.tFga)}</td></tr>
+      <tr><td class="nl">3PT%</td><td>${pct(aT.t3m,aT.t3a)}</td><td>${pct(hT.t3m,hT.t3a)}</td></tr>
+      <tr><td class="nl">FT%</td><td>${pct(aT.tFtm,aT.tFta)}</td><td>${pct(hT.tFtm,hT.tFta)}</td></tr>
+      <tr><td class="nl">Rebounds</td><td>${aT.tOff+aT.tDef}</td><td>${hT.tOff+hT.tDef}</td></tr>
+      <tr><td class="nl">Assists</td><td>${aT.tAst}</td><td>${hT.tAst}</td></tr>
+      <tr><td class="nl">Turnovers</td><td>${aT.tTo}</td><td>${hT.tTo}</td></tr>
+      <tr><td class="nl">Steals</td><td>${aT.tStl}</td><td>${hT.tStl}</td></tr>
+      <tr><td class="nl">Blocks</td><td>${aT.tBlk}</td><td>${hT.tBlk}</td></tr>
+    </tbody></table>
+  </div>
 </div>
 
-<div class="report-footer">Nova Sports Media Team · Generated ${escapeHtml(timeStr)}</div>
+<div class="rf">Nova Sports Media Team — thensmt.com · Hoopfest 2026 · Official Game Report</div>
 </body></html>`;
 
-  const blob = new Blob([html], {type:'text/html'});
-  const url = URL.createObjectURL(blob);
-  const w = window.open(url, '_blank');
-  if (w) w.onload = () => { w.print(); URL.revokeObjectURL(url); };
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(w) w.onload=()=>{w.print();URL.revokeObjectURL(url);}
 }
 
 function loadRosterFromServer(statsState) {
