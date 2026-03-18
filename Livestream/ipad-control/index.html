@@ -649,7 +649,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   const cap = name.charAt(0).toUpperCase() + name.slice(1);
   document.getElementById('tab' + cap).classList.add('active');
-  document.getElementById('tabBtn' + cap).classList.add('active');
+  const _btn = document.getElementById('tabBtn' + cap); if (_btn) _btn.classList.add('active');
 }
 
 // ═══════════════════════════════════
