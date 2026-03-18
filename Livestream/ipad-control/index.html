@@ -267,40 +267,16 @@ html, body {
 .dk-url-list { display: flex; flex-direction: column; gap: 6px; }
 .dk-url-item { background: var(--surf3); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 12px; word-break: break-all; }
 .dk-url-lbl { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+.dk-score-pick-row { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin: 4px 0 2px; }
+.dk-score-pick { min-height: 28px; min-width: 22px; padding: 0 3px; background: #1a2030; color: #aaa; border: 1px solid var(--border2); border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .1s; }
+.dk-score-pick:active { transform: scale(.88); }
+.dk-score-pick.active { background: #0E80FC; color: #fff; border-color: #0E80FC; }
+.dk-history-row { display: flex; align-items: center; gap: 8px; background: var(--surf3); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; }
+.dk-history-name { font-weight: 800; font-size: 13px; flex-shrink: 0; min-width: 80px; }
+.dk-history-scores { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+.dk-history-score-item { font-size: 11px; color: var(--muted); }
+.dk-history-total { font-size: 16px; font-weight: 900; color: var(--gold); flex-shrink: 0; }
 
-/* ═══ JUDGE TAB ═══ */
-.jg-pane { height: calc(100vh - 88px); display: flex; flex-direction: column; overflow: hidden; }
-.jg-picker-pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; }
-.jg-picker-pane.hidden { display: none; }
-.jg-picker-title { font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: center; }
-.jg-picker-grid { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 380px; }
-.jg-pick-btn { width: 64px; height: 64px; border-radius: var(--r); border: 1px solid var(--border2); background: var(--surf); color: var(--text); font-size: 22px; font-weight: 900; cursor: pointer; transition: all .12s; }
-.jg-pick-btn:active { transform: scale(.88); background: rgba(245,197,24,.15); border-color: var(--gold); }
-.jg-scorer-pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 16px; overflow-y: auto; }
-.jg-scorer-pane.hidden { display: none; }
-.jg-judge-badge { font-size: 11px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); text-align: center; }
-.jg-dunker-strip { text-align: center; }
-.jg-dunker-name { font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-.jg-dunker-sub { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
-.jg-score-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; width: 100%; max-width: 360px; }
-.jg-score-btn { aspect-ratio: 1; border-radius: var(--r); border: 2px solid var(--border2); background: var(--surf); color: var(--text); font-size: 28px; font-weight: 900; cursor: pointer; transition: all .12s; display: flex; align-items: center; justify-content: center; }
-.jg-score-btn:active { transform: scale(.88); }
-.jg-score-btn.selected { background: rgba(245,197,24,.15); border-color: var(--gold); color: var(--gold); }
-.jg-score-btn.perfect { background: rgba(245,197,24,.25); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 20px rgba(245,197,24,.3); }
-.jg-selected-display { text-align: center; background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 24px; width: 100%; max-width: 360px; }
-.jg-sel-lbl { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.jg-sel-val { font-size: 48px; font-weight: 900; color: var(--gold); line-height: 1; }
-.jg-sel-val.empty { color: var(--muted); font-size: 28px; }
-.jg-submit-btn { width: 100%; max-width: 360px; height: 64px; border-radius: var(--r); border: none; background: var(--gold); color: #000; font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: transform .12s, opacity .15s; }
-.jg-submit-btn:active { transform: scale(.96); }
-.jg-submit-btn:disabled { opacity: .35; cursor: not-allowed; }
-.jg-submit-btn.submitted { background: var(--green); color: #000; }
-.jg-submitted-card { text-align: center; padding: 20px; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); border-radius: var(--r); width: 100%; max-width: 360px; display: none; }
-.jg-submitted-card.show { display: block; }
-.jg-submitted-card .sc-lbl { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--green); }
-.jg-submitted-card .sc-val { font-size: 40px; font-weight: 900; color: var(--green); }
-.jg-change-btn { background: none; border: none; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 6px 12px; }
-.jg-change-btn:active { color: var(--text); }
 
 /* ── EVENT PRESET BAR ── */
 .event-preset-bar { display: flex; gap: 6px; padding: 8px 10px; background: #000; border-bottom: 1px solid var(--border2); flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -600,50 +576,14 @@ html, body {
       <button class="dk-action-btn btn-dk-red" onclick="dkResetAll()">New Dunker</button>
     </div>
 
-    <div class="dk-card">
-      <div class="dk-card-title">Judge Device URLs</div>
-      <div class="dk-url-list" id="dk-judgeUrls"></div>
+    <div class="dk-card" id="dk-historyCard" style="display:none">
+      <div class="dk-card-title">Score History</div>
+      <div id="dk-historyList"></div>
     </div>
 
   </div>
 </div><!-- /tabDunk -->
 
-<!-- ═══ JUDGE TAB ═══ -->
-<div class="tab-pane" id="tabJudge">
-  <div class="jg-pane">
-
-    <div class="jg-picker-pane" id="jg-pickerPane">
-      <div class="jg-picker-title">Which judge are you?</div>
-      <div class="jg-picker-grid">
-        <button class="jg-pick-btn" onclick="jgSelectJudge(1)">1</button>
-        <button class="jg-pick-btn" onclick="jgSelectJudge(2)">2</button>
-        <button class="jg-pick-btn" onclick="jgSelectJudge(3)">3</button>
-        <button class="jg-pick-btn" onclick="jgSelectJudge(4)">4</button>
-        <button class="jg-pick-btn" onclick="jgSelectJudge(5)">5</button>
-      </div>
-    </div>
-
-    <div class="jg-scorer-pane hidden" id="jg-scorerPane">
-      <div class="jg-judge-badge" id="jg-judgeBadge">JUDGE 1</div>
-      <div class="jg-dunker-strip">
-        <div class="jg-dunker-name" id="jg-dunkerName">Waiting…</div>
-        <div class="jg-dunker-sub"  id="jg-dunkerSub">DUNK CONTEST</div>
-      </div>
-      <div class="jg-score-grid" id="jg-scoreGrid"></div>
-      <div class="jg-selected-display">
-        <div class="jg-sel-lbl">Your Score</div>
-        <div class="jg-sel-val empty" id="jg-selVal">—</div>
-      </div>
-      <button class="jg-submit-btn" id="jg-submitBtn" disabled onclick="jgSubmitScore()">Submit Score</button>
-      <div class="jg-submitted-card" id="jg-submittedCard">
-        <div class="sc-lbl">Score Submitted</div>
-        <div class="sc-val" id="jg-submittedVal">—</div>
-      </div>
-      <button class="jg-change-btn" onclick="jgChangePicker()">Change Judge →</button>
-    </div>
-
-  </div>
-</div><!-- /tabJudge -->
 
 <!-- STAT DETAIL PANEL -->
 <div class="stat-detail hidden" id="statDetail">
@@ -1030,11 +970,17 @@ const DK_DUNKERS = [
 })();
 
 let DK = { show:false, dunker:'', dunkerPhoto:'', dunkerSchool:'', dunkerIg:'', round:1, attempt:1, scores:[null,null,null,null,null], revealed:[false,false,false,false,false] };
+const DK_HISTORY = {}; // keyed by dunker name → { scores, revealed }
 
 function dkSelectDunker(name) {
+  if(DK.dunker) DK_HISTORY[DK.dunker]={scores:[...DK.scores],revealed:[...DK.revealed]};
   const d=DK_DUNKERS.find(x=>x.name===name);
   DK.dunker=name; DK.dunkerSchool=d?d.school:''; DK.dunkerIg=d?d.ig:'';
+  if(DK_HISTORY[name]){DK.scores=[...DK_HISTORY[name].scores];DK.revealed=[...DK_HISTORY[name].revealed];}
+  else{DK.scores=[null,null,null,null,null];DK.revealed=[false,false,false,false,false];}
   document.getElementById('dk-dunkerMeta').textContent=d?d.school+'  ·  @'+d.ig:'';
+  dkRenderJudges();
+  dkRenderHistory();
   dkPushAll();
 }
 function dkPushSetup() { DK.dunkerPhoto=document.getElementById('dk-dunkerPhoto').value.trim(); dkPushAll(); }
@@ -1051,21 +997,40 @@ function dkRenderJudges() {
     const cellCls='dk-judge-cell'+(isRevealed?' revealed':hasScore?' submitted':'');
     const btnCls='dk-reveal-btn'+(isRevealed?' done':hasScore?' ready':'');
     const btnTxt=isRevealed?'✓ Rev':hasScore?'▶ Rev':'Wait';
-    return `<div class="${cellCls}"><div class="dk-judge-lbl">J${i+1}</div><div class="dk-judge-score">${hasScore?score:'—'}</div><button class="${btnCls}" onclick="dkRevealJudge(${i})" ${!hasScore&&!isRevealed?'disabled':''}>${btnTxt}</button></div>`;
+    const scoreBtns=Array.from({length:10},(_,k)=>{
+      const v=k+1;
+      const active=score===v?' active':'';
+      return `<button class="dk-score-pick${active}" onclick="dkSetJudgeScore(${i},${v})">${v}</button>`;
+    }).join('');
+    return `<div class="${cellCls}"><div class="dk-judge-lbl">J${i+1}</div><div class="dk-judge-score">${hasScore?score:'—'}</div><div class="dk-score-pick-row">${scoreBtns}</div><button class="${btnCls}" onclick="dkRevealJudge(${i})" ${!hasScore&&!isRevealed?'disabled':''}>${btnTxt}</button></div>`;
   }).join('');
   const rev=DK.scores.filter((s,i)=>DK.revealed[i]&&s!=null);
   document.getElementById('dk-totalVal').textContent=rev.length?rev.reduce((a,b)=>a+b,0):'—';
 }
+function dkSetJudgeScore(judgeIdx, score) {
+  DK.scores[judgeIdx]=score;
+  dkRenderJudges();
+  dkPushAll();
+}
 function dkRevealJudge(i) { if(DK.scores[i]==null)return; DK.revealed[i]=true; dkRenderJudges(); dkPushAll(); }
 function dkRevealAll() { DK.revealed=DK.scores.map(s=>s!=null); dkRenderJudges(); dkPushAll(); }
-function dkResetDunk() { DK.scores=[null,null,null,null,null]; DK.revealed=[false,false,false,false,false]; dkRenderJudges(); dkPushAll(); }
+function dkResetDunk() { DK.scores=[null,null,null,null,null]; DK.revealed=[false,false,false,false,false]; dkRenderJudges(); dkRenderHistory(); dkPushAll(); }
 function dkResetAll() {
   DK.dunker='';DK.dunkerPhoto='';DK.dunkerSchool='';DK.dunkerIg='';
   DK.scores=[null,null,null,null,null];DK.revealed=[false,false,false,false,false];
   document.getElementById('dk-dunkerSelect').value='';
   document.getElementById('dk-dunkerPhoto').value='';
   document.getElementById('dk-dunkerMeta').textContent='';
-  dkRenderJudges(); dkPushAll();
+  dkRenderJudges(); dkRenderHistory(); dkPushAll();
+}
+function dkRenderHistory() {
+  const entries=Object.entries(DK_HISTORY).filter(([,v])=>v.scores.some(s=>s!=null));
+  document.getElementById('dk-historyCard').style.display=entries.length?'block':'none';
+  document.getElementById('dk-historyList').innerHTML=entries.map(([name,v])=>{
+    const scoreItems=v.scores.map((s,i)=>`<span class="dk-history-score-item">J${i+1}:${s!=null?s:'—'}</span>`).join('');
+    const total=v.scores.filter(s=>s!=null).reduce((a,b)=>a+b,0);
+    return `<div class="dk-history-row"><div class="dk-history-name">${name}</div><div class="dk-history-scores">${scoreItems}</div><div class="dk-history-total">${total}</div></div>`;
+  }).join('');
 }
 function dkPushAll() {
   NSMTClient.send({type:'patch',bug:{dunk:{show:DK.show,dunker:DK.dunker,dunkerPhoto:DK.dunkerPhoto,dunkerSchool:DK.dunkerSchool,dunkerIg:DK.dunkerIg,round:DK.round,attempt:DK.attempt,scores:DK.scores,revealed:DK.revealed}}});
@@ -1076,7 +1041,6 @@ function dkSyncFromServer(state) {
   if(dk.dunkerPhoto!==undefined)DK.dunkerPhoto=dk.dunkerPhoto;if(dk.dunkerSchool!==undefined)DK.dunkerSchool=dk.dunkerSchool;
   if(dk.dunkerIg!==undefined)DK.dunkerIg=dk.dunkerIg;if(dk.round!==undefined)DK.round=dk.round;
   if(dk.attempt!==undefined)DK.attempt=dk.attempt;if(dk.scores)DK.scores=[...dk.scores];if(dk.revealed)DK.revealed=[...dk.revealed];
-  if(dk.judgeSubmit){const{judge,score}=dk.judgeSubmit;if(judge>=0&&judge<5)DK.scores[judge]=score;}
   document.getElementById('dk-dunkerSelect').value=DK.dunker||'';
   document.getElementById('dk-dunkerPhoto').value=DK.dunkerPhoto||'';
   const d=DK_DUNKERS.find(x=>x.name===DK.dunker);
@@ -1086,69 +1050,6 @@ function dkSyncFromServer(state) {
   document.getElementById('dk-btnShow').classList.toggle('active',DK.show);
   document.getElementById('dk-btnHide').classList.toggle('active',!DK.show);
   dkRenderJudges();
-}
-function dkRenderJudgeUrls() {
-  const base=location.origin+location.pathname;
-  document.getElementById('dk-judgeUrls').innerHTML=Array.from({length:5},(_,i)=>{
-    const url=base+'?judge='+(i+1);
-    return `<div class="dk-url-item"><div class="dk-url-lbl">Judge ${i+1}</div>${url}</div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════
-// JUDGE TAB
-// ═══════════════════════════════════
-let jgNum=0, jgIdx=-1, jgSelected=null, jgSubmitted=false, jgDunker='';
-
-(function(){
-  const grid=document.getElementById('jg-scoreGrid');
-  for(let i=1;i<=10;i++){
-    const btn=document.createElement('button');
-    btn.className='jg-score-btn'+(i===10?' perfect':'');
-    btn.textContent=i;
-    btn.onclick=()=>jgSelectScore(i);
-    grid.appendChild(btn);
-  }
-})();
-
-function jgSelectJudge(n) {
-  jgNum=n; jgIdx=n-1;
-  document.getElementById('jg-judgeBadge').textContent='JUDGE '+n;
-  document.getElementById('jg-pickerPane').classList.add('hidden');
-  document.getElementById('jg-scorerPane').classList.remove('hidden');
-  toast('You are Judge '+n);
-}
-function jgChangePicker() {
-  document.getElementById('jg-scorerPane').classList.add('hidden');
-  document.getElementById('jg-pickerPane').classList.remove('hidden');
-}
-function jgSelectScore(n) {
-  if(jgSubmitted)return;
-  jgSelected=n;
-  document.getElementById('jg-scoreGrid').querySelectorAll('.jg-score-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));
-  const el=document.getElementById('jg-selVal');el.textContent=n;el.classList.remove('empty');
-  document.getElementById('jg-submitBtn').disabled=false;
-}
-function jgSubmitScore() {
-  if(jgSelected==null||jgSubmitted||jgIdx<0)return;
-  jgSubmitted=true;
-  NSMTClient.send({type:'patch',bug:{dunk:{judgeSubmit:{judge:jgIdx,score:jgSelected}}}});
-  const btn=document.getElementById('jg-submitBtn');btn.classList.add('submitted');btn.textContent='✓ Submitted';btn.disabled=true;
-  document.getElementById('jg-submittedCard').classList.add('show');
-  document.getElementById('jg-submittedVal').textContent=jgSelected;
-}
-function jgSyncFromServer(state) {
-  const dk=state&&state.bug&&state.bug.dunk; if(!dk)return;
-  const newDunker=dk.dunker||'';
-  if(newDunker!==jgDunker){
-    jgDunker=newDunker;jgSubmitted=false;jgSelected=null;
-    document.getElementById('jg-scoreGrid').querySelectorAll('.jg-score-btn').forEach(b=>b.classList.remove('selected'));
-    const el=document.getElementById('jg-selVal');el.textContent='—';el.classList.add('empty');
-    const btn=document.getElementById('jg-submitBtn');btn.disabled=true;btn.classList.remove('submitted');btn.textContent='Submit Score';
-    document.getElementById('jg-submittedCard').classList.remove('show');
-  }
-  document.getElementById('jg-dunkerName').textContent=(newDunker||'Waiting…').toUpperCase();
-  document.getElementById('jg-dunkerSub').textContent=[(dk.round?'Round '+dk.round:''),(dk.attempt?'Attempt '+dk.attempt:'')].filter(Boolean).join(' · ').toUpperCase()||'DUNK CONTEST';
 }
 
 // ═══════════════════════════════════
@@ -1167,7 +1068,6 @@ function applyServerState(state) {
   renderAll();renderPlayerGrids();
   tpSyncFromServer(state);
   dkSyncFromServer(state);
-  jgSyncFromServer(state);
 }
 
 // ═══════════════════════════════════
@@ -1200,13 +1100,9 @@ if(_restored) toast('Game restored ✓');
 // URL param routing
 const _p      = new URLSearchParams(location.search);
 const _pCourt = _p.get('court');
-const _pJudge = parseInt(_p.get('judge')||'0', 10);
 if (_pCourt === '1' || _pCourt === '2') {
   tpSetCourt(_pCourt === '2' ? 2 : 1);
   switchTab('threept');
-} else if (_pJudge >= 1 && _pJudge <= 5) {
-  jgSelectJudge(_pJudge);
-  switchTab('judge');
 } else {
   switchTab('game');
 }
@@ -1214,7 +1110,6 @@ if (_pCourt === '1' || _pCourt === '2') {
 // Init new tabs
 tpRenderAll();
 dkRenderJudges();
-dkRenderJudgeUrls();
 
 // ═══════════════════════════════════
 // EVENT PRESETS
