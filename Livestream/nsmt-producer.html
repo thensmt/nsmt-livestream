@@ -494,6 +494,14 @@ textarea{resize:vertical;min-height:80px}
       <div class="wz-pane active" id="wzPane1">
         <div class="wz-pane-title">Game Info</div>
         <div class="wz-pane-sub">Enter the event details. These appear on the scorebug and broadcast graphics.</div>
+        <div class="card" style="margin-bottom:16px;border-color:rgba(245,197,24,.25)">
+          <div class="card-title" style="margin-bottom:10px;color:var(--gold)">⚡ HOOPFEST QUICK SETUP</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">One tap to pre-fill all team info and rosters for each game.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-surf" style="flex:1;min-width:140px" onclick="applyPreset('nova24')">★ Nova 24<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Team Lin vs Team Rivers</span></button>
+            <button class="btn btn-surf" style="flex:1;min-width:140px" onclick="applyPreset('pvp')">⚡ Public vs Private<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Team Public vs Team Private</span></button>
+          </div>
+        </div>
         <div class="field"><label>Event Name</label><input id="cfgEvent" placeholder="WCAC Championship" oninput="onSetupChange()"></div>
         <div class="field"><label>Venue</label><input id="cfgVenue" placeholder="DeMatha Catholic HS"></div>
         <div class="g2">
@@ -1599,6 +1607,44 @@ window.loadRosterForTeam = function(team, ridOverride) {
 };
 
 // ═══════════════════════════════════
+// ═══════════════════════════════════
+// HOOPFEST PRESETS
+// ═══════════════════════════════════
+window.applyPreset = function(key) {
+  const PRESETS = {
+    nova24: {
+      event: 'NSMT Hoopfest — Nova 24',
+      venue: 'The St. James, Springfield VA',
+      date:  '2026-03-22',
+      periods: '4', periodLen: '8',
+      home: { name:'Team Rivers', code:'RIV', rid:'r_NOVA24_RIVERS' },
+      away: { name:'Team Lin',    code:'LIN', rid:'r_NOVA24_LIN'    },
+    },
+    pvp: {
+      event: 'NSMT Hoopfest — Public vs Private',
+      venue: 'The St. James, Springfield VA',
+      date:  '2026-03-22',
+      periods: '4', periodLen: '8',
+      home: { name:'Team Private', code:'PVT', rid:'r_PVP_PRIVATE' },
+      away: { name:'Team Public',  code:'PUB', rid:'r_PVP_PUBLIC'  },
+    },
+  };
+  const p = PRESETS[key]; if (!p) return;
+  const sv = (elId, val) => { const el = id(elId); if (el) el.value = val; };
+  sv('cfgEvent',     p.event);
+  sv('cfgVenue',     p.venue);
+  sv('cfgDate',      p.date);
+  sv('cfgPeriods',   p.periods);
+  sv('cfgPeriodLen', p.periodLen);
+  ['home','away'].forEach(t => {
+    sv('cfg' + cap(t) + 'Name', p[t].name);
+    sv('cfg' + cap(t) + 'Code', p[t].code);
+    loadRosterForTeam(t, p[t].rid);
+  });
+  onSetupChange();
+  toast('Loaded: ' + p.event);
+};
+
 // ═══════════════════════════════════
 // SETUP WIZARD
 // ═══════════════════════════════════
