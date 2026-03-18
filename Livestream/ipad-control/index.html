@@ -980,7 +980,7 @@ function renderPlayerSelect() {
       const st=STATS[p.id]||{},pts=calcPts(st),pf=st.pf||0;
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
       const pips=[1,2,3,4,5].map(n=>`<div class="pbtn-pip${n<=pf?' on':''}"></div>`).join('');
-      const spot=`<button class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</button>`;
+      const spot=`<div class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</div>`;
       return `<button class="pbtn${cls}" onclick="flowSelectPlayer('${team}','${p.id}')">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
     return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="player-col-grid">${btns}</div></div>`;
