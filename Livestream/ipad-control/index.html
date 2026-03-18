@@ -156,16 +156,16 @@ html, body {
 .stats-team-col:last-child { border-right: none; }
 .stats-team-hdr { padding: 6px 10px; background: var(--surf); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .stats-team-score { color: var(--gold); font-size: 14px; }
-.player-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 8px; overflow-y: auto; align-content: start; }
+.player-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px; overflow-y: auto; align-content: start; }
 .player-grid::-webkit-scrollbar { width: 3px; } .player-grid::-webkit-scrollbar-thumb { background: var(--border2); }
-.pbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 4px; cursor: pointer; transition: all .1s; min-height: 72px; position: relative; }
+.pbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; cursor: pointer; transition: all .1s; min-height: 100px; position: relative; }
 .pbtn:active { transform: scale(.94); background: var(--surf3); }
 .pbtn.foul4 { border-color: var(--orange); } .pbtn.foul5 { border-color: var(--red); opacity: .5; }
-.pbtn-num { font-size: 22px; font-weight: 900; color: var(--gold); line-height: 1; }
-.pbtn-name { font-size: 9px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
-.pbtn-pts { font-size: 9px; color: var(--muted); }
+.pbtn-num { font-size: 36px; font-weight: 900; color: var(--gold); line-height: 1; }
+.pbtn-name { font-size: 14px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
+.pbtn-pts { font-size: 13px; color: var(--muted); }
 .pbtn-pips { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
-.pbtn-pip { width: 5px; height: 5px; border-radius: 50%; background: var(--border2); }
+.pbtn-pip { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); }
 .pbtn-pip.on { background: var(--red); }
 .no-roster { padding: 20px 12px; text-align: center; font-size: 11px; color: var(--muted); line-height: 1.6; grid-column: 1 / -1; }
 .stat-detail { position: absolute; inset: 88px 0 0 0; background: var(--bg); display: flex; flex-direction: column; z-index: 10; overflow-y: auto; }
@@ -299,13 +299,37 @@ html, body {
 .jg-submitted-card .sc-val { font-size: 40px; font-weight: 900; color: var(--green); }
 .jg-change-btn { background: none; border: none; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 6px 12px; }
 .jg-change-btn:active { color: var(--text); }
+
+/* ── EVENT PRESET BAR ── */
+.event-preset-bar { display: flex; gap: 6px; padding: 8px 10px; background: #000; border-bottom: 1px solid var(--border2); flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.event-preset-bar::-webkit-scrollbar { display: none; }
+.ep-btn { flex: 1; min-width: 70px; min-height: 60px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 2px solid var(--border2); color: var(--text); border-radius: var(--r); cursor: pointer; transition: all .12s; white-space: nowrap; padding: 0 8px; }
+.ep-btn:active { transform: scale(.94); opacity: .8; }
+.ep-btn.active { border-color: gold; color: gold; background: rgba(255,215,0,.08); }
+
+/* ── GAME OVERLAY ROW ── */
+.ov-row { display: flex; gap: 8px; padding: 8px 10px; flex-shrink: 0; }
+.ov-btn { flex: 1; min-height: 60px; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border: none; border-radius: var(--r); cursor: pointer; transition: transform .1s, opacity .1s; }
+.ov-btn:active { transform: scale(.95); opacity: .85; }
+.ov-btn.show-btn { background: var(--green); color: #000; border: 2px solid transparent; }
+.ov-btn.hide-btn { background: var(--red); color: #fff; border: 2px solid transparent; }
+.ov-btn.show-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(34,197,94,.5); }
+.ov-btn.hide-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(229,63,63,.5); }
+
+/* ── BROADCAST GRAPHICS ── */
+.bcast-section { padding: 8px 10px; flex-shrink: 0; border-top: 1px solid var(--border); }
+.bcast-label { font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.bcast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.bcast-btn { min-height: 60px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: var(--r); cursor: pointer; transition: transform .1s, opacity .1s; }
+.bcast-btn:active { transform: scale(.94); opacity: .8; background: var(--surf3); }
+.bcast-btn.full-width { grid-column: 1 / -1; }
 </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="tb-logo">NSMT</div>
+  <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:24px;object-fit:contain;display:block;padding:0 12px;flex-shrink:0">
   <div class="tb-score-strip">
     <div class="tb-team">
       <div class="tb-team-name" id="tbAwayName">Away</div>
@@ -334,8 +358,21 @@ html, body {
   <button class="tab-btn"        id="tabBtnJudge"   onclick="switchTab('judge')">⚖️ Judge</button>
 </div>
 
+<!-- EVENT PRESET BAR -->
+<div class="event-preset-bar">
+  <button class="ep-btn" id="epBtnNova24"  onclick="setEventPreset('nova24')">★ NOVA 24</button>
+  <button class="ep-btn" id="epBtnDunk"    onclick="setEventPreset('dunk')">🏀 DUNK</button>
+  <button class="ep-btn" id="epBtn3pt"     onclick="setEventPreset('3pt')">🎯 3PT</button>
+  <button class="ep-btn" id="epBtnPvp"     onclick="setEventPreset('pvp')">⚡ PvP</button>
+</div>
+
 <!-- ═══ GAME TAB ═══ -->
 <div class="tab-pane active" id="tabGame">
+  <!-- OVERLAY SHOW/HIDE -->
+  <div class="ov-row">
+    <button class="ov-btn show-btn" id="ovBtnShow" onclick="setOverlay(true)">▶ SHOW OVERLAY</button>
+    <button class="ov-btn hide-btn" id="ovBtnHide" onclick="setOverlay(false)">■ HIDE OVERLAY</button>
+  </div>
   <div class="game-top">
   <div class="main">
     <div class="team-col away">
@@ -430,6 +467,18 @@ html, body {
       </div>
     </div>
   </div><!-- /game-bottom -->
+
+  <!-- BROADCAST GRAPHICS -->
+  <div class="bcast-section">
+    <div class="bcast-label">Broadcast Graphics</div>
+    <div class="bcast-grid">
+      <button class="bcast-btn" onclick="sendBcastGraphic({graphic:'timeout',timeoutTeam:'away'})">TIMEOUT (AWAY)</button>
+      <button class="bcast-btn" onclick="sendBcastGraphic({graphic:'timeout',timeoutTeam:'home'})">TIMEOUT (HOME)</button>
+      <button class="bcast-btn" onclick="sendBcastGraphic({graphic:'halftime'})">HALFTIME</button>
+      <button class="bcast-btn" onclick="sendBcastGraphic({graphic:'final'})">FINAL</button>
+      <button class="bcast-btn full-width" onclick="sendBcastGraphic({graphic:'mediaTimeout'})">MEDIA TO</button>
+    </div>
+  </div>
 </div><!-- /tabGame -->
 
 
@@ -1117,6 +1166,7 @@ function applyServerState(state) {
     if(b.awayName)S.away.name=b.awayName;if(b.homeName)S.home.name=b.homeName;
     if(b.awayCode)S.away.code=b.awayCode;if(b.homeCode)S.home.code=b.homeCode;
     if(b.awayPrimary)S.away.primary=b.awayPrimary;if(b.homePrimary)S.home.primary=b.homePrimary;
+    if(b.showScoreboard !== undefined){ _overlayShown = b.showScoreboard; renderOverlayBtns(); }
   }
   if(state.stats)loadRosterFromServer(state.stats);
   renderAll();renderPlayerGrids();
@@ -1170,6 +1220,57 @@ if (_pCourt === '1' || _pCourt === '2') {
 tpRenderAll();
 dkRenderJudges();
 dkRenderJudgeUrls();
+
+// ═══════════════════════════════════
+// EVENT PRESETS
+// ═══════════════════════════════════
+let _activePreset = null;
+function setEventPreset(preset) {
+  _activePreset = preset;
+  document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+  const map = { nova24:'epBtnNova24', dunk:'epBtnDunk', '3pt':'epBtn3pt', pvp:'epBtnPvp' };
+  if (map[preset]) document.getElementById(map[preset]).classList.add('active');
+  if (preset === 'nova24') {
+    NSMTClient.send({ type:'patch', bug:{ awayName:'Team Lin', awayCode:'LIN', homeName:'Team Rivers', homeCode:'RIV', allStarEvent:'nova24' } });
+    switchTab('game');
+  } else if (preset === 'dunk') {
+    NSMTClient.send({ type:'patch', bug:{ allStarEvent:'dunk' } });
+    switchTab('dunk');
+  } else if (preset === '3pt') {
+    NSMTClient.send({ type:'patch', bug:{ allStarEvent:'3pt' } });
+    switchTab('threept');
+  } else if (preset === 'pvp') {
+    NSMTClient.send({ type:'patch', bug:{ awayName:'Team Public', awayCode:'PUB', homeName:'Team Private', homeCode:'PVT', allStarEvent:'pvp' } });
+    switchTab('game');
+  }
+  toast('Event: ' + preset.toUpperCase());
+}
+
+// ═══════════════════════════════════
+// OVERLAY SHOW / HIDE
+// ═══════════════════════════════════
+let _overlayShown = null;
+function setOverlay(show) {
+  _overlayShown = show;
+  NSMTClient.send({ type:'patch', bug:{ showScoreboard: show } });
+  renderOverlayBtns();
+  toast(show ? 'Overlay SHOWN' : 'Overlay HIDDEN');
+}
+function renderOverlayBtns() {
+  const s = document.getElementById('ovBtnShow');
+  const h = document.getElementById('ovBtnHide');
+  if (!s || !h) return;
+  s.classList.toggle('active', _overlayShown === true);
+  h.classList.toggle('active', _overlayShown === false);
+}
+
+// ═══════════════════════════════════
+// BROADCAST GRAPHICS
+// ═══════════════════════════════════
+function sendBcastGraphic(patch) {
+  NSMTClient.send({ type:'patch', bug: patch });
+  toast('Graphic: ' + (patch.graphic || '').toUpperCase());
+}
 
 // Modal backdrop tap-to-close
 document.getElementById('clockModal').addEventListener('click', function(e){if(e.target===this)closeClockModal();});
