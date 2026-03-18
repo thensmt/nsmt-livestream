@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="apple-touch-icon" href="/nsmt-icon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NSMT Judge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NSMT Dunk Judge</title>
 <style>
@@ -23,8 +28,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .dunker-name{font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;}
 .dunker-sub{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
 
-/* Score grid 3+3+4 */
-.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:360px;}
+/* Score grid 6-10 in one row */
+.score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%;max-width:360px;}
 .score-btn{
   aspect-ratio:1;border-radius:var(--r);border:2px solid var(--border2);
   background:var(--surf);color:var(--text);font-size:28px;font-weight:900;
@@ -67,7 +72,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 <body>
 
 <div class="topbar">
-  <div class="tb-logo">NSMT</div>
+  <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:20px;object-fit:contain;display:block">
   <div class="tb-div"></div>
   <div class="tb-judge" id="tbJudgeLabel">JUDGE 1</div>
   <div class="tb-ws" id="wsStatus"></div>
@@ -103,13 +108,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
   document.getElementById('tbJudgeLabel').textContent = 'JUDGE ' + judgeNum;
 
-  let selectedScore = null;
-  let submitted     = false;
-  let currentDunker = '';
+  let selectedScore  = null;
+  let submitted      = false;
+  let currentDunker  = '';
+  let currentAttempt = 0;
 
-  // ── Score grid 1–10 ──────────────────────────────────────
+  // ── Score grid 6–10 ──────────────────────────────────────
   const grid = document.getElementById('scoreGrid');
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 6; i <= 10; i++) {
     const btn = document.createElement('button');
     btn.className = 'score-btn' + (i === 10 ? ' perfect' : '');
     btn.textContent = i;
@@ -120,8 +126,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   function selectScore(n) {
     if (submitted) return;
     selectedScore = n;
-    grid.querySelectorAll('.score-btn').forEach((b, i) => {
-      b.classList.toggle('selected', i + 1 === n);
+    grid.querySelectorAll('.score-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent, 10) === n);
     });
     const selEl = document.getElementById('selVal');
     selEl.textContent = n;
@@ -176,11 +182,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   function syncFromServer(state) {
     const dk = state && state.bug && state.bug.dunk;
     if (!dk) return;
-    const newDunker = dk.dunker || '';
-    // If dunker changed, reset submission state
-    if (newDunker !== currentDunker) {
-      currentDunker = newDunker;
-      submitted     = false;
+    const newDunker  = dk.dunker  || '';
+    const newAttempt = dk.attempt || 1;
+    // If dunker or attempt changed, reset submission state
+    if (newDunker !== currentDunker || newAttempt !== currentAttempt) {
+      currentDunker  = newDunker;
+      currentAttempt = newAttempt;
+      submitted      = false;
       selectedScore = null;
       grid.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected'));
       const selEl = document.getElementById('selVal');
