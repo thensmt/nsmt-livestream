@@ -26,7 +26,7 @@
 
   /* ── Court panel ── */
   .court-panel{
-    background:linear-gradient(160deg,#0c0e12 0%,#161920 100%);
+    background:rgba(10,11,16,0.20);
     border:1px solid rgba(255,255,255,.12);
     border-radius:16px;padding:22px 30px 26px;
     min-width:370px;display:flex;flex-direction:column;gap:14px;
@@ -159,7 +159,7 @@
       }).join('');
       rows.push(`
         <div class="rack-row">
-          <div class="rack-label${isMoney ? ' money' : ''}">${isMoney ? '★ RACK '+(r+1) : 'RACK '+(r+1)}</div>
+          <div class="rack-label${isMoney ? ' money' : ''}">${isMoney ? '💰💰💰💰💰' : 'RACK '+(r+1)}</div>
           <div class="balls">${ballsHtml}</div>
         </div>`);
     }
@@ -202,6 +202,25 @@
   }
 
   connect();
+
+  // Court param positioning
+  (function() {
+    const courtParam = new URLSearchParams(location.search).get('court');
+    const wrap = document.getElementById('tptWrap');
+    if (courtParam === '1') {
+      wrap.style.top = '20px';
+      wrap.style.left = '20px';
+      wrap.style.transform = 'none';
+      document.getElementById('court2Panel').style.display = 'none';
+    } else if (courtParam === '2') {
+      wrap.style.top = '20px';
+      wrap.style.right = '20px';
+      wrap.style.left = 'auto';
+      wrap.style.transform = 'none';
+      document.getElementById('court1Panel').style.display = 'none';
+    }
+    // No param: keeps existing center position with both panels
+  })();
 </script>
 </body>
 </html>
