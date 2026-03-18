@@ -192,7 +192,7 @@ html, body {
 
 
 /* ═══ 3PT TAB ═══ */
-.tp-pane { height: calc(100vh - 88px); overflow-y: auto; padding: 12px 14px 28px; display: flex; flex-direction: column; gap: 14px; }
+.tp-pane { height: calc(100vh - 88px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 14px 80px; display: flex; flex-direction: column; gap: 14px; }
 .tp-pane::-webkit-scrollbar { width: 3px; } .tp-pane::-webkit-scrollbar-thumb { background: var(--border2); }
 .tp-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
 .tp-card-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
@@ -490,7 +490,7 @@ html, body {
     </div>
 
     <div class="tp-card">
-      <div class="tp-card-title">Money Rack (★ = 2pts per ball)</div>
+      <div class="tp-card-title">Money Rack (💰 = 2pts per ball)</div>
       <div class="tp-money-row" id="tp-moneyRackRow"></div>
     </div>
 
@@ -579,6 +579,17 @@ html, body {
     <div class="dk-card" id="dk-historyCard" style="display:none">
       <div class="dk-card-title">Score History</div>
       <div id="dk-historyList"></div>
+    </div>
+
+    <div class="dk-card" style="user-select:text;-webkit-user-select:text">
+      <div class="dk-card-title">Judge URLs</div>
+      <div style="font-size:12px;line-height:2.2;color:var(--muted)">
+        <div>Judge 1 — mbp.local:8000/dunk-judge/?judge=1</div>
+        <div>Judge 2 — mbp.local:8000/dunk-judge/?judge=2</div>
+        <div>Judge 3 — mbp.local:8000/dunk-judge/?judge=3</div>
+        <div>Judge 4 — mbp.local:8000/dunk-judge/?judge=4</div>
+        <div>Judge 5 — mbp.local:8000/dunk-judge/?judge=5</div>
+      </div>
     </div>
 
   </div>
