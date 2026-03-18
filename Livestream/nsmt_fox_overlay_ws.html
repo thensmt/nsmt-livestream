@@ -749,11 +749,15 @@
       document.getElementById('introAwayTeam').textContent   = (b.awayName || awayDefault).toUpperCase();
       document.getElementById('introHomeTeam').textContent   = (b.homeName || homeDefault).toUpperCase();
       overlay.classList.remove('hidden', 'dismissing');
+      const bw = document.getElementById('bugWrap');
+      if (bw) bw.style.visibility = 'hidden';
     } else {
       if (!overlay.classList.contains('hidden')) {
         overlay.classList.add('dismissing');
         setTimeout(() => { overlay.classList.add('hidden'); overlay.classList.remove('dismissing'); }, 400);
       }
+      const bw = document.getElementById('bugWrap');
+      if (bw) bw.style.visibility = '';
     }
   }
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
