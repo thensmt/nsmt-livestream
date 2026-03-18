@@ -1,0 +1,10 @@
+{
+  "name": "NSMT",
+  "short_name": "NSMT",
+  "icons": [
+    { "src": "/nsmt-icon.jpg", "sizes": "1276x1276", "type": "image/jpeg" }
+  ],
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0E80FC"
+}
