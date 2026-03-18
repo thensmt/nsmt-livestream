@@ -257,10 +257,24 @@
   .intro-team{font-family:'Anton',Impact,sans-serif;font-size:34px;text-transform:uppercase;letter-spacing:1px;color:#fff;}
   .intro-vs{font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.28);}
   .intro-tipoff{font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px;}
+  /* ── LIVE bug ── */
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  /* ── Score pulse ── */
+  @keyframes scorePulse {
+    0% { color: inherit; text-shadow: none; }
+    30% { color: #FFD700; text-shadow: 0 0 12px #FFD700; }
+    100% { color: inherit; text-shadow: none; }
+  }
+  .score-pulse { animation: scorePulse 0.6s ease-out; }
 </style>
 </head>
 <body>
 <div class="stage">
+  <!-- LIVE bug -->
+  <div id="live-bug" style="display:none; position:absolute; top:20px; left:20px; align-items:center; gap:6px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:4px; z-index:100;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#FF0000;animation:livePulse 1.2s infinite;display:inline-block"></span>
+    <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:1px">LIVE</span>
+  </div>
   <div class="cornerLogo corner-tl" id="cornerTL"><img id="cornerTLImg" alt="Top Left Sponsor"></div>
   <div class="cornerLogo corner-tr" id="cornerTR"><img id="cornerTRImg" alt="Top Right Sponsor"></div>
   <div class="cornerLogo corner-bl" id="cornerBL"><img id="cornerBLImg" alt="Bottom Left Sponsor"></div>
@@ -362,6 +376,16 @@
     </div>
   </div>
   <div id="ticker"><div id="tickerText"></div></div>
+  <!-- Lower-Third / Chyron -->
+  <div id="lower-third" style="display:none; position:absolute; bottom:80px; left:0; right:0; background:#0E80FC; padding:12px 40px; z-index:50; transform:translateY(100%); transition:transform 0.4s ease-out;">
+    <span id="lower-third-text" style="color:#fff; font-size:28px; font-weight:700; font-family:'Barlow Condensed',sans-serif; letter-spacing:1px;"></span>
+  </div>
+  <!-- Coming Up Next card -->
+  <div id="coming-up-card" style="display:none; position:absolute; inset:0; background:#000; z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:24px;">
+    <div style="color:#888; font-size:24px; font-weight:600; letter-spacing:4px; text-transform:uppercase">Coming Up Next</div>
+    <div id="coming-up-event-name" style="color:#fff; font-size:72px; font-weight:900; font-family:'Barlow Condensed',sans-serif; letter-spacing:2px; text-align:center;"></div>
+    <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:48px; margin-top:24px; object-fit:contain;">
+  </div>
   <!-- All-Star Intro Overlay -->
   <div id="introOverlay" class="intro-overlay hidden">
     <div class="intro-card">
@@ -392,6 +416,7 @@
     ? 'ws://localhost:8765'
     : 'ws://'+location.host.replace(/:\\d+$/,'')+':8765');
   let ws,state=null,flashCounts=[];
+  let _prevAwayScore=null,_prevHomeScore=null;
   let gameClockMs=0,gameRunning=false,gameTimer=null;
   let gameStartPerf=0,gameStartMs=0;
   const nowMs = ()=> (window.performance && performance.now) ? performance.now() : Date.now();
@@ -552,8 +577,17 @@
       setTimeout(function(){el.classList.add('hidden');el.classList.remove('fade-out','show');},450);
     },dur);
   }
+  function triggerScorePulse(el) {
+    el.classList.remove('score-pulse');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('score-pulse');
+    setTimeout(() => el.classList.remove('score-pulse'), 700);
+  }
   function apply(s){const b=s.bug,t=s.ticker;
     homeName.textContent=b.homeName||'HOME';awayName.textContent=b.awayName||'AWAY';
+    if(_prevAwayScore!==null && b.awayScore!==_prevAwayScore) triggerScorePulse(awayScore);
+    if(_prevHomeScore!==null && b.homeScore!==_prevHomeScore) triggerScorePulse(homeScore);
+    _prevAwayScore=b.awayScore; _prevHomeScore=b.homeScore;
     homeScore.textContent=b.homeScore;awayScore.textContent=b.awayScore;
     homeRecord.textContent=b.homeRecord||'';awayRecord.textContent=b.awayRecord||'';
     setTO('ato',b.awayTOs);
@@ -623,6 +657,34 @@
     // Overlay visibility toggles
     const bw=document.getElementById('bugWrap');
     if(bw && b.showScorebug!==undefined) bw.style.display=b.showScorebug?'':'none';
+    // LIVE bug
+    const liveBug = document.getElementById('live-bug');
+    if (liveBug) liveBug.style.display = b.isLive ? 'flex' : 'none';
+    // Lower-third / chyron
+    const lt = b.lowerThird;
+    const ltEl = document.getElementById('lower-third');
+    const ltText = document.getElementById('lower-third-text');
+    if (lt && ltEl && ltText) {
+      if (lt.text !== undefined) ltText.textContent = lt.text;
+      if (lt.show !== undefined) {
+        ltEl.style.display = lt.show ? 'block' : 'none';
+        ltEl.style.transform = lt.show ? 'translateY(0)' : 'translateY(100%)';
+      }
+    }
+    // Coming Up Next card
+    const cu = b.comingUp;
+    const cuCard = document.getElementById('coming-up-card');
+    const cuName = document.getElementById('coming-up-event-name');
+    if (cu && cuCard) {
+      if (cu.eventName !== undefined && cuName) cuName.textContent = cu.eventName;
+      if (cu.show !== undefined) {
+        cuCard.style.display = cu.show ? 'flex' : 'none';
+      }
+      const colors = { nova24: '#0E80FC', dunk: '#FFD700', '3pt': '#FFFFFF', pvp: '#FFD700' };
+      if (cu.event && cuCard) {
+        cuCard.style.borderTop = `6px solid ${colors[cu.event] || '#0E80FC'}`;
+      }
+    }
   }
   function applyStats(stats, bug){
     const show = !!(bug && bug.showStats);
