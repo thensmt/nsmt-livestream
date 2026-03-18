@@ -135,8 +135,8 @@ html, body {
 .game-bottom .stats-pane { height: 100%; }
 /* Compact player cards for game tab */
 #tabGame .pbtn { min-height: 72px; padding: 7px 6px; gap: 1px; }
-#tabGame .pbtn-num { font-size: 26px; }
-#tabGame .pbtn-name { font-size: 11px; }
+#tabGame .pbtn-num { font-size: 30px; }
+#tabGame .pbtn-name { font-size: 14px; }
 #tabGame .pbtn-pts { font-size: 10px; }
 #tabGame .pbtn-pip { width: 7px; height: 7px; }
 #tabGame .pbtn-spotlight { width: 22px; height: 22px; font-size: 11px; top: 3px; left: 3px; }
@@ -1053,7 +1053,7 @@ function renderLineupSetup() {
     const count = (t.starters||[]).length;
     const countColor = count===5 ? 'var(--green)' : 'var(--gold)';
     const btns = players.map(p=>mkCard(team,p)).join('');
-    return `<div class="team-split-col"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:11px">${count}/5</span></div><div class="player-col-grid">${btns}</div></div>`;
+    return `<div class="team-split-col"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:11px">${count}/5</span></div><div class="player-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${btns}</div></div>`;
   };
   const bothFull = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
   const lockBtn = bothFull ? `<button class="lineup-lock-btn" onclick="lockLineup()">✓ LOCK LINEUP — START GAME</button>` : '';
