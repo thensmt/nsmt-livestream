@@ -27,7 +27,9 @@ html, body {
 }
 
 /* ── TOPBAR ── */
-.topbar { background: #000; border-bottom: 2px solid var(--gold); display: flex; align-items: center; gap: 0; padding: 0; height: 50px; flex-shrink: 0; }
+.topbar { background: #000; border-bottom: 2px solid var(--gold); display: flex; flex-direction: column; height: 80px; flex-shrink: 0; }
+.tb-main-row { display: flex; align-items: center; height: 50px; flex-shrink: 0; width: 100%; }
+.tb-presets { display: flex; height: 30px; border-top: 1px solid var(--border2); width: 100%; }
 .tb-logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: var(--blue); padding: 0 12px; flex-shrink: 0; }
 .tb-score-strip { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0; height: 100%; }
 .tb-team { display: flex; flex-direction: column; align-items: center; padding: 0 12px; min-width: 90px; }
@@ -63,7 +65,7 @@ html, body {
 .tab-pane.active { display: flex; flex-direction: column; }
 
 /* ── GAME TAB ── */
-.main { display: grid; grid-template-columns: 1fr 260px 1fr; gap: 0; height: calc(100vh - 88px); overflow: hidden; }
+.main { display: grid; grid-template-columns: 1fr 260px 1fr; gap: 0; height: calc(100vh - 80px); overflow: hidden; }
 .team-col { display: flex; flex-direction: column; padding: 10px 8px; gap: 8px; overflow: hidden; border-right: 1px solid var(--border); }
 .team-col:last-child { border-right: none; border-left: 1px solid var(--border); }
 .center-col { display: flex; flex-direction: column; align-items: center; padding: 10px 8px; gap: 8px; background: var(--surf); overflow: hidden; }
@@ -112,25 +114,24 @@ html, body {
 .dismiss-btn:active { opacity: .7; }
 
 /* ── GAME TAB TWO-ZONE LAYOUT ── */
-#tabGame { height: calc(100vh - 88px); overflow: hidden; }
-.game-top { flex-shrink: 0; border-bottom: 2px solid var(--border); overflow: hidden; }
-.game-top .main { height: auto; }
-.game-top .team-name-big { font-size: 13px; }
-.game-top .score-display { font-size: 46px; padding: 4px 0; }
-.game-top .score-btns .sbtn { height: 40px; font-size: 14px; }
-.game-top .foul-pip { width: 12px; height: 12px; }
-.game-top .adj-btn { height: 36px; }
-.game-top .to-pip { width: 16px; height: 16px; }
-.game-top .to-use-btn { height: 38px; font-size: 11px; }
-.game-top .reset-to-btn { height: 26px; font-size: 9px; }
-.game-top .clock-display { font-size: 40px; padding: 5px 0; }
-.game-top .ck-btn { height: 44px; font-size: 18px; }
-.game-top .period-label-big { font-size: 11px; }
-.game-top .period-pill { height: 30px; min-width: 36px; font-size: 11px; }
-.game-top .end-period-btn { height: 36px; font-size: 11px; }
-.game-top .dismiss-btn { height: 30px; font-size: 9px; padding: 0 8px; }
-.game-top .spotlight-row { margin-top: 4px; }
-.game-bottom { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+#tabGame.active { height: calc(100vh - 80px); overflow: hidden; }
+.game-top { flex-shrink: 0; border-bottom: 1px solid var(--border); overflow: hidden; }
+.game-top .main { height: auto; display: flex; align-items: stretch; gap: 0; padding: 0; }
+/* Collapse all secondary controls — keep only score + score-btns + clock essentials */
+.game-top .team-hdr,.game-top .divider,.game-top .section-label,
+.game-top .foul-pips,.game-top .foul-adj,.game-top .to-pips,
+.game-top .to-use-btn,.game-top .reset-to-btn,.game-top .period-label-big,
+.game-top .period-pills,.game-top .end-period-btn,.game-top .spotlight-row { display: none !important; }
+.game-top .team-col { flex: 1; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 6px; border-right: 1px solid var(--border); }
+.game-top .team-col:last-child { border-right: none; border-left: 1px solid var(--border); }
+.game-top .team-name-big { font-size: 11px; width: 100%; text-align: center; }
+.game-top .score-display { font-size: 34px; padding: 2px 6px; flex: 1; }
+.game-top .score-btns { display: flex; gap: 3px; }
+.game-top .score-btns .sbtn { height: 32px; font-size: 12px; padding: 0 6px; flex: none; width: 34px; }
+.game-top .center-col { flex-shrink: 0; width: 130px; padding: 5px 4px; gap: 4px; background: var(--surf); }
+.game-top .clock-display { font-size: 26px; padding: 2px 0; cursor: pointer; }
+.game-top .ck-btn { height: 30px; font-size: 14px; }
+.game-bottom { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .game-bottom .stats-pane { height: 100%; }
 
 /* ── MODALS ── */
@@ -152,13 +153,13 @@ html, body {
 .toast.show { opacity: 1; }
 
 /* ── STATS TAB ── */
-.stats-pane { height: calc(100vh - 88px); display: flex; flex-direction: column; overflow: hidden; }
+.stats-pane { height: calc(100vh - 80px); display: flex; flex-direction: column; overflow: hidden; }
 .stats-player-section { flex: 1; display: flex; overflow: hidden; }
 .stats-team-col { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
 .stats-team-col:last-child { border-right: none; }
 .stats-team-hdr { padding: 6px 10px; background: var(--surf); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .stats-team-score { color: var(--gold); font-size: 14px; }
-.player-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px; overflow-y: auto; align-content: start; }
+.player-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 5px; overflow-y: auto; align-content: start; }
 .player-grid::-webkit-scrollbar { width: 3px; } .player-grid::-webkit-scrollbar-thumb { background: var(--border2); }
 .pbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; cursor: pointer; transition: all .1s; min-height: 100px; position: relative; }
 .pbtn:active { transform: scale(.94); background: var(--surf3); }
@@ -170,7 +171,14 @@ html, body {
 .pbtn-pip { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); }
 .pbtn-pip.on { background: var(--red); }
 .no-roster { padding: 20px 12px; text-align: center; font-size: 11px; color: var(--muted); line-height: 1.6; grid-column: 1 / -1; }
-.stat-detail { position: absolute; inset: 88px 0 0 0; background: var(--bg); display: flex; flex-direction: column; z-index: 10; overflow-y: auto; }
+.pbtn.starter { border-color: var(--gold); background: rgba(245,197,24,.08); }
+.pbtn-starter-badge { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--gold); color: #000; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.pbtn-spotlight { position: absolute; top: 4px; left: 4px; width: 26px; height: 26px; border-radius: 50%; background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.3); color: #F5C518; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
+.pbtn-spotlight:active { background: rgba(245,197,24,.35); transform: scale(.88); }
+.starter-mode-btn { height: 26px; padding: 0 8px; font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 5px; cursor: pointer; transition: all .12s; }
+.starter-mode-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
+.starter-count { font-size: 10px; font-weight: 800; color: var(--gold); }
+.stat-detail { position: absolute; inset: 80px 0 0 0; background: var(--bg); display: flex; flex-direction: column; z-index: 10; overflow-y: auto; }
 .stat-detail.hidden { display: none; }
 .stat-detail-hdr { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surf); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .stat-back-btn { height: 40px; padding: 0 14px; font-size: 13px; font-weight: 800; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; flex-shrink: 0; }
@@ -192,41 +200,41 @@ html, body {
 
 
 /* ═══ 3PT TAB ═══ */
-.tp-pane { height: calc(100vh - 88px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 14px 80px; display: flex; flex-direction: column; gap: 14px; }
+.tp-pane { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; padding: 10px 14px 100px; display: flex; flex-direction: column; gap: 8px; }
 .tp-pane::-webkit-scrollbar { width: 3px; } .tp-pane::-webkit-scrollbar-thumb { background: var(--border2); }
-.tp-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
-.tp-card-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.tp-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 10px; }
+.tp-card-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
 .tp-court-row, .tp-round-row, .tp-vis-row, .tp-ctrl-row, .tp-money-row { display: flex; gap: 8px; }
-.tp-court-btn { flex: 1; height: 52px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.tp-court-btn { flex: 1; height: 42px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-court-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
-.tp-round-btn { flex: 1; padding: 10px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.tp-round-btn { flex: 1; padding: 7px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-round-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
-.tp-shooter-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-size: 18px; font-weight: 700; padding: 10px 12px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
+.tp-shooter-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-size: 15px; font-weight: 700; padding: 8px 10px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
 .tp-shooter-input:focus { border-color: var(--gold); }
-.tp-vis-btn { flex: 1; height: 56px; border-radius: var(--r); border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.tp-vis-btn { flex: 1; height: 30px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-vis-btn.active { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green); }
-.tp-money-btn { flex: 1; height: 52px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+.tp-money-btn { flex: 1; height: 40px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
 .tp-money-btn.active { background: rgba(245,197,24,.15); border-color: var(--gold); color: var(--gold); }
 .tp-racks { display: flex; flex-direction: column; gap: 8px; }
 .tp-rack-row { display: flex; align-items: center; gap: 10px; }
 .tp-rack-lbl { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); width: 52px; flex-shrink: 0; line-height: 1.2; }
 .tp-rack-lbl.money { color: var(--gold); }
 .tp-balls { display: flex; gap: 8px; flex: 1; }
-.tp-ball-btn { flex: 1; max-width: 62px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--border2); background: var(--surf3); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: transparent; }
+.tp-ball-btn { flex: 1; max-width: 52px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--border2); background: var(--surf3); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: transparent; }
 .tp-ball-btn:active { transform: scale(.88); }
 .tp-ball-btn.made { background: #fff; border-color: #fff; color: #000; }
 .tp-ball-btn.made.money { background: var(--gold); border-color: var(--gold); color: #000; }
 .tp-total-row { display: flex; align-items: baseline; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .tp-total-lbl { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-.tp-total-val { font-size: 48px; font-weight: 900; line-height: 1; }
+.tp-total-val { font-size: 36px; font-weight: 900; line-height: 1; }
 .tp-total-max { font-size: 13px; color: var(--muted); }
-.tp-ctrl-btn { flex: 1; height: 56px; border: none; border-radius: var(--r); font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform .1s; }
+.tp-ctrl-btn { flex: 1; height: 44px; border: none; border-radius: var(--r); font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform .1s; }
 .tp-ctrl-btn:active { transform: scale(.96); }
 .btn-tp-gold { background: var(--gold); color: #000; }
 .btn-tp-surf { background: var(--surf3); color: var(--text); border: 1px solid var(--border2); }
 
 /* ═══ DUNK TAB ═══ */
-.dk-pane { height: calc(100vh - 88px); overflow-y: auto; padding: 12px 14px 28px; display: flex; flex-direction: column; gap: 12px; }
+.dk-pane { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 12px 14px 100px; display: flex; flex-direction: column; gap: 12px; }
 .dk-pane::-webkit-scrollbar { width: 3px; } .dk-pane::-webkit-scrollbar-thumb { background: var(--border2); }
 .dk-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
 .dk-card-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
@@ -240,7 +248,7 @@ html, body {
 .dk-step-btn:active { transform: scale(.88); }
 .dk-step-val { flex: 1; text-align: center; font-size: 20px; font-weight: 700; }
 .dk-vis-row { display: flex; gap: 10px; }
-.dk-vis-btn { flex: 1; height: 52px; border-radius: var(--r); border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.dk-vis-btn { flex: 1; height: 30px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .dk-vis-btn.active { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green); }
 .dk-judges-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
 .dk-judge-cell { background: var(--surf3); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: background .2s, border-color .2s; }
@@ -278,21 +286,20 @@ html, body {
 .dk-history-total { font-size: 16px; font-weight: 900; color: var(--gold); flex-shrink: 0; }
 
 
-/* ── EVENT PRESET BAR ── */
-.event-preset-bar { display: flex; gap: 6px; padding: 8px 10px; background: #000; border-bottom: 1px solid var(--border2); flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.event-preset-bar::-webkit-scrollbar { display: none; }
-.ep-btn { flex: 1; min-width: 70px; min-height: 60px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 2px solid var(--border2); color: var(--text); border-radius: var(--r); cursor: pointer; transition: all .12s; white-space: nowrap; padding: 0 8px; }
-.ep-btn:active { transform: scale(.94); opacity: .8; }
-.ep-btn.active { border-color: gold; color: gold; background: rgba(255,215,0,.08); }
+/* ── EVENT PRESET BUTTONS (in topbar) ── */
+.ep-btn { flex: 1; height: 100%; font-size: 9px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; background: transparent; border: none; border-right: 1px solid var(--border2); color: var(--muted); cursor: pointer; transition: color .12s, background .12s; padding: 0 4px; white-space: nowrap; }
+.ep-btn:last-child { border-right: none; }
+.ep-btn:active { opacity: .7; }
+.ep-btn.active { color: var(--gold); background: rgba(245,197,24,.1); }
 
 /* ── GAME OVERLAY ROW ── */
-.ov-row { display: flex; gap: 8px; padding: 8px 10px; flex-shrink: 0; }
-.ov-btn { flex: 1; min-height: 60px; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border: none; border-radius: var(--r); cursor: pointer; transition: transform .1s, opacity .1s; }
+.ov-row { display: flex; gap: 6px; padding: 4px 10px; flex-shrink: 0; }
+.ov-btn { flex: 1; height: 30px; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; transition: transform .1s, opacity .1s; }
 .ov-btn:active { transform: scale(.95); opacity: .85; }
 .ov-btn.show-btn { background: var(--green); color: #000; border: 2px solid transparent; }
 .ov-btn.hide-btn { background: var(--red); color: #fff; border: 2px solid transparent; }
-.ov-btn.show-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(34,197,94,.5); }
-.ov-btn.hide-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(229,63,63,.5); }
+.ov-btn.show-btn.active { border-color: #fff; box-shadow: 0 0 8px rgba(34,197,94,.5); }
+.ov-btn.hide-btn.active { border-color: #fff; box-shadow: 0 0 8px rgba(229,63,63,.5); }
 
 /* ── BROADCAST GRAPHICS ── */
 .bcast-section { padding: 8px 10px; flex-shrink: 0; border-top: 1px solid var(--border); }
@@ -307,42 +314,42 @@ html, body {
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:24px;object-fit:contain;display:block;padding:0 12px;flex-shrink:0">
-  <div class="tb-score-strip">
-    <div class="tb-team">
-      <div class="tb-team-name" id="tbAwayName">Away</div>
-      <div class="tb-team-score" id="tbAwayScore">0</div>
+  <div class="tb-main-row">
+    <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:22px;object-fit:contain;display:block;padding:0 10px;flex-shrink:0">
+    <div class="tb-score-strip" id="tbScoreStrip">
+      <div class="tb-team">
+        <div class="tb-team-name" id="tbAwayName">Away</div>
+        <div class="tb-team-score" id="tbAwayScore">0</div>
+      </div>
+      <div class="tb-center">
+        <div class="tb-period" id="tbPeriod">Q1</div>
+        <div class="tb-clock" id="tbClock">8:00</div>
+      </div>
+      <div class="tb-team">
+        <div class="tb-team-name" id="tbHomeName">Home</div>
+        <div class="tb-team-score" id="tbHomeScore">0</div>
+      </div>
     </div>
-    <div class="tb-center">
-      <div class="tb-period" id="tbPeriod">Q1</div>
-      <div class="tb-clock" id="tbClock">8:00</div>
-    </div>
-    <div class="tb-team">
-      <div class="tb-team-name" id="tbHomeName">Home</div>
-      <div class="tb-team-score" id="tbHomeScore">0</div>
+    <div class="tb-ws">
+      <div class="ws-dot" id="wsDot"></div>
+      <div class="ws-label" id="wsLabel">WS</div>
     </div>
   </div>
-  <div class="tb-ws">
-    <div class="ws-dot" id="wsDot"></div>
-    <div class="ws-label" id="wsLabel">WS</div>
+  <div class="tb-presets">
+    <button class="ep-btn" id="epBtnNova24"  onclick="setEventPreset('nova24')">★ NOVA 24</button>
+    <button class="ep-btn" id="epBtn3pt"     onclick="setEventPreset('3pt')">🎯 3PT</button>
+    <button class="ep-btn" id="epBtnDunk"    onclick="setEventPreset('dunk')">🏀 DUNK</button>
+    <button class="ep-btn" id="epBtnPvp"     onclick="setEventPreset('pvp')">⚡ PvP</button>
   </div>
-</div>
-
-
-<!-- EVENT PRESET BAR -->
-<div class="event-preset-bar">
-  <button class="ep-btn" id="epBtnNova24"  onclick="setEventPreset('nova24')">★ NOVA 24</button>
-  <button class="ep-btn" id="epBtn3pt"     onclick="setEventPreset('3pt')">🎯 3PT CONTEST</button>
-  <button class="ep-btn" id="epBtnDunk"    onclick="setEventPreset('dunk')">🏀 DUNK CONTEST</button>
-  <button class="ep-btn" id="epBtnPvp"     onclick="setEventPreset('pvp')">⚡ PvP</button>
 </div>
 
 <!-- ═══ GAME TAB ═══ -->
 <div class="tab-pane active" id="tabGame">
-  <!-- OVERLAY SHOW/HIDE -->
+  <!-- OVERLAY SHOW/HIDE + REPORT -->
   <div class="ov-row">
-    <button class="ov-btn show-btn" id="ovBtnShow" onclick="setOverlay(true)">▶ SHOW OVERLAY</button>
-    <button class="ov-btn hide-btn" id="ovBtnHide" onclick="setOverlay(false)">■ HIDE OVERLAY</button>
+    <button class="ov-btn show-btn" id="ovBtnShow" onclick="setOverlay(true)">▶ SHOW</button>
+    <button class="ov-btn hide-btn" id="ovBtnHide" onclick="setOverlay(false)">■ HIDE</button>
+    <button class="ov-btn" style="background:var(--blue);color:#fff;flex:0 0 auto;padding:0 14px;" onclick="printStatReport()">📊 REPORT</button>
   </div>
   <div class="game-top">
   <div class="main">
@@ -421,6 +428,8 @@ html, body {
           <div class="stats-team-hdr">
             <span id="statsAwayLabel">Away</span>
             <span class="stats-team-score" id="statsAwayScore">0</span>
+            <span class="starter-count" id="awayStarterCount">0/5</span>
+            <button class="starter-mode-btn" id="starterModeBtn" onclick="toggleStarterMode()">✦ STARTERS</button>
           </div>
           <div class="player-grid" id="awayPlayerGrid">
             <div class="no-roster">No roster loaded.<br>Load a roster in the producer first.</div>
@@ -430,6 +439,7 @@ html, body {
           <div class="stats-team-hdr">
             <span id="statsHomeLabel">Home</span>
             <span class="stats-team-score" id="statsHomeScore">0</span>
+            <span class="starter-count" id="homeStarterCount">0/5</span>
           </div>
           <div class="player-grid" id="homePlayerGrid">
             <div class="no-roster">No roster loaded.<br>Load a roster in the producer first.</div>
@@ -505,7 +515,7 @@ html, body {
     </div>
 
     <div class="tp-ctrl-row">
-      <button class="tp-ctrl-btn btn-tp-surf" onclick="tpResetShooter()">↺ Reset Balls</button>
+      <button class="tp-ctrl-btn btn-tp-surf" onclick="tpResetShooter()">↺ Reset</button>
       <button class="tp-ctrl-btn btn-tp-gold" onclick="tpNextShooter()">Next Shooter ▶</button>
     </div>
 
@@ -644,13 +654,14 @@ html, body {
 // GAME STATE
 // ═══════════════════════════════════
 const S = {
-  away: { name:'Away', code:'AWAY', score:0, fouls:0, timeouts:4, players:[] },
-  home: { name:'Home', code:'HOME', score:0, fouls:0, timeouts:4, players:[] },
+  away: { name:'Away', code:'AWAY', score:0, fouls:0, timeouts:4, players:[], starters:[] },
+  home: { name:'Home', code:'HOME', score:0, fouls:0, timeouts:4, players:[], starters:[] },
   clock: { secs:480, display:'8:00', running:false },
   period:1, totalPeriods:4, periods:4, periodLen:8,
 };
 const STATS = {};
 let _scoreModalTeam = null, _clockInterval = null, _detailTeam = null, _detailPid = null;
+let _starterMode = false;
 
 // ═══════════════════════════════════
 // TABS
@@ -661,6 +672,8 @@ function switchTab(name) {
   const cap = name.charAt(0).toUpperCase() + name.slice(1);
   document.getElementById('tab' + cap).classList.add('active');
   const _btn = document.getElementById('tabBtn' + cap); if (_btn) _btn.classList.add('active');
+  const hideScore = (name === 'threept' || name === 'dunk');
+  document.getElementById('tbScoreStrip').style.display = hideScore ? 'none' : '';
 }
 
 // ═══════════════════════════════════
@@ -711,6 +724,13 @@ function spotlightCurrentPlayer() {
   NSMTClient.send({type:'patch',bug:{spotlight:{active:true,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[_detailTeam].name,teamColor:S[_detailTeam].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
   toast('★ Spotlight: '+p.name);
 }
+function spotlightPlayer(team, pid, evt) {
+  if (evt) evt.stopPropagation();
+  const p = (S[team].players||[]).find(x=>x.id===pid); if(!p)return;
+  const st = STATS[pid]||{};
+  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[team].name,teamColor:S[team].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
+  toast('★ Spotlight: '+p.name);
+}
 
 // ═══════════════════════════════════
 // PLAYER STATS
@@ -725,6 +745,25 @@ function adjStat(pid, field, delta) {
   if(field==='ftm'&&s.ftm>s.fta)s.fta=s.ftm; if(field==='fta'&&s.fta<s.ftm)s.ftm=s.fta;
   s.pts=calcPts(s); if(_detailPid===pid)renderStatDetail(); pushStats(); saveState();
 }
+function toggleStarterMode() {
+  _starterMode = !_starterMode;
+  const btn = document.getElementById('starterModeBtn');
+  if (btn) btn.classList.toggle('active', _starterMode);
+  renderPlayerGrids();
+}
+function toggleStarter(team, pid, e) {
+  e.stopPropagation();
+  const idx = (S[team].starters||[]).indexOf(pid);
+  if (!S[team].starters) S[team].starters = [];
+  if (idx >= 0) {
+    S[team].starters.splice(idx, 1);
+  } else if (S[team].starters.length < 5) {
+    S[team].starters.push(pid);
+  } else {
+    toast('Already have 5 starters');
+  }
+  renderPlayerGrids();
+}
 function renderPlayerGrids() {
   ['away','home'].forEach(team => {
     const grid=document.getElementById(team+'PlayerGrid');
@@ -734,10 +773,19 @@ function renderPlayerGrids() {
       const st=STATS[p.id]||{},pts=calcPts(st),pf=st.pf||0;
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
       const pips=[1,2,3,4,5].map(n=>`<div class="pbtn-pip${n<=pf?' on':''}"></div>`).join('');
-      return `<button class="pbtn${cls}" onclick="openStatDetail('${team}','${p.id}')"><div class="pbtn-num">${p.num||'?'}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
+      const isStarter = (S[team].starters||[]).includes(p.id);
+      const starterBadge = isStarter ? `<div class="pbtn-starter-badge">S</div>` : '';
+      const starterCls = isStarter ? ' starter' : '';
+      const clickHandler = _starterMode
+        ? `toggleStarter('${team}','${p.id}',event)`
+        : `openStatDetail('${team}','${p.id}')`;
+      const spotlightBtn = !_starterMode ? `<button class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</button>` : '';
+      return `<button class="pbtn${cls}${starterCls}" onclick="${clickHandler}">${spotlightBtn}${starterBadge}<div class="pbtn-num">${p.num||'?'}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
     document.getElementById('stats'+(team==='away'?'Away':'Home')+'Label').textContent=S[team].name;
     document.getElementById('stats'+(team==='away'?'Away':'Home')+'Score').textContent=S[team].score;
+    const sc = document.getElementById(team+'StarterCount');
+    if (sc) sc.textContent = (S[team].starters||[]).length + '/5';
   });
 }
 function openStatDetail(team,pid) { _detailTeam=team;_detailPid=pid; document.getElementById('statDetail').classList.remove('hidden'); renderStatDetail(); }
@@ -755,6 +803,38 @@ function pushStats() {
   const toStatObj=team=>({name:S[team].name,fouls:S[team].fouls||0,players:(S[team].players||[]).map(p=>{const st=STATS[p.id]||{};return{id:p.id||'',num:p.num||'',name:p.name||'',photo:p.photo||'',fgm:st.fgm||0,fga:st.fga||0,t3m:st.t3m||0,t3a:st.t3a||0,ftm:st.ftm||0,fta:st.fta||0,off:st.off||0,def:st.def||0,ast:st.ast||0,stl:st.stl||0,blk:st.blk||0,to:st.to||0,pf:st.pf||0,pts:calcPts(st)};})});
   NSMTClient.send({type:'patch',stats:{away:toStatObj('away'),home:toStatObj('home')}});
 }
+function printStatReport() {
+  const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  const mkTable = team => {
+    const players = (S[team].players||[]).filter(p=>p.name);
+    if (!players.length) return '<p style="color:#999;font-size:12px">No roster loaded</p>';
+    const rows = players.map(p => {
+      const st = STATS[p.id]||{};
+      const pts = calcPts(st), reb=(st.off||0)+(st.def||0);
+      return `<tr><td>${p.num||''}</td><td style="text-align:left">${p.name}</td><td>${pts}</td><td>${st.fgm||0}-${st.fga||0}</td><td>${st.t3m||0}-${st.t3a||0}</td><td>${st.ftm||0}-${st.fta||0}</td><td>${reb}</td><td>${st.ast||0}</td><td>${st.stl||0}</td><td>${st.blk||0}</td><td>${st.to||0}</td><td>${st.pf||0}</td></tr>`;
+    }).join('');
+    const tot = players.reduce((a,p)=>{const st=STATS[p.id]||{};a.pts+=calcPts(st);a.fgm+=st.fgm||0;a.fga+=st.fga||0;a.t3m+=st.t3m||0;a.t3a+=st.t3a||0;a.ftm+=st.ftm||0;a.fta+=st.fta||0;a.reb+=(st.off||0)+(st.def||0);a.ast+=st.ast||0;a.stl+=st.stl||0;a.blk+=st.blk||0;a.to+=st.to||0;a.pf+=st.pf||0;return a;},{pts:0,fgm:0,fga:0,t3m:0,t3a:0,ftm:0,fta:0,reb:0,ast:0,stl:0,blk:0,to:0,pf:0});
+    return `<table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:#111;color:#F5C518;font-size:10px;text-transform:uppercase">
+        <th>#</th><th style="text-align:left">Player</th><th>PTS</th><th>FG</th><th>3P</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr style="font-weight:900;border-top:2px solid #333;background:#0a0a0a">
+        <td></td><td style="text-align:left">TOTALS</td><td>${tot.pts}</td><td>${tot.fgm}-${tot.fga}</td><td>${tot.t3m}-${tot.t3a}</td><td>${tot.ftm}-${tot.fta}</td><td>${tot.reb}</td><td>${tot.ast}</td><td>${tot.stl}</td><td>${tot.blk}</td><td>${tot.to}</td><td>${tot.pf}</td>
+      </tr></tfoot></table>`;
+  };
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Stats Report</title>
+  <style>body{background:#000;color:#fff;font-family:-apple-system,Helvetica,Arial,sans-serif;padding:20px;margin:0}h1{color:#0E80FC;font-size:20px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px}.meta{color:#666;font-size:11px;margin-bottom:20px}h2{font-size:14px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin:18px 0 8px}.score-line{font-size:28px;font-weight:900;margin-bottom:6px}table td,table th{padding:5px 8px;border-bottom:1px solid #1a1a1a;text-align:center;white-space:nowrap}@media print{body{background:#fff;color:#000}h1{color:#0E80FC}table td,table th{border-bottom:1px solid #ddd}}</style></head>
+  <body><h1>NSMT — Stat Report</h1><div class="meta">Generated ${now}</div>
+  <div class="score-line">${S.away.name} <span style="color:#F5C518">${S.away.score}</span> &nbsp;—&nbsp; <span style="color:#F5C518">${S.home.score}</span> ${S.home.name}</div>
+  <h2>${S.away.name}</h2>${mkTable('away')}
+  <h2>${S.home.name}</h2>${mkTable('home')}
+  <script>window.onload=()=>window.print()<\/script></body></html>`;
+  const w = window.open('','_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+  else toast('Allow popups to print report');
+}
+
 function loadRosterFromServer(statsState) {
   if(!statsState)return;
   ['away','home'].forEach(team=>{
@@ -980,6 +1060,7 @@ const DK_DUNKERS = [
   DK_DUNKERS.forEach(d=>{const o=document.createElement('option');o.value=d.name;o.textContent=d.name;sel.appendChild(o);});
 })();
 
+const JUDGE_NAMES = ['Keith Honore', 'Sherman Rivers', 'Tony Bently', 'Coach 4', 'Coach 5'];
 let DK = { show:false, dunker:'', dunkerPhoto:'', dunkerSchool:'', dunkerIg:'', round:1, attempt:1, scores:[null,null,null,null,null], revealed:[false,false,false,false,false] };
 const DK_HISTORY = {}; // keyed by dunker name → { scores, revealed }
 
@@ -1008,12 +1089,12 @@ function dkRenderJudges() {
     const cellCls='dk-judge-cell'+(isRevealed?' revealed':hasScore?' submitted':'');
     const btnCls='dk-reveal-btn'+(isRevealed?' done':hasScore?' ready':'');
     const btnTxt=isRevealed?'✓ Rev':hasScore?'▶ Rev':'Wait';
-    const scoreBtns=Array.from({length:10},(_,k)=>{
-      const v=k+1;
+    const scoreBtns=Array.from({length:5},(_,k)=>{
+      const v=k+6;
       const active=score===v?' active':'';
       return `<button class="dk-score-pick${active}" onclick="dkSetJudgeScore(${i},${v})">${v}</button>`;
     }).join('');
-    return `<div class="${cellCls}"><div class="dk-judge-lbl">J${i+1}</div><div class="dk-judge-score">${hasScore?score:'—'}</div><div class="dk-score-pick-row">${scoreBtns}</div><button class="${btnCls}" onclick="dkRevealJudge(${i})" ${!hasScore&&!isRevealed?'disabled':''}>${btnTxt}</button></div>`;
+    return `<div class="${cellCls}"><div class="dk-judge-lbl">${JUDGE_NAMES[i]||'J'+(i+1)}</div><div class="dk-judge-score">${hasScore?score:'—'}</div><div class="dk-score-pick-row">${scoreBtns}</div><button class="${btnCls}" onclick="dkRevealJudge(${i})" ${!hasScore&&!isRevealed?'disabled':''}>${btnTxt}</button></div>`;
   }).join('');
   const rev=DK.scores.filter((s,i)=>DK.revealed[i]&&s!=null);
   document.getElementById('dk-totalVal').textContent=rev.length?rev.reduce((a,b)=>a+b,0):'—';
@@ -1126,13 +1207,80 @@ dkRenderJudges();
 // EVENT PRESETS
 // ═══════════════════════════════════
 let _activePreset = null;
+const _ROSTERS = {
+  nova24: {
+    away: { name:'Team Lin', code:'LIN', players:[
+      {id:'p_N24_Will_Robinson',   num:'', name:'Will Robinson',   pos:'W'},
+      {id:'p_N24_Adam_Perdue',     num:'', name:'Adam Perdue',     pos:'G'},
+      {id:'p_N24_Landon_Judy',     num:'', name:'Landon Judy',     pos:'W'},
+      {id:'p_N24_Max_Lawson',      num:'', name:'Max Lawson',      pos:'G'},
+      {id:'p_N24_Shreyas_Vaidya',  num:'', name:'Shreyas Vaidya',  pos:'W'},
+      {id:'p_N24_Charlie_Boone',   num:'', name:'Charlie Boone',   pos:'G'},
+      {id:'p_N24_Medwyn_Opoku',    num:'', name:'Medwyn Opoku',    pos:'W'},
+      {id:'p_N24_Nathan_Pewett',   num:'', name:'Nathan Pewett',   pos:'G'},
+      {id:'p_N24_Mason_Ogburn',    num:'', name:'Mason Ogburn',    pos:'G'},
+      {id:'p_N24_Kaci_Jones-Carr', num:'', name:'Kaci Jones-Carr', pos:'G'},
+      {id:'p_N24_Makhai_Ramos',    num:'', name:'Makhai Ramos',    pos:'G'},
+      {id:'p_N24_Will_Davis',      num:'', name:'Will Davis',      pos:'W'},
+    ]},
+    home: { name:'Team Rivers', code:'RIV', players:[
+      {id:'p_N24_Brian_Burns',      num:'', name:'Brian Burns',      pos:'F'},
+      {id:'p_N24_Noah_Conrad',      num:'', name:'Noah Conrad',      pos:'W'},
+      {id:'p_N24_Colin_Stemberger', num:'', name:'Colin Stemberger', pos:'G'},
+      {id:'p_N24_Denari_Nesbitt',   num:'', name:'Denari Nesbitt',   pos:'G'},
+      {id:'p_N24_Jacob_Bell',       num:'', name:'Jacob Bell',       pos:'W'},
+      {id:'p_N24_Isaac_Heaton',     num:'', name:'Isaac Heaton',     pos:'G'},
+      {id:'p_N24_Barrett_Medhurst', num:'', name:'Barrett Medhurst', pos:'F'},
+      {id:'p_N24_Devon_Pettibone',  num:'', name:'Devon Pettibone',  pos:'G'},
+      {id:'p_N24_Antonio_Jones',    num:'', name:'Antonio Jones',    pos:'G'},
+      {id:'p_N24_Caleb_Roach',      num:'', name:'Caleb Roach',      pos:'G'},
+      {id:'p_N24_Ty_Wilkerson',     num:'', name:'Ty Wilkerson',     pos:'G'},
+      {id:'p_N24_Mikey_Robinson',   num:'', name:'Mikey Robinson',   pos:'W'},
+    ]}
+  },
+  pvp: {
+    away: { name:'Team Public', code:'PUB', players:[
+      {id:'p_PVP_Ryan_Brzezanski',     num:'', name:'Ryan Brzezanski',     pos:'WF'},
+      {id:'p_PVP_Ryan_Corallo',        num:'', name:'Ryan Corallo',        pos:'G'},
+      {id:'p_PVP_Elijah_Gaskins',      num:'', name:'Elijah Gaskins',      pos:'G'},
+      {id:'p_PVP_Johnathan_Anderson',  num:'', name:'Johnathan Anderson',  pos:'G'},
+      {id:'p_PVP_Sean_Madrigal',       num:'', name:'Sean Madrigal',       pos:'W'},
+      {id:'p_PVP_Jemon_Price',         num:'', name:'Jemon Price',         pos:'G'},
+      {id:'p_PVP_Colin_Spencer_Byrd',  num:'', name:'Colin Spencer Byrd',  pos:'G'},
+      {id:'p_PVP_Dominic_Julian_Mack', num:'', name:'Dominic Julian Mack', pos:'W'},
+      {id:'p_PVP_Ethan_Jeremiah_Poole',num:'', name:'Ethan Jeremiah Poole',pos:'G'},
+      {id:'p_PVP_Rodney_Carmichael',   num:'', name:'Rodney Carmichael',   pos:'W'},
+      {id:'p_PVP_Nate_McComb',         num:'', name:'Nate McComb',         pos:'F'},
+      {id:'p_PVP_Jacob_Coulam',        num:'', name:'Jacob Coulam',        pos:'G'},
+      {id:'p_PVP_Isaiah_Brown',        num:'', name:'Isaiah Brown',        pos:'G'},
+    ]},
+    home: { name:'Team Private', code:'PVT', players:[
+      {id:'p_PVP_Darius_Bivins',   num:'', name:'Darius Bivins',   pos:'G'},
+      {id:'p_PVP_Akim_Iscandari',  num:'', name:'Akim Iscandari',  pos:'G'},
+      {id:'p_PVP_Marcus_Hancock',  num:'', name:'Marcus Hancock',  pos:'G'},
+      {id:'p_PVP_Messiah_Dixon',   num:'', name:'Messiah Dixon',   pos:'G'},
+      {id:'p_PVP_RJ_Jones',        num:'', name:'RJ Jones',        pos:'G'},
+      {id:'p_PVP_Jafet_Valencia',  num:'', name:'Jafet Valencia',  pos:'W'},
+      {id:'p_PVP_Frank_Siaca_Bey', num:'', name:'Frank Siaca Bey', pos:'F'},
+      {id:'p_PVP_Jake_Bahr',       num:'', name:'Jake Bahr',       pos:'G'},
+      {id:'p_PVP_Silas_Devonish',  num:'', name:'Silas Devonish',  pos:'G'},
+      {id:'p_PVP_Ripp_Kodi',       num:'', name:'Ripp Kodi',       pos:'WF'},
+      {id:'p_PVP_Justin_Edwards',  num:'', name:'Justin Edwards',  pos:'W'},
+      {id:'p_PVP_Jahda_Swann',     num:'', name:'Jahda Swann',     pos:'W'},
+      {id:'p_PVP_Cole_Forbrich',   num:'', name:'Cole Forbrich',   pos:'G'},
+    ]}
+  }
+};
+
 function setEventPreset(preset) {
   _activePreset = preset;
   document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
   const map = { nova24:'epBtnNova24', dunk:'epBtnDunk', '3pt':'epBtn3pt', pvp:'epBtnPvp' };
   if (map[preset]) document.getElementById(map[preset]).classList.add('active');
   if (preset === 'nova24') {
-    NSMTClient.send({ type:'patch', bug:{ awayName:'Team Lin', awayCode:'LIN', homeName:'Team Rivers', homeCode:'RIV', allStarEvent:'nova24' } });
+    const r = _ROSTERS.nova24;
+    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, allStarEvent:'nova24' } });
+    NSMTClient.send({ type:'patch', stats:{ away:{ name:r.away.name, players:r.away.players }, home:{ name:r.home.name, players:r.home.players } } });
     switchTab('game');
   } else if (preset === 'dunk') {
     NSMTClient.send({ type:'patch', bug:{ allStarEvent:'dunk' } });
@@ -1141,7 +1289,9 @@ function setEventPreset(preset) {
     NSMTClient.send({ type:'patch', bug:{ allStarEvent:'3pt' } });
     switchTab('threept');
   } else if (preset === 'pvp') {
-    NSMTClient.send({ type:'patch', bug:{ awayName:'Team Public', awayCode:'PUB', homeName:'Team Private', homeCode:'PVT', allStarEvent:'pvp' } });
+    const r = _ROSTERS.pvp;
+    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, allStarEvent:'pvp' } });
+    NSMTClient.send({ type:'patch', stats:{ away:{ name:r.away.name, players:r.away.players }, home:{ name:r.home.name, players:r.home.players } } });
     switchTab('game');
   }
   toast('Event: ' + preset.toUpperCase());
