@@ -12,7 +12,7 @@
 - [ ] Open Producer → **Rosters** tab → assign photos to players (📷 button next to each player)
 - [ ] Verify rosters are complete (correct numbers, names, spelling)
 - [ ] Double-click `Start NSMT.command` at home — confirm server starts and producer opens
-- [ ] Open `http://localhost:8000/nsmt_fox_overlay_ws.html` in a browser — confirm scorebug loads
+- [ ] Open `http://mbp.local:8000/nsmt_hoopfest_overlay.html` in a browser — confirm scorebug loads
 - [ ] Close server when done testing
 - [ ] Charge MBP fully
 - [ ] Charge all iPad/tablet devices that will be used
@@ -36,18 +36,18 @@
 ### 3. OBS — Add Browser Sources
 1. Open OBS
 2. In your main game scene, add a **Browser Source**:
-   - URL: `http://localhost:8000/nsmt_fox_overlay_ws.html`
+   - URL: `http://mbp.local:8000/nsmt_hoopfest_overlay.html`
    - Width: `1920` Height: `1080`
    - Transparent background: ✓ checked
    - Shutdown when not visible: ✗ OFF
    - Refresh on scene activation: ✗ OFF
 3. Confirm the scorebug appears in OBS preview (even if just placeholder data)
 4. **If this is a 3-Point Contest event:** add a second Browser Source
-   - URL: `http://localhost:8000/3pt-overlay.html`
+   - URL: `http://mbp.local:8000/3pt-overlay.html`
    - Same 1920×1080 transparent settings
    - Add it to your 3PT scene (not the main game scene)
 5. **If this is a Dunk Contest event:** add a third Browser Source
-   - URL: `http://localhost:8000/dunk-overlay.html`
+   - URL: `http://mbp.local:8000/dunk-overlay.html`
    - Same settings
    - Add it to your Dunk scene
 

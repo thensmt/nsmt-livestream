@@ -11,21 +11,21 @@
 ### Always-on (every event)
 | What | URL | Device |
 |------|-----|--------|
-| Producer control panel | `http://localhost:8000/nsmt-producer.html` | MBP only |
-| OBS scorebug overlay | `http://localhost:8000/nsmt_fox_overlay_ws.html` | OBS Browser Source |
+| Producer control panel | `http://mbp.local:8000/nsmt-producer.html` | MBP only |
+| OBS scorebug overlay | `http://mbp.local:8000/nsmt_hoopfest_overlay.html` | OBS Browser Source |
 | **iPad unified controller** | `http://MBP.local:8000/ipad-control/` | Primary device |
 
 ### 3-Point Contest
 | What | URL | Device |
 |------|-----|--------|
-| OBS overlay (add as 2nd Browser Source) | `http://localhost:8000/3pt-overlay.html` | OBS Browser Source |
+| OBS overlay (add as 2nd Browser Source) | `http://mbp.local:8000/3pt-overlay.html` | OBS Browser Source |
 | Court 1 scorer | `http://MBP.local:8000/ipad-control/` → 3PT tab | Primary device |
 | **Court 2 scorer** | `http://MBP.local:8000/ipad-control/?court=2` | **Second device only** |
 
 ### Dunk Contest
 | What | URL | Device |
 |------|-----|--------|
-| OBS overlay (add as 2nd Browser Source) | `http://localhost:8000/dunk-overlay.html` | OBS Browser Source |
+| OBS overlay (add as 2nd Browser Source) | `http://mbp.local:8000/dunk-overlay.html` | OBS Browser Source |
 | Head table control | `http://MBP.local:8000/ipad-control/` → Dunk tab | Primary device |
 | Judge 1 | `http://MBP.local:8000/ipad-control/?judge=1` | Any device |
 | Judge 2 | `http://MBP.local:8000/ipad-control/?judge=2` | Any device |
@@ -78,7 +78,7 @@ Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-cont
 
 ### Scorebug (all games)
 1. Add a **Browser Source** in OBS
-2. URL: `http://localhost:8000/nsmt_fox_overlay_ws.html`
+2. URL: `http://mbp.local:8000/nsmt_hoopfest_overlay.html`
 3. Width: `1920` Height: `1080`
 4. Check **"Shutdown source when not visible"** — OFF
 5. Check **"Refresh browser when scene becomes active"** — OFF
@@ -86,12 +86,12 @@ Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-cont
 7. Enable **transparent background**
 
 ### 3-Point Contest overlay
-- Add a **second Browser Source**: `http://localhost:8000/3pt-overlay.html`
+- Add a **second Browser Source**: `http://mbp.local:8000/3pt-overlay.html`
 - Same 1920×1080 settings as above
 - Keep it in your 3PT scene; hide it for regular game scenes
 
 ### Dunk Contest overlay
-- Add a **third Browser Source**: `http://localhost:8000/dunk-overlay.html`
+- Add a **third Browser Source**: `http://mbp.local:8000/dunk-overlay.html`
 - Same 1920×1080 settings
 - Keep it in your dunk scene
 
@@ -245,7 +245,7 @@ The event type also affects the accent color on the intro card:
 ## 3-POINT CONTEST
 
 ### Setup (add Browser Source before contest starts)
-1. In OBS, add a Browser Source: `http://localhost:8000/3pt-overlay.html`
+1. In OBS, add a Browser Source: `http://mbp.local:8000/3pt-overlay.html`
 2. Switch to your 3PT scene in OBS
 
 ### Round 1 (2 courts shooting simultaneously)
@@ -289,7 +289,7 @@ The event type also affects the accent color on the intro card:
 ## DUNK CONTEST
 
 ### Setup
-1. In OBS, add a Browser Source: `http://localhost:8000/dunk-overlay.html`
+1. In OBS, add a Browser Source: `http://mbp.local:8000/dunk-overlay.html`
 2. Switch to your dunk scene in OBS
 3. On the primary device: tap the **✊ Dunk** tab — this is the head table control
 4. Each judge opens their page on their own device:

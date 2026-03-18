@@ -17,8 +17,8 @@ echo "========================================="
 echo "  NSMT Livestream Server"
 echo ""
 echo "  MBP (this machine):"
-echo "  Producer : http://localhost:8000/nsmt-producer.html"
-echo "  Overlay  : http://localhost:8000/nsmt_fox_overlay_ws.html"
+echo "  Producer : http://mbp.local:8000/nsmt-producer.html"
+echo "  Overlay  : http://mbp.local:8000/nsmt_hoopfest_overlay.html"
 echo ""
 echo "  iPad (use either URL):"
 echo "  Game Ctrl: http://${BONJOUR}:8000/ipad-control/"
@@ -29,7 +29,7 @@ echo "========================================="
 echo ""
 
 # Open producer in browser after a short delay
-(sleep 2 && open "http://localhost:8000/nsmt-producer.html") &
+(sleep 2 && open "http://mbp.local:8000/nsmt-producer.html") &
 
 # Start server (keeps this window open with logs)
 python3 nsmt-server.py

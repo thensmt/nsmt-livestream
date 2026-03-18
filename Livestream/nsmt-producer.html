@@ -1599,6 +1599,7 @@ window.loadRosterForTeam = function(team, ridOverride) {
   const sel = id(team + 'RosterSelect');
   if (sel) sel.value = rid;
   renderStatsTab();
+  pushStats();
   toast(r.name + ' loaded for ' + cap(team));
 };
 

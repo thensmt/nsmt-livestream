@@ -28,8 +28,8 @@ node nsmt-server-node.js
 ### URLs
 | Interface | URL |
 |-----------|-----|
-| Producer (MBP) | `http://localhost:8000/nsmt-producer.html` |
-| OBS Browser Source | `http://localhost:8000/nsmt_fox_overlay_ws.html` |
+| Producer (MBP) | `http://mbp.local:8000/nsmt-producer.html` |
+| OBS Browser Source | `http://mbp.local:8000/nsmt_hoopfest_overlay.html` |
 | **iPad Game Controller** | `http://MBP.local:8000/ipad-control/` |
 | iPad stat tracker | `http://MBP.local:8000/nsmt-stats.html` |
 
@@ -38,7 +38,7 @@ The iPad controller (`ipad-control/`) is a combined page with two tabs:
 - **STATS tab** — player stat entry (tap player → stat detail panel)
 
 ### OBS Setup
-- Browser Source: `http://localhost:8000/nsmt_fox_overlay_ws.html`
+- Browser Source: `http://mbp.local:8000/nsmt_hoopfest_overlay.html`
 - Size: 1920×1080, transparent background checked
 - If changes don't appear: right-click source → Refresh Cache
 
@@ -77,7 +77,7 @@ MBP (nsmt-producer.html) ───┘
 | `nsmt-producer.html` | Producer control panel (MBP) |
 | `ipad-control/index.html` | **iPad primary controller** — GAME + STATS tabs combined |
 | `nsmt-stats.html` | Legacy iPad stat tracker (PWA, Firebase sync) |
-| `nsmt_fox_overlay_ws.html` | OBS scorebug overlay (FOX-style, 1920×1080) |
+| `nsmt_hoopfest_overlay.html` | OBS scorebug overlay (FOX-style, 1920×1080) |
 | `Start NSMT.command` | macOS launcher |
 | `uploads/` | Team logos + player photos served by `/list-logos` |
 | `uploads/players/<Name>/` | Per-player photo folders — drop any image in, server finds it |
