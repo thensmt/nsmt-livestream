@@ -136,7 +136,7 @@ html, body {
 /* Compact player cards for game tab */
 #tabGame .pbtn { min-height: 72px; padding: 7px 6px; gap: 1px; }
 #tabGame .pbtn-num { font-size: 26px; }
-#tabGame .pbtn-name { font-size: 12px; }
+#tabGame .pbtn-name { font-size: 11px; }
 #tabGame .pbtn-pts { font-size: 10px; }
 #tabGame .pbtn-pip { width: 7px; height: 7px; }
 #tabGame .pbtn-spotlight { width: 22px; height: 22px; font-size: 11px; top: 3px; left: 3px; }
@@ -221,7 +221,7 @@ html, body {
 .team-split-col { overflow-y:auto; border-right:1px solid var(--border); padding:6px; }
 .team-split-col:last-child { border-right:none; }
 .team-split-label { font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
-.player-col-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+.player-col-grid { display:flex; flex-direction:column; gap:4px; }
 .evt-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; padding:8px; }
 .evt-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:10px 4px; cursor:pointer; gap:3px; transition:all .08s; }
 .evt-btn:active { background:var(--surf3); transform:scale(.94); }
@@ -518,7 +518,7 @@ html, body {
   <div class="game-bottom">
     <div class="stats-pane">
       <div class="live-tabs" id="liveTabBar">
-        <button class="ltab active" onclick="setLiveTab(0)">LOG</button>
+        <button class="ltab active" onclick="setLiveTab(0)">STATS</button>
         <button class="ltab" onclick="setLiveTab(1)">BOX</button>
         <button class="ltab" onclick="setLiveTab(2)">LEADERS</button>
         <button class="ltab" onclick="setLiveTab(3)">TEAM</button>
@@ -981,7 +981,7 @@ function renderPlayerSelect() {
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
       const pips=[1,2,3,4,5].map(n=>`<div class="pbtn-pip${n<=pf?' on':''}"></div>`).join('');
       const spot=`<button class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</button>`;
-      return `<button class="pbtn${cls}" onclick="flowSelectPlayer('${team}','${p.id}')">${spot}<div class="pbtn-num">${p.num||''}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
+      return `<button class="pbtn${cls}" onclick="flowSelectPlayer('${team}','${p.id}')">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
     return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="player-col-grid">${btns}</div></div>`;
   }).join('') + '</div>';
