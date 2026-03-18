@@ -184,7 +184,22 @@ textarea{resize:vertical;min-height:80px}
    TAB 3: BROADCAST (main control)
 ══════════════════════════════════════ */
 #tab-broadcast.active{gap:0;flex-direction:column}
-.broadcast-layout{display:grid;grid-template-columns:300px 1fr 220px;flex:2;min-height:0;overflow:hidden;border-bottom:2px solid var(--border)}
+.score-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:5px 12px;background:var(--surf2);border-bottom:2px solid var(--border);flex-shrink:0;gap:10px}
+.sb-side{display:flex;align-items:center;gap:6px}
+.sb-side.right{justify-content:flex-end}
+.sb-score-val{font-family:'Bebas Neue',cursive;font-size:48px;line-height:1;color:#fff;letter-spacing:-1px;cursor:pointer;transition:color .15s}
+.sb-score-val:hover{color:var(--gold)}
+.sb-team-meta{display:flex;flex-direction:column;gap:1px}
+.sb-meta-code{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.sb-meta-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--text);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-btns-block{display:flex;flex-direction:column;gap:3px}
+.sb-btns-row{display:flex;gap:2px}
+.sb-to-row{display:flex;align-items:center;gap:4px}
+.sb-center{display:flex;flex-direction:column;align-items:center;gap:3px}
+.sb-clock-row{display:flex;align-items:center;gap:5px}
+.sb-ctrl-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center}
+.broadcast-layout{display:grid;grid-template-columns:260px 1fr 220px;flex:1;min-height:0;overflow:hidden}
+.bc-stats-center{display:flex;flex-direction:column;overflow:hidden;min-height:0;border-right:1px solid var(--border)}
 .stats-section{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden;min-height:0}
 .stats-team-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
 .stats-team-col:last-child{border-right:none}
@@ -656,6 +671,79 @@ textarea{resize:vertical;min-height:80px}
   TAB 3: BROADCAST
 ══════════════════════════════════════ -->
 <div class="tab-pane" id="tab-broadcast">
+
+  <!-- COMPACT SCORE BAR -->
+  <div class="score-bar">
+    <!-- AWAY SIDE -->
+    <div class="sb-side">
+      <div class="sb-team-meta">
+        <span class="sb-meta-code" id="sdAwayCode">AWAY</span>
+        <span class="sb-meta-name" id="sdAwayName">Away</span>
+      </div>
+      <div class="sb-score-val" id="sdAwayScore" onclick="openOverride('away')" title="Click to override">0</div>
+      <div class="sb-btns-block">
+        <div class="sb-btns-row">
+          <button class="sc-btn" onclick="adjScore('away',3)">+3</button>
+          <button class="sc-btn" onclick="adjScore('away',2)">+2</button>
+          <button class="sc-btn" onclick="adjScore('away',1)">+1</button>
+          <button class="sc-btn minus" onclick="adjScore('away',-1)">-1</button>
+        </div>
+        <div class="sb-to-row">
+          <div class="to-dots" id="toDotsAway"></div>
+          <button class="btn btn-surf btn-sm" onclick="callTimeout('away')" style="font-size:9px;padding:2px 6px">TO ▸</button>
+          <span id="toLabelAway" style="display:none">AWAY</span>
+          <div class="foul-pips-row" id="awayFoulPips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Clock + Period + Controls -->
+    <div class="sb-center">
+      <div class="sb-clock-row">
+        <span class="gc-period" id="swPeriod">Q1</span>
+        <div class="clock-face" id="clockFace" onclick="openClockEdit()" style="font-size:40px;padding:2px 10px;margin:0">8:00</div>
+        <button class="ck-btn start" onclick="clockStart()" style="padding:4px 9px;font-size:12px">▶</button>
+        <button class="ck-btn pause" onclick="clockPause()" style="padding:4px 9px;font-size:12px">⏸</button>
+        <button class="ck-btn reset" onclick="clockReset()" style="padding:4px 9px;font-size:12px">↺</button>
+        <input class="ck-input" id="ckSetInput" placeholder="8:00" style="width:52px;font-size:11px;padding:3px 6px">
+        <button class="ck-set-btn" onclick="clockSetManual()" style="padding:3px 8px;font-size:10px">Set</button>
+      </div>
+      <div class="sb-ctrl-row">
+        <div class="period-pills" id="periodPills"></div>
+        <button class="btn btn-surf btn-sm" onclick="addOT()" style="font-size:9px;padding:2px 5px">+OT</button>
+        <button class="btn btn-gold btn-sm" onclick="endPeriod()" style="font-size:9px;padding:2px 5px">End ▸</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetTimeouts()" style="font-size:9px;padding:2px 5px">Reset TOs</button>
+        <span id="bcPushStatus" style="font-size:9px;color:var(--muted)">Not synced</span>
+        <span id="clockSyncBadge" style="font-size:9px;color:var(--muted);margin-left:2px">—</span>
+        <span class="sw-event" id="swEvent" style="font-size:9px;color:var(--muted);margin-left:4px">NSMT BASKETBALL</span>
+      </div>
+    </div>
+
+    <!-- HOME SIDE -->
+    <div class="sb-side right">
+      <div class="sb-btns-block">
+        <div class="sb-btns-row">
+          <button class="sc-btn minus" onclick="adjScore('home',-1)">-1</button>
+          <button class="sc-btn" onclick="adjScore('home',1)">+1</button>
+          <button class="sc-btn" onclick="adjScore('home',2)">+2</button>
+          <button class="sc-btn" onclick="adjScore('home',3)">+3</button>
+        </div>
+        <div class="sb-to-row" style="justify-content:flex-end">
+          <div class="foul-pips-row" id="homeFoulPips"></div>
+          <button class="btn btn-surf btn-sm" onclick="callTimeout('home')" style="font-size:9px;padding:2px 6px">◂ TO</button>
+          <span id="toLabelHome" style="display:none">HOME</span>
+          <div class="to-dots" id="toDotsHome"></div>
+        </div>
+      </div>
+      <div class="sb-score-val" id="sdHomeScore" onclick="openOverride('home')" title="Click to override">0</div>
+      <div class="sb-team-meta" style="align-items:flex-end">
+        <span class="sb-meta-code" id="sdHomeCode">HOME</span>
+        <span class="sb-meta-name" id="sdHomeName">Home</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN 3-COLUMN LAYOUT -->
   <div class="broadcast-layout">
 
     <!-- LEFT COL: Broadcast Actions -->
@@ -736,97 +824,41 @@ textarea{resize:vertical;min-height:80px}
       </div>
     </div>
 
-    <!-- CENTER COL: Score + Clock + Period + Timeouts -->
-    <div class="bc-col">
-      <div class="bc-col-hdr">
-        <span class="bc-col-title">Score & Clock</span>
-        <span id="bcPushStatus" style="font-size:9px;color:var(--muted)">Not synced</span>
+    <!-- CENTER COL: Live Stats (primary) -->
+    <div class="bc-stats-center">
+      <!-- Spotlight bar -->
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#fbbf24">★ PLAYER SPOTLIGHT</span>
+        <span style="font-size:9px;color:var(--muted);flex:1">Click ★ on any player card below to spotlight them on the overlay. Auto-fires at 10, 15, 20, 25, 30 pts.</span>
+        <button class="btn btn-ghost btn-xs" onclick="dismissSpotlight()">✕ Dismiss</button>
       </div>
-      <div class="bc-col-body" style="padding:8px 10px;display:flex;flex-direction:column;gap:0;overflow-y:auto;align-items:center">
-        <div class="game-card" style="width:100%;max-width:560px">
-
-          <!-- Event row -->
-          <div class="gc-event-row">
-            <div class="sw-event" id="swEvent">NSMT BASKETBALL</div>
-            <span id="clockSyncBadge" style="font-size:9px;color:var(--muted)">—</span>
+      <!-- Live stats section -->
+      <div class="stats-section">
+        <div class="stats-team-col">
+          <div class="stats-team-hdr">
+            <span id="statsAwayHdr">AWAY — LIVE STATS</span>
+            <span id="statsAwaySelLabel" style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--gold)"></span>
+            <select id="statsAwayRosterPick" style="margin-left:auto;font-size:10px;padding:2px 4px;height:22px;width:120px" onchange="loadRosterForTeam('away',this.value)">
+              <option value="">— roster —</option>
+            </select>
           </div>
-
-          <!-- Main score + clock row -->
-          <div class="gc-main">
-            <!-- Away team -->
-            <div class="gc-team">
-              <div class="gc-code" id="sdAwayCode">AWAY</div>
-              <div class="gc-name" id="sdAwayName">Away</div>
-              <div class="sd-score" id="sdAwayScore" onclick="openOverride('away')" title="Click to override">0</div>
-              <div class="score-btns">
-                <button class="sc-btn" onclick="adjScore('away',3)">+3</button>
-                <button class="sc-btn" onclick="adjScore('away',2)">+2</button>
-                <button class="sc-btn" onclick="adjScore('away',1)">+1</button>
-                <button class="sc-btn minus" onclick="adjScore('away',-1)">-1</button>
-              </div>
-            </div>
-
-            <!-- Center: period + clock -->
-            <div class="gc-center">
-              <div class="gc-period" id="swPeriod">Q1</div>
-              <div class="clock-face" id="clockFace" onclick="openClockEdit()" style="font-size:52px;padding:4px 14px;margin:0">8:00</div>
-              <div class="clock-btns" style="gap:5px;margin:0">
-                <button class="ck-btn start" onclick="clockStart()" style="padding:6px 12px;font-size:13px">▶</button>
-                <button class="ck-btn pause" onclick="clockPause()" style="padding:6px 12px;font-size:13px">⏸</button>
-                <button class="ck-btn reset" onclick="clockReset()" style="padding:6px 12px;font-size:13px">↺</button>
-              </div>
-              <div class="clock-set-row" style="margin:0;gap:4px">
-                <input class="ck-input" id="ckSetInput" placeholder="8:00" style="width:60px;font-size:12px;padding:4px 8px">
-                <button class="ck-set-btn" onclick="clockSetManual()" style="padding:4px 10px;font-size:11px">Set</button>
-              </div>
-            </div>
-
-            <!-- Home team -->
-            <div class="gc-team right">
-              <div class="gc-code" id="sdHomeCode">HOME</div>
-              <div class="gc-name" id="sdHomeName">Home</div>
-              <div class="sd-score" id="sdHomeScore" onclick="openOverride('home')" title="Click to override">0</div>
-              <div class="score-btns" style="justify-content:flex-end">
-                <button class="sc-btn minus" onclick="adjScore('home',-1)">-1</button>
-                <button class="sc-btn" onclick="adjScore('home',1)">+1</button>
-                <button class="sc-btn" onclick="adjScore('home',2)">+2</button>
-                <button class="sc-btn" onclick="adjScore('home',3)">+3</button>
-              </div>
-            </div>
+          <div class="stats-player-grid" id="statsAwayPlayers">
+            <div style="grid-column:1/-1;padding:12px;text-align:center;color:var(--muted);font-size:10px">Select a roster above</div>
           </div>
-
-          <!-- Foul pips row -->
-          <div style="display:flex;justify-content:space-between;padding:2px 4px">
-            <div class="foul-pips-row" id="awayFoulPips"></div>
-            <div class="foul-pips-row" id="homeFoulPips" style="justify-content:flex-end"></div>
+          <div class="stat-panel" id="statsAwayPanel" style="display:none"></div>
+        </div>
+        <div class="stats-team-col">
+          <div class="stats-team-hdr">
+            <span id="statsHomeHdr">HOME — LIVE STATS</span>
+            <span id="statsHomeSelLabel" style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--gold)"></span>
+            <select id="statsHomeRosterPick" style="margin-left:auto;font-size:10px;padding:2px 4px;height:22px;width:120px" onchange="loadRosterForTeam('home',this.value)">
+              <option value="">— roster —</option>
+            </select>
           </div>
-
-          <div class="gc-divider"></div>
-
-          <!-- Timeouts row -->
-          <div class="gc-to-row">
-            <div class="gc-to-side">
-              <div class="to-dots" id="toDotsAway"></div>
-              <button class="btn btn-surf btn-sm" onclick="callTimeout('away')" style="font-size:9px;padding:3px 7px">USE ▸</button>
-              <div class="to-label" id="toLabelAway" style="font-size:9px">AWAY</div>
-            </div>
-            <button class="btn btn-ghost btn-sm" onclick="resetTimeouts()" style="font-size:9px;padding:3px 7px">Reset TOs</button>
-            <div class="gc-to-side" style="justify-content:flex-end">
-              <div class="to-label" id="toLabelHome" style="font-size:9px">HOME</div>
-              <button class="btn btn-surf btn-sm" onclick="callTimeout('home')" style="font-size:9px;padding:3px 7px">◂ USE</button>
-              <div class="to-dots" id="toDotsHome"></div>
-            </div>
+          <div class="stats-player-grid" id="statsHomePlayers">
+            <div style="grid-column:1/-1;padding:12px;text-align:center;color:var(--muted);font-size:10px">Select a roster above</div>
           </div>
-
-          <div class="gc-divider"></div>
-
-          <!-- Period row -->
-          <div class="gc-period-row">
-            <div class="period-pills" id="periodPills" style="flex:1"></div>
-            <button class="btn btn-surf btn-sm" onclick="addOT()" style="font-size:9px;padding:3px 7px;flex-shrink:0">+OT</button>
-            <button class="btn btn-gold btn-sm" onclick="endPeriod()" style="font-size:9px;padding:3px 7px;flex-shrink:0">End ▸</button>
-          </div>
-
+          <div class="stat-panel" id="statsHomePanel" style="display:none"></div>
         </div>
       </div>
     </div>
@@ -845,42 +877,6 @@ textarea{resize:vertical;min-height:80px}
       </div>
     </div>
 
-  </div>
-
-  <!-- SPOTLIGHT DISMISS BAR -->
-  <div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0">
-    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#fbbf24">★ PLAYER SPOTLIGHT</span>
-    <span style="font-size:9px;color:var(--muted);flex:1">Click ★ on any player card below to spotlight them on the overlay. Auto-fires at 10, 15, 20, 25, 30 pts.</span>
-    <button class="btn btn-ghost btn-xs" onclick="dismissSpotlight()">✕ Dismiss</button>
-  </div>
-  <!-- LIVE STATS SECTION -->
-  <div class="stats-section">
-    <div class="stats-team-col">
-      <div class="stats-team-hdr">
-        <span id="statsAwayHdr">AWAY — LIVE STATS</span>
-        <span id="statsAwaySelLabel" style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--gold)"></span>
-        <select id="statsAwayRosterPick" style="margin-left:auto;font-size:10px;padding:2px 4px;height:22px;width:120px" onchange="loadRosterForTeam('away',this.value)">
-          <option value="">— roster —</option>
-        </select>
-      </div>
-      <div class="stats-player-grid" id="statsAwayPlayers">
-        <div style="grid-column:1/-1;padding:12px;text-align:center;color:var(--muted);font-size:10px">Select a roster above</div>
-      </div>
-      <div class="stat-panel" id="statsAwayPanel" style="display:none"></div>
-    </div>
-    <div class="stats-team-col">
-      <div class="stats-team-hdr">
-        <span id="statsHomeHdr">HOME — LIVE STATS</span>
-        <span id="statsHomeSelLabel" style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--gold)"></span>
-        <select id="statsHomeRosterPick" style="margin-left:auto;font-size:10px;padding:2px 4px;height:22px;width:120px" onchange="loadRosterForTeam('home',this.value)">
-          <option value="">— roster —</option>
-        </select>
-      </div>
-      <div class="stats-player-grid" id="statsHomePlayers">
-        <div style="grid-column:1/-1;padding:12px;text-align:center;color:var(--muted);font-size:10px">Select a roster above</div>
-      </div>
-      <div class="stat-panel" id="statsHomePanel" style="display:none"></div>
-    </div>
   </div>
 
 </div>
