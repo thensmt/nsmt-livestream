@@ -804,35 +804,141 @@ function pushStats() {
   NSMTClient.send({type:'patch',stats:{away:toStatObj('away'),home:toStatObj('home')}});
 }
 function printStatReport() {
-  const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-  const mkTable = team => {
-    const players = (S[team].players||[]).filter(p=>p.name);
-    if (!players.length) return '<p style="color:#999;font-size:12px">No roster loaded</p>';
-    const rows = players.map(p => {
-      const st = STATS[p.id]||{};
-      const pts = calcPts(st), reb=(st.off||0)+(st.def||0);
-      return `<tr><td>${p.num||''}</td><td style="text-align:left">${p.name}</td><td>${pts}</td><td>${st.fgm||0}-${st.fga||0}</td><td>${st.t3m||0}-${st.t3a||0}</td><td>${st.ftm||0}-${st.fta||0}</td><td>${reb}</td><td>${st.ast||0}</td><td>${st.stl||0}</td><td>${st.blk||0}</td><td>${st.to||0}</td><td>${st.pf||0}</td></tr>`;
+  const away = S.away, home = S.home;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const periodLabel = getPeriodLabel();
+
+  function playerRows(team) {
+    const players = (team.players||[]).filter(p=>p.name);
+    let totPts=0,totFgm=0,totFga=0,tot3m=0,tot3a=0,totFtm=0,totFta=0,totReb=0,totAst=0,totStl=0,totBlk=0,totTo=0,totPf=0;
+    const rows = players.map(p=>{
+      const s=STATS[p.id]||{};
+      const pts=calcPts(s),reb=(s.off||0)+(s.def||0);
+      totPts+=pts;totFgm+=s.fgm||0;totFga+=s.fga||0;tot3m+=s.t3m||0;tot3a+=s.t3a||0;
+      totFtm+=s.ftm||0;totFta+=s.fta||0;totReb+=reb;totAst+=s.ast||0;
+      totStl+=s.stl||0;totBlk+=s.blk||0;totTo+=s.to||0;totPf+=s.pf||0;
+      return `<tr>
+        <td>${escapeHtml(p.num||'')}</td>
+        <td class="name-cell">${escapeHtml(p.name)}</td>
+        <td class="pts">${pts}</td>
+        <td>${s.fgm||0}-${s.fga||0}</td>
+        <td>${s.t3m||0}-${s.t3a||0}</td>
+        <td>${s.ftm||0}-${s.fta||0}</td>
+        <td>${reb}</td>
+        <td>${s.ast||0}</td>
+        <td>${s.stl||0}</td>
+        <td>${s.blk||0}</td>
+        <td>${s.to||0}</td>
+        <td>${s.pf||0}</td>
+      </tr>`;
     }).join('');
-    const tot = players.reduce((a,p)=>{const st=STATS[p.id]||{};a.pts+=calcPts(st);a.fgm+=st.fgm||0;a.fga+=st.fga||0;a.t3m+=st.t3m||0;a.t3a+=st.t3a||0;a.ftm+=st.ftm||0;a.fta+=st.fta||0;a.reb+=(st.off||0)+(st.def||0);a.ast+=st.ast||0;a.stl+=st.stl||0;a.blk+=st.blk||0;a.to+=st.to||0;a.pf+=st.pf||0;return a;},{pts:0,fgm:0,fga:0,t3m:0,t3a:0,ftm:0,fta:0,reb:0,ast:0,stl:0,blk:0,to:0,pf:0});
-    return `<table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="background:#111;color:#F5C518;font-size:10px;text-transform:uppercase">
-        <th>#</th><th style="text-align:left">Player</th><th>PTS</th><th>FG</th><th>3P</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot><tr style="font-weight:900;border-top:2px solid #333;background:#0a0a0a">
-        <td></td><td style="text-align:left">TOTALS</td><td>${tot.pts}</td><td>${tot.fgm}-${tot.fga}</td><td>${tot.t3m}-${tot.t3a}</td><td>${tot.ftm}-${tot.fta}</td><td>${tot.reb}</td><td>${tot.ast}</td><td>${tot.stl}</td><td>${tot.blk}</td><td>${tot.to}</td><td>${tot.pf}</td>
-      </tr></tfoot></table>`;
-  };
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Stats Report</title>
-  <style>body{background:#000;color:#fff;font-family:-apple-system,Helvetica,Arial,sans-serif;padding:20px;margin:0}h1{color:#0E80FC;font-size:20px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px}.meta{color:#666;font-size:11px;margin-bottom:20px}h2{font-size:14px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin:18px 0 8px}.score-line{font-size:28px;font-weight:900;margin-bottom:6px}table td,table th{padding:5px 8px;border-bottom:1px solid #1a1a1a;text-align:center;white-space:nowrap}@media print{body{background:#fff;color:#000}h1{color:#0E80FC}table td,table th{border-bottom:1px solid #ddd}}</style></head>
-  <body><h1>NSMT — Stat Report</h1><div class="meta">Generated ${now}</div>
-  <div class="score-line">${S.away.name} <span style="color:#F5C518">${S.away.score}</span> &nbsp;—&nbsp; <span style="color:#F5C518">${S.home.score}</span> ${S.home.name}</div>
-  <h2>${S.away.name}</h2>${mkTable('away')}
-  <h2>${S.home.name}</h2>${mkTable('home')}
-  <script>window.onload=()=>window.print()<\/script></body></html>`;
-  const w = window.open('','_blank');
-  if (w) { w.document.write(html); w.document.close(); }
-  else toast('Allow popups to print report');
+    const totRow=`<tr class="totals-row">
+      <td></td><td class="name-cell">TOTALS</td>
+      <td class="pts">${totPts}</td>
+      <td>${totFgm}-${totFga}</td>
+      <td>${tot3m}-${tot3a}</td>
+      <td>${totFtm}-${totFta}</td>
+      <td>${totReb}</td><td>${totAst}</td><td>${totStl}</td><td>${totBlk}</td><td>${totTo}</td><td>${totPf}</td>
+    </tr>`;
+    return rows + totRow;
+  }
+
+  function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>NSMT Stat Report</title>
+<style>
+  @page { size: letter portrait; margin: 0.4in; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 9pt; color: #111; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .report-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8pt; border-bottom: 2px solid #0E80FC; margin-bottom: 10pt; }
+  .report-logo img { height: 28pt; object-fit: contain; }
+  .report-center { text-align: center; }
+  .report-event { font-size: 13pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: #0E80FC; }
+  .report-meta { font-size: 7pt; color: #555; margin-top: 2pt; letter-spacing: .5px; text-transform: uppercase; }
+  .score-badge { font-size: 18pt; font-weight: 900; letter-spacing: 2px; white-space: nowrap; }
+  .score-sep { color: #999; margin: 0 6pt; }
+  .team-section { margin-bottom: 10pt; }
+  .team-hdr { display: flex; align-items: center; justify-content: space-between; background: #0E80FC; color: #fff; padding: 4pt 8pt; border-radius: 3pt 3pt 0 0; }
+  .team-hdr-name { font-size: 10pt; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+  .team-hdr-score { font-size: 14pt; font-weight: 900; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+  th { background: #f0f0f0; color: #333; font-size: 6pt; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; padding: 3pt 4pt; text-align: center; border-bottom: 1px solid #ccc; }
+  th.name-cell { text-align: left; }
+  td { padding: 2.5pt 4pt; text-align: center; border-bottom: 1px solid #eee; color: #111; }
+  td.name-cell { text-align: left; font-weight: 600; max-width: 100pt; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td.pts { font-weight: 700; }
+  tr.totals-row td { border-top: 1.5px solid #999; font-weight: 700; background: #fafafa; }
+  .period-section { margin-top: 8pt; }
+  .period-hdr { font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #555; margin-bottom: 4pt; }
+  .period-table { width: auto; min-width: 200pt; }
+  .period-table th, .period-table td { min-width: 36pt; }
+  .report-footer { margin-top: 10pt; padding-top: 6pt; border-top: 1px solid #ddd; font-size: 6pt; color: #888; text-align: center; letter-spacing: .5px; text-transform: uppercase; }
+  @media print { body { font-size: 9pt; } }
+</style>
+</head><body>
+<div class="report-header">
+  <div class="report-logo"><img src="http://localhost:8000/NSMTWordmarkBlue.png" alt="NSMT"></div>
+  <div class="report-center">
+    <div class="report-event">NSMT Basketball</div>
+    <div class="report-meta">${escapeHtml(dateStr)} · ${escapeHtml(timeStr)} · ${escapeHtml(periodLabel)}</div>
+  </div>
+  <div class="score-badge">${away.score}<span class="score-sep">—</span>${home.score}</div>
+</div>
+
+<div class="team-section">
+  <div class="team-hdr">
+    <span class="team-hdr-name">${escapeHtml(away.name)}</span>
+    <span class="team-hdr-score">${away.score}</span>
+  </div>
+  <table>
+    <thead><tr>
+      <th style="width:22pt">#</th><th class="name-cell">Player</th>
+      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
+    </tr></thead>
+    <tbody>${playerRows(away)}</tbody>
+  </table>
+</div>
+
+<div class="team-section">
+  <div class="team-hdr">
+    <span class="team-hdr-name">${escapeHtml(home.name)}</span>
+    <span class="team-hdr-score">${home.score}</span>
+  </div>
+  <table>
+    <thead><tr>
+      <th style="width:22pt">#</th><th class="name-cell">Player</th>
+      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
+    </tr></thead>
+    <tbody>${playerRows(home)}</tbody>
+  </table>
+</div>
+
+<div class="period-section">
+  <div class="period-hdr">Score by Period</div>
+  <table class="period-table">
+    <thead><tr>
+      <th style="text-align:left">Team</th>
+      ${Array.from({length:S.period},(_,i)=>`<th>${getPeriodLabel(i+1)}</th>`).join('')}
+      <th>FINAL</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="name-cell">${escapeHtml(away.name)}</td>${Array.from({length:S.period},()=>'<td>—</td>').join('')}<td class="pts">${away.score}</td></tr>
+      <tr><td class="name-cell">${escapeHtml(home.name)}</td>${Array.from({length:S.period},()=>'<td>—</td>').join('')}<td class="pts">${home.score}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="report-footer">Nova Sports Media Team · Generated ${escapeHtml(timeStr)}</div>
+</body></html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, '_blank');
+  if (w) w.onload = () => { w.print(); URL.revokeObjectURL(url); };
 }
 
 function loadRosterFromServer(statsState) {
