@@ -1185,102 +1185,109 @@ const DB = {
 
 // ── Seed Nova 24 rosters (always present) ─────────────────
 (function seedNova24(){
-  const LIN_ID    = 'r_NOVA24_LIN';
-  const RIVERS_ID = 'r_NOVA24_RIVERS';
-  const mkP = (name, school, ig) => ({
+  const LIN_ID     = 'r_NOVA24_LIN';
+  const RIVERS_ID  = 'r_NOVA24_RIVERS';
+  const LIN_VER    = 2; // v2: full profile + awards data
+  const RIVERS_VER = 2;
+  const mkP = (name, school, ig, pos, height, ppg, rpg, apg, commitment, awards) => ({
     id: 'p_N24_' + name.replace(/\s+/g,'_'),
-    num: '', name, pos: '', fouls: 0, photo: '', ig
+    num: '', name, pos: pos||'', fouls: 0, photo: '', ig,
+    height: height||'', ppg: ppg||0, rpg: rpg||0, apg: apg||0, commitment: commitment||'', awards: awards||''
   });
-  const teamLin = { id: LIN_ID, name: 'Nova 24 — Team Lin', players: [
-    mkP('Will Robinson',  'Westfield',    'Williamrobinson.24'),
-    mkP('Adam Perdue',    'Broad Run',    'adam_perdue22'),
-    mkP('Landon Judy',    'Hayfield',     'Landonkj33'),
-    mkP('Max Lawson',     'Riverside',    'maxlawson_3'),
-    mkP('Shreyas Vaidya', 'Marshall',     'shootashrey'),
-    mkP('Charlie Boone',  'Freedom SR',   'Charlie_Boone'),
-    mkP('Medwyn Opoku',   'Potomac',      '1upmed'),
-    mkP('Nathan Pewett',  'Annandale',    'nathanpewett'),
-    mkP('Mason Ogburn',   'Independence', 'mason_ogburn13'),
-    mkP('Kaci Jones-Carr','Woodbridge',   'sh0wtime.k3_'),
-    mkP('Makhai Ramos',   'South Lakes',  'Khaiclutchh_'),
-    mkP('Will Davis',     'Meridian',     'willldaviss'),
+  const teamLin = { id: LIN_ID, name: 'Nova 24 — Team Lin', _ver: LIN_VER, players: [
+    mkP('Will Robinson',  'Westfield',    'Williamrobinson.24', 'W', "6'5", 14,   8,   2,   '',                '1st Team All Region & All District, State Champion, State Finals MVP'),
+    mkP('Adam Perdue',    'Broad Run',    'adam_perdue22',      'G', "6'2", 0,    0,   0,   '',                '1st Team All Region & All District, Scored 1,500 pts'),
+    mkP('Landon Judy',    'Hayfield',     'Landonkj33',         'W', "6'3", 10,   3.3, 2,   '',                '1st Team All District, 2nd Team All Region, All Defensive Team'),
+    mkP('Max Lawson',     'Riverside',    'maxlawson_3',        'G', "6'4", 20.4, 6.5, 3.5, 'Mary Washington', 'Region & District Player of The Year'),
+    mkP('Shreyas Vaidya', 'Marshall',     'shootashrey',        'W', "6'4", 12,   3,   1,   '',                '1st Team All District, 40% 3PT Shooter'),
+    mkP('Charlie Boone',  'Freedom SR',   'Charlie_Boone',      'G', "6'0", 14.5, 4,   2,   'McDaniels College','1st Team All District'),
+    mkP('Medwyn Opoku',   'Potomac',      '1upmed',             'W', "6'6", 6,    5,   0,   '',                'Honorable Mention'),
+    mkP('Nathan Pewett',  'Annandale',    'nathanpewett',       'G', "6'0", 13.5, 4.1, 4.3, '',                '1st Team All District, 2nd Team All Region'),
+    mkP('Mason Ogburn',   'Independence', 'mason_ogburn13',     'G', "6'0", 0,    0,   0,   '',                ''),
+    mkP('Kaci Jones-Carr','Woodbridge',   'sh0wtime.k3_',       'G', "6'1", 15,   4,   0,   '',                '1st Team All District, 2nd Team All Region'),
+    mkP('Makhai Ramos',   'South Lakes',  'Khaiclutchh_',       'G', "6'0", 17,   5,   4,   '',                '2025 State Champ, Team Captain, 1st Team All District, 2nd Team All Region'),
+    mkP('Will Davis',     'Meridian',     'willldaviss',        'W', "6'3", 19.2, 3.2, 2,   'Juniata College', '1st Team All Region & All District, POY Runner Up, Scored 1,000 pts'),
   ]};
-  const teamRivers = { id: RIVERS_ID, name: 'Nova 24 — Team Rivers', players: [
-    mkP('Brian Burns',     'South County',    'brianburnsll'),
-    mkP('Noah Conrad',     'Patriot',         'noahjawnts'),
-    mkP('Colin Stemberger','Westfield',       'Colstem'),
-    mkP('Denari Nesbitt',  'Edison',          'nari3s'),
-    mkP('Jacob Bell',      'McLean',          'jake.bell03'),
-    mkP('Isaac Heaton',    'West Springfield','isaac.heaton11'),
-    mkP('Barrett Medhurst','Woodson',         'barrettmedhurst26'),
-    mkP('Devon Pettibone', 'Briar Woods',     'devon.pettibone'),
-    mkP('Antonio Jones',   'Forest Park',     '571.tonio'),
-    mkP('Caleb Roach',     'Woodgrove',       'calebroach_'),
-    mkP('Ty Wilkerson',    'Brooke Point',    'Tj2shiftyyyy'),
+  const teamRivers = { id: RIVERS_ID, name: 'Nova 24 — Team Rivers', _ver: RIVERS_VER, players: [
+    mkP('Brian Burns',     'South County',    'brianburnsll',      'F', "6'6", 13.4, 7,   2,   '',             '2nd Team All District'),
+    mkP('Noah Conrad',     'Patriot',         'noahjawnts',        'W', "6'4", 12,   4,   3,   '',             '1st Team All Region & All District'),
+    mkP('Colin Stemberger','Westfield',       'Colstem',           'G', "6'0", 10,   0,   5,   'Mary Washington','1st Team All Region & All District, State Champion'),
+    mkP('Denari Nesbitt',  'Edison',          'nari3s',            'G', "6'0", 17,   5,   6,   '',             '1st Team All Region & All District'),
+    mkP('Jacob Bell',      'McLean',          'jake.bell03',       'W', "6'4", 20,   8,   0,   '',             '1st Team All Region & All District'),
+    mkP('Isaac Heaton',    'West Springfield','isaac.heaton11',    'G', "6'0", 14,   2,   1,   '',             '1st Team All District, 2nd Team All Region, 35% from 3'),
+    mkP('Barrett Medhurst','Woodson',         'barrettmedhurst26', 'F', "6'5", 5,    7,   2,   'Marymount',    '2nd Team All District'),
+    mkP('Devon Pettibone', 'Briar Woods',     'devon.pettibone',   'G', "6'0", 13,   4.5, 4,   'Hood',         '1st Team All Region & All District, Scored 1,000 pts'),
+    mkP('Antonio Jones',   'Forest Park',     '571.tonio',         'G', "5'11",14,   3,   1.2, '',             '1st Team All District, 2nd Team All Region'),
+    mkP('Caleb Roach',     'Woodgrove',       'calebroach_',       'G', "6'0", 19,   5,   0,   'Hood',         'District Player of The Year, 1st Team All Region'),
+    mkP('Ty Wilkerson',    'Brooke Point',    'Tj2shiftyyyy',      'G', "6'1", 20,   3.3, 5,   '',             '1,200 pts scored, 163 made 3s, 1st Team All Region & District'),
+    mkP('Mikey Robinson',  'South County',    '',                  'W', "6'6", 12,   6,   3,   '',             '2nd Team All Region, 1st Team All District'),
   ]};
-  const rosters  = DB.get('nsmt_rosters', []);
-  const hasLin    = rosters.some(r => r.id === LIN_ID);
-  const hasRivers = rosters.some(r => r.id === RIVERS_ID);
-  if (!hasLin)    rosters.unshift(teamLin);
-  if (!hasRivers) rosters.unshift(teamRivers);
-  if (!hasLin || !hasRivers) DB.set('nsmt_rosters', rosters);
+  const rosters     = DB.get('nsmt_rosters', []);
+  const existLin    = rosters.find(r => r.id === LIN_ID);
+  const existRivers = rosters.find(r => r.id === RIVERS_ID);
+  if (!existLin || (existLin._ver||0) < LIN_VER) {
+    const idx = rosters.findIndex(r => r.id === LIN_ID);
+    if (idx >= 0) rosters.splice(idx, 1, teamLin); else rosters.unshift(teamLin);
+  }
+  if (!existRivers || (existRivers._ver||0) < RIVERS_VER) {
+    const idx = rosters.findIndex(r => r.id === RIVERS_ID);
+    if (idx >= 0) rosters.splice(idx, 1, teamRivers); else rosters.unshift(teamRivers);
+  }
+  DB.set('nsmt_rosters', rosters);
 })();
 
 // ── Seed Public vs Private rosters ──
 (function seedPvP(){
-  const PRIVATE_ID = 'r_PVP_PRIVATE';
-  const PUBLIC_ID  = 'r_PVP_PUBLIC';
-  const PRIVATE_VER = 2; // bump to re-seed with profile data
-  const mkP = (name, school, ig, pos, height, ppg, rpg, apg, commitment) => ({
+  const PRIVATE_ID  = 'r_PVP_PRIVATE';
+  const PUBLIC_ID   = 'r_PVP_PUBLIC';
+  const PRIVATE_VER = 3; // v3: adds awards field
+  const PUBLIC_VER  = 1; // v1: full profile data
+  const mkP = (name, school, ig, pos, height, ppg, rpg, apg, commitment, awards) => ({
     id: 'p_PVP_' + name.replace(/\s+/g,'_'),
-    num: '', name, pos, fouls: 0, photo: '', ig,
-    height, ppg, rpg, apg, commitment: commitment||'', awards:''
+    num: '', name, pos: pos||'', fouls: 0, photo: '', ig,
+    height: height||'', ppg: ppg||0, rpg: rpg||0, apg: apg||0, commitment: commitment||'', awards: awards||''
   });
   const teamPrivate = { id: PRIVATE_ID, name: 'PvP — Team Private', _ver: PRIVATE_VER, players: [
-    mkP('Darius Bivins',   "O'Connell",             '_dariusbivins',   'G',  "6'1", 18,   4.3, 5,   ''),
-    mkP('Akim Iscandari',  'The Potomac School',    'theakimiscandari','G',  "6'0", 16.2, 6,   5,   'Navy'),
-    mkP('Marcus Hancock',  "St Stephen's St Agnes", 'Marcushoops2',    'G',  "6'2", 15.3, 4,   0.4, ''),
-    mkP('Messiah Dixon',   'Fairfax Christian',     'Bigdotsiah',      'G',  "6'0", 13,   3,   4,   'Clarion'),
-    mkP('RJ Jones',        'Virginia Academy',      'rjjonesss',       'G',  "6'4", 13,   3,   2,   'Marymount'),
-    mkP('Jafet Valencia',  'Evergreen Christian',   'Jafetvalencia10', 'W',  "6'7", 12,   8.3, 7,   'Delaware'),
-    mkP('Frank Siaca Bey', 'Fairfax Christian',     'siacabeyf',       'F',  "6'9", 17,   7.5, 1.2, 'Fordham'),
-    mkP('Jake Bahr',       'Bishop Ireton',         'jake.bahrr',      'G',  "6'4", 14,   8,   4.5, ''),
-    mkP('Silas Devonish',  'Bishop Ireton',         'Ldf_silas',       'G',  "5'10",19,   2,   2.5, ''),
-    mkP('Ripp Kodi',       'Highland School',       'rippkodi',        'WF', "6'8", 9,    5,   1.3, ''),
-    mkP('Justin Edwards',  "Bishop O'Connell",      'J3dwards_',       'W',  "6'5", 12,   7,   2,   'Gannon'),
-    mkP('Jahda Swann',     'The St. James',         'Yk.jahda',        'W',  "6'6", 0,    0,   0,   ''),
-    mkP('Cole Forbrich',   'Evergreen Christian',   'coleforbrich',    'G',  "5'10",12,   2,   1,   ''),
+    mkP('Darius Bivins',   "O'Connell",             '_dariusbivins',   'G',  "6'1", 18,   4.3, 5,   '',        '1st Team All Conf, All State, All Met'),
+    mkP('Akim Iscandari',  'The Potomac School',    'theakimiscandari','G',  "6'0", 16.2, 6,   5,   'Navy',    '1st Team All IAC'),
+    mkP('Marcus Hancock',  "St Stephen's St Agnes", 'Marcushoops2',    'G',  "6'2", 15.3, 4,   0.4, '',        '2X All IAC'),
+    mkP('Messiah Dixon',   'Fairfax Christian',     'Bigdotsiah',      'G',  "6'0", 13,   3,   4,   'Clarion', '1st Team All State-VISAA D2'),
+    mkP('RJ Jones',        'Virginia Academy',      'rjjonesss',       'G',  "6'4", 13,   3,   2,   'Marymount',''),
+    mkP('Jafet Valencia',  'Evergreen Christian',   'Jafetvalencia10', 'W',  "6'7", 12,   8.3, 7,   'Delaware','State Player of the Year-VISAA D3'),
+    mkP('Frank Siaca Bey', 'Fairfax Christian',     'siacabeyf',       'F',  "6'9", 17,   7.5, 1.2, 'Fordham', 'MPSC & VISAA Player of the Year, 2nd Team All Met'),
+    mkP('Jake Bahr',       'Bishop Ireton',         'jake.bahrr',      'G',  "6'4", 14,   8,   4.5, '',        '2nd Team WCAC'),
+    mkP('Silas Devonish',  'Bishop Ireton',         'Ldf_silas',       'G',  "5'10",19,   2,   2.5, '',        '1st Team VISAA All State, 2nd Team WCAC'),
+    mkP('Ripp Kodi',       'Highland School',       'rippkodi',        'WF', "6'8", 9,    5,   1.3, '',        ''),
+    mkP('Justin Edwards',  "Bishop O'Connell",      'J3dwards_',       'W',  "6'5", 12,   7,   2,   'Gannon',  '2nd Team All State VISAA, Honorable Mention WCAC'),
+    mkP('Jahda Swann',     'The St. James',         'Yk.jahda',        'W',  "6'6", 0,    0,   0,   '',        ''),
+    mkP('Cole Forbrich',   'Evergreen Christian',   'coleforbrich',    'G',  "5'10",12,   2,   1,   '',        'State Champion, NCIAC Player of the Year, MPSC Honorable Mention, 1,000 pts in career'),
   ]};
-  const mkPub = (name, school, ig) => ({
-    id: 'p_PVP_' + name.replace(/\s+/g,'_'),
-    num: '', name, pos: '', fouls: 0, photo: '', ig,
-    height:'', ppg:0, rpg:0, apg:0, commitment:'', awards:''
-  });
-  const teamPublic = { id: PUBLIC_ID, name: 'PvP — Team Public', players: [
-    mkPub('Ryan Brzezanski',     'Broad Run',         'ryanbrzezanski'),
-    mkPub('Ryan Corallo',        'C.G. Woodson',      'Ryan.corallo'),
-    mkPub('Elijah Gaskins',      'Patriot',           'elijah.gaskins'),
-    mkPub('Johnathan Anderson',  'South County',      'j_anderson.1'),
-    mkPub('Sean Madrigal',       'Patriot',           'theseanmadrigal'),
-    mkPub('Jemon Price',         'Westfield',         'thejemonprice'),
-    mkPub('Colin Spencer Byrd',  'Tuscarora',         '_cbyrd'),
-    mkPub('Dominic Julian Mack', 'Potomac Senior',    'Dominic.jm'),
-    mkPub('Ethan Jeremiah Poole','Wakefield',         'jeremiah.poole.3'),
-    mkPub('Rodney Carmichael',   'Hayfield',          'rodney.carmichael5'),
-    mkPub('Nate McComb',         'Lake Braddock',     'natemccomb'),
-    mkPub('Jacob Coulam',        'Yorktown',          'jakecoulam11'),
-    mkPub('Isaiah Brown',        'Westfield',         '_zay.brown_'),
+  const teamPublic = { id: PUBLIC_ID, name: 'PvP — Team Public', _ver: PUBLIC_VER, players: [
+    mkP('Ryan Brzezanski',     'Broad Run',      'ryanbrzezanski',    'WF', "6'8", 20,   10,  3,   'Mt St Marys',    'District Player of The Year, 3rd Team All Met'),
+    mkP('Ryan Corallo',        'C.G. Woodson',   'Ryan.corallo',      'G',  "6'2", 15.5, 4,   2,   'York',           '1st Team All District, All Region'),
+    mkP('Elijah Gaskins',      'Patriot',        'elijah.gaskins',    'G',  "6'2", 18,   5,   6,   '',               'Region Player of The Year'),
+    mkP('Johnathan Anderson',  'South County',   'j_anderson.1',      'G',  "6'1", 16,   4,   0,   '',               '1st Team All District, All Region'),
+    mkP('Sean Madrigal',       'Patriot',        'theseanmadrigal',   'W',  "6'4", 17,   4,   2,   '',               '1st Team All District, All Region, 52% from 3'),
+    mkP('Jemon Price',         'Westfield',      'thejemonprice',     'G',  "6'2", 18.1, 4,   2.3, '',               'Region & District POY, 1st Team All MET, All Defensive, State Champion'),
+    mkP('Colin Spencer Byrd',  'Tuscarora',      '_cbyrd',            'G',  "6'4", 0,    0,   0,   'Grambling State','Region Player of The Year, 3rd Team All Met'),
+    mkP('Dominic Julian Mack', 'Potomac Senior', 'Dominic.jm',        'W',  "6'5", 16,   4.5, 1.3, '',               '1st Team All Region & All District'),
+    mkP('Ethan Jeremiah Poole','Wakefield',      'jeremiah.poole.3',  'G',  "5'10",0,    0,   0,   '',               '1st Team All District, 2nd Team All Region'),
+    mkP('Rodney Carmichael',   'Hayfield',       'rodney.carmichael5','W',  "6'3", 14.2, 8.4, 2.2, '',               '1st Team All Region & All District'),
+    mkP('Nate McComb',         'Lake Braddock',  'natemccomb',        'F',  "6'7", 23,   0,   0,   '',               'Region & District Player of The Year'),
+    mkP('Jacob Coulam',        'Yorktown',       'jakecoulam11',      'G',  "6'0", 0,    0,   0,   '',               '1st Team All Region & All District'),
+    mkP('Isaiah Brown',        'Westfield',      '_zay.brown_',       'G',  "6'2", 13,   4,   2,   '',               '1st Team All Region & All District, State Champion'),
   ]};
-  const rosters = DB.get('nsmt_rosters', []);
+  const rosters      = DB.get('nsmt_rosters', []);
   const existPrivate = rosters.find(r => r.id === PRIVATE_ID);
-  const hasPublic    = rosters.some(r => r.id === PUBLIC_ID);
-  // Re-seed Team Private if missing or on older version (no profile data)
+  const existPublic  = rosters.find(r => r.id === PUBLIC_ID);
   if (!existPrivate || (existPrivate._ver||0) < PRIVATE_VER) {
     const idx = rosters.findIndex(r => r.id === PRIVATE_ID);
-    if (idx >= 0) rosters.splice(idx, 1, teamPrivate);
-    else rosters.unshift(teamPrivate);
+    if (idx >= 0) rosters.splice(idx, 1, teamPrivate); else rosters.unshift(teamPrivate);
   }
-  if (!hasPublic) rosters.unshift(teamPublic);
+  if (!existPublic || (existPublic._ver||0) < PUBLIC_VER) {
+    const idx = rosters.findIndex(r => r.id === PUBLIC_ID);
+    if (idx >= 0) rosters.splice(idx, 1, teamPublic); else rosters.unshift(teamPublic);
+  }
   DB.set('nsmt_rosters', rosters);
 })();
 
