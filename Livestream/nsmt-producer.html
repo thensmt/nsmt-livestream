@@ -248,10 +248,10 @@ textarea{resize:vertical;min-height:80px}
 .gc-main{display:grid;grid-template-columns:1fr auto 1fr;gap:0;padding:8px 8px 4px}
 .gc-team{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .gc-team.right{align-items:flex-end}
-.gc-code{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.gc-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--text);line-height:1;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gc-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 10px}
-.gc-period{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.gc-code{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.gc-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:var(--text);line-height:1;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gc-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 18px}
+.gc-period{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
 .gc-divider{height:1px;background:var(--border);margin:0 8px}
 .gc-to-row{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;gap:6px}
 .gc-to-side{display:flex;align-items:center;gap:5px;flex:1}
@@ -266,7 +266,7 @@ textarea{resize:vertical;min-height:80px}
 .sd-team.right{align-items:flex-end}
 .sd-code{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
 .sd-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--text);line-height:1;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sd-score{font-family:'Bebas Neue',cursive;font-size:54px;line-height:1;color:#fff;letter-spacing:-2px;cursor:pointer;transition:color .15s}
+.sd-score{font-family:'Bebas Neue',cursive;font-size:80px;line-height:1;color:#fff;letter-spacing:-2px;cursor:pointer;transition:color .15s}
 .sd-score:hover{color:var(--gold)}
 .sd-sep{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--border2);text-align:center}
 .score-btns{display:flex;gap:3px;margin-top:4px}
@@ -742,8 +742,8 @@ textarea{resize:vertical;min-height:80px}
         <span class="bc-col-title">Score & Clock</span>
         <span id="bcPushStatus" style="font-size:9px;color:var(--muted)">Not synced</span>
       </div>
-      <div class="bc-col-body" style="padding:8px 10px;display:flex;flex-direction:column;gap:0;overflow-y:auto">
-        <div class="game-card">
+      <div class="bc-col-body" style="padding:8px 10px;display:flex;flex-direction:column;gap:0;overflow-y:auto;align-items:center">
+        <div class="game-card" style="width:100%;max-width:560px">
 
           <!-- Event row -->
           <div class="gc-event-row">
@@ -769,15 +769,15 @@ textarea{resize:vertical;min-height:80px}
             <!-- Center: period + clock -->
             <div class="gc-center">
               <div class="gc-period" id="swPeriod">Q1</div>
-              <div class="clock-face" id="clockFace" onclick="openClockEdit()" style="font-size:28px;padding:6px 10px;margin:0">8:00</div>
-              <div class="clock-btns" style="gap:3px;margin:0">
-                <button class="ck-btn start" onclick="clockStart()" style="padding:5px 8px;font-size:10px">▶</button>
-                <button class="ck-btn pause" onclick="clockPause()" style="padding:5px 8px;font-size:10px">⏸</button>
-                <button class="ck-btn reset" onclick="clockReset()" style="padding:5px 8px;font-size:10px">↺</button>
+              <div class="clock-face" id="clockFace" onclick="openClockEdit()" style="font-size:52px;padding:4px 14px;margin:0">8:00</div>
+              <div class="clock-btns" style="gap:5px;margin:0">
+                <button class="ck-btn start" onclick="clockStart()" style="padding:6px 12px;font-size:13px">▶</button>
+                <button class="ck-btn pause" onclick="clockPause()" style="padding:6px 12px;font-size:13px">⏸</button>
+                <button class="ck-btn reset" onclick="clockReset()" style="padding:6px 12px;font-size:13px">↺</button>
               </div>
-              <div class="clock-set-row" style="margin:0;gap:3px">
-                <input class="ck-input" id="ckSetInput" placeholder="8:00" style="width:52px;font-size:11px;padding:3px 6px">
-                <button class="ck-set-btn" onclick="clockSetManual()" style="padding:3px 8px;font-size:10px">Set</button>
+              <div class="clock-set-row" style="margin:0;gap:4px">
+                <input class="ck-input" id="ckSetInput" placeholder="8:00" style="width:60px;font-size:12px;padding:4px 8px">
+                <button class="ck-set-btn" onclick="clockSetManual()" style="padding:4px 10px;font-size:11px">Set</button>
               </div>
             </div>
 
