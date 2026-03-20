@@ -1491,15 +1491,19 @@ function printStatReport() {
   }
   const finalRow=`<tr class="tr"><td class="nl">Final</td><td><b>${away.score}</b></td><td><b>${home.score}</b></td></tr>`;
 
-  // Period breakdown rows
-  const breakdownRows = pLabels.map((lbl,i)=>{
-    const p=i+1;
-    const a=teamPeriodAgg('away',p), h=teamPeriodAgg('home',p);
-    const aReb=a.off+a.def, hReb=h.off+h.def;
-    return `<tr><td class="nl">${esc(lbl)}</td><td class="b">${a.pts}</td><td>${a.fgm}-${a.fga}</td><td>${a.t3m}-${a.t3a}</td><td>${a.ftm}-${a.fta}</td><td>${aReb}</td><td>${a.ast}</td><td>${a.to}</td><td class="b">${h.pts}</td><td>${h.fgm}-${h.fga}</td><td>${h.t3m}-${h.t3a}</td><td>${h.ftm}-${h.fta}</td><td>${hReb}</td><td>${h.ast}</td><td>${h.to}</td></tr>`;
-  }).join('');
-  const aFR=(r)=>r.fgm+'-'+r.fga, a3R=(r)=>r.t3m+'-'+r.t3a, aFTR=(r)=>r.ftm+'-'+r.fta;
-  const breakFinal=`<tr class="tr"><td class="nl">Final</td><td class="b">${away.score}</td><td>${aT.tFgm}-${aT.tFga}</td><td>${aT.t3m}-${aT.t3a}</td><td>${aT.tFtm}-${aT.tFta}</td><td>${aT.tOff+aT.tDef}</td><td>${aT.tAst}</td><td>${aT.tTo}</td><td class="b">${home.score}</td><td>${hT.tFgm}-${hT.tFga}</td><td>${hT.t3m}-${hT.t3a}</td><td>${hT.tFtm}-${hT.tFta}</td><td>${hT.tOff+hT.tDef}</td><td>${hT.tAst}</td><td>${hT.tTo}</td></tr>`;
+  // Period breakdown rows — separate per team
+  function teamBreakdownRows(teamKey, tTotals, teamScore) {
+    const rows = pLabels.map((lbl,i)=>{
+      const p=i+1;
+      const s=teamPeriodAgg(teamKey,p);
+      const reb=s.off+s.def;
+      return `<tr><td class="nl">${esc(lbl)}</td><td class="b">${s.pts}</td><td>${s.fgm}-${s.fga}</td><td>${s.t3m}-${s.t3a}</td><td>${s.ftm}-${s.fta}</td><td>${reb}</td><td>${s.ast}</td><td>${s.to}</td></tr>`;
+    }).join('');
+    const fin = `<tr class="tr"><td class="nl">Final</td><td class="b">${teamScore}</td><td>${tTotals.tFgm}-${tTotals.tFga}</td><td>${tTotals.t3m}-${tTotals.t3a}</td><td>${tTotals.tFtm}-${tTotals.tFta}</td><td>${tTotals.tOff+tTotals.tDef}</td><td>${tTotals.tAst}</td><td>${tTotals.tTo}</td></tr>`;
+    return rows + fin;
+  }
+  const awayBreakdown = teamBreakdownRows('away', aT, away.score);
+  const homeBreakdown = teamBreakdownRows('home', hT, home.score);
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Game Report</title>
 <style>
@@ -1603,19 +1607,18 @@ tr.tr td{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}
 </div>
 
 <div class="pb">
-  <div class="pb-title">Period Breakdown</div>
-  <table><thead>
-    <tr>
-      <th class="nl" style="width:30pt"></th>
-      <th colspan="7" class="pb-team-hdr">${esc(away.name)}</th>
-      <th colspan="7" class="pb-team-hdr">${esc(home.name)}</th>
-    </tr>
-    <tr>
-      <th class="nl"></th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
-    </tr>
-  </thead><tbody>${breakdownRows}${breakFinal}</tbody></table>
+  <div class="pb-title">Period Breakdown &mdash; ${esc(away.name)}</div>
+  <table><thead><tr>
+    <th class="nl" style="width:30pt"></th>
+    <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
+  </tr></thead><tbody>${awayBreakdown}</tbody></table>
+</div>
+<div class="pb" style="margin-top:4pt">
+  <div class="pb-title">Period Breakdown &mdash; ${esc(home.name)}</div>
+  <table><thead><tr>
+    <th class="nl" style="width:30pt"></th>
+    <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
+  </tr></thead><tbody>${homeBreakdown}</tbody></table>
 </div>
 
 <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(S.event||'NSMT Hoopfest 2026')} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
