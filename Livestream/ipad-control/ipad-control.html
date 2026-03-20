@@ -768,6 +768,7 @@ let _boxPeriod = null;
 let _subMode = false;
 let _subOut = { team: null, pid: null };
 let _lastPushTime = 0;
+let _overlayFlags = {scorebug:true,ticker:false,ads:true};
 
 // ═══════════════════════════════════
 // TABS
@@ -2111,7 +2112,6 @@ function setEventPreset(preset) {
 // ═══════════════════════════════════
 // OVERLAY SHOW / HIDE
 // ═══════════════════════════════════
-let _overlayFlags = {scorebug:true,ticker:false,ads:true};
 function setOverlay(show) {
   _overlayFlags.scorebug=show;
   NSMTClient.send({type:'patch',bug:{showScorebug:show}});
