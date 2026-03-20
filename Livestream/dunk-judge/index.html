@@ -105,8 +105,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   const params   = new URLSearchParams(location.search);
   const judgeNum = Math.max(1, Math.min(5, parseInt(params.get('judge') || '1', 10)));
   const judgeIdx = judgeNum - 1;
+  const JUDGE_NAMES = ['Keith Honore', 'Sherman Rivers', 'Tony Bently', 'Coach 4', 'Coach 5'];
 
-  document.getElementById('tbJudgeLabel').textContent = 'JUDGE ' + judgeNum;
+  document.getElementById('tbJudgeLabel').textContent = JUDGE_NAMES[judgeIdx] || ('JUDGE ' + judgeNum);
 
   let selectedScore  = null;
   let submitted      = false;

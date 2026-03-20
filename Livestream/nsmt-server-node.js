@@ -121,8 +121,29 @@ const httpServer = http.createServer((req, res) => {
   });
 });
 
+function getLocalIP() {
+  const nets = require('os').networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) return net.address;
+    }
+  }
+  return 'unknown';
+}
+
 httpServer.listen(HTTP_PORT, '0.0.0.0', () => {
-  console.log(`[HTTP] http://localhost:${HTTP_PORT}`);
+  const ip = getLocalIP();
+  console.log(`
+─────────────────────────────────────────────────────
+  NSMT Server Running
+
+  Producer : http://localhost:${HTTP_PORT}/nsmt-producer.html
+  Overlay  : http://localhost:${HTTP_PORT}/nsmt-combined-overlay.html
+
+  iPad URL : http://${ip}:${HTTP_PORT}/ipad-control/ipad-control.html
+  Stats    : http://${ip}:${HTTP_PORT}/nsmt-stats.html
+─────────────────────────────────────────────────────
+`);
 });
 
 // ── WebSocket hub ──

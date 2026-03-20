@@ -17,9 +17,8 @@
   /* ── Outer wrap ── */
   .tpt-wrap{
     position:absolute;
-    top:50%;left:50%;
-    transform:translate(-50%,-54%);
-    display:flex;gap:28px;align-items:stretch;
+    top:20px;left:20px;right:20px;
+    display:flex;gap:28px;align-items:flex-start;justify-content:space-between;
     transition:opacity 0.4s;
   }
   .tpt-wrap.hidden{display:none;}
@@ -28,49 +27,49 @@
   .court-panel{
     background:rgba(10,11,16,0.20);
     border:1px solid rgba(255,255,255,.12);
-    border-radius:16px;padding:22px 30px 26px;
-    min-width:370px;display:flex;flex-direction:column;gap:14px;
-    box-shadow:0 24px 72px rgba(0,0,0,.85);
+    border-radius:10px;padding:14px 19px 16px;
+    min-width:231px;display:flex;flex-direction:column;gap:9px;
+    box-shadow:0 15px 45px rgba(0,0,0,.85);
     font-family:'Rubik',sans-serif;color:#fff;
   }
 
   /* ── Header ── */
   .ct-hdr{display:flex;align-items:center;justify-content:space-between;}
-  .ct-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
-  .ct-badge{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0E80FC;}
+  .ct-label{font-size:6px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-badge{font-size:6px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0E80FC;}
 
   /* ── Shooter name + info ── */
-  .ct-shooter{font-family:'Anton',Impact,sans-serif;font-size:38px;letter-spacing:1px;text-transform:uppercase;line-height:1;}
-  .ct-school{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:3px;}
-  .ct-ig{font-size:11px;font-weight:600;letter-spacing:.5px;color:#0E80FC;margin-top:1px;}
+  .ct-shooter{font-family:'Anton',Impact,sans-serif;font-size:24px;letter-spacing:1px;text-transform:uppercase;line-height:1;}
+  .ct-school{font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:1px;}
+  .ct-ig{font-size:6px;font-weight:600;letter-spacing:.5px;color:#0E80FC;margin-top:1px;}
 
   /* ── Racks ── */
-  .rack-row{display:flex;align-items:center;gap:10px;}
+  .rack-row{display:flex;align-items:center;gap:6px;}
   .rack-label{
-    font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-    color:rgba(255,255,255,.28);width:50px;flex-shrink:0;
+    font-size:6px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:rgba(255,255,255,.28);width:31px;flex-shrink:0;
   }
   .rack-label.money{color:#F5C518;}
-  .balls{display:flex;gap:8px;}
+  .balls{display:flex;gap:5px;}
   .ball{
-    width:30px;height:30px;border-radius:50%;flex-shrink:0;
-    border:2px solid rgba(255,255,255,.2);background:transparent;
+    width:19px;height:19px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,.2);background:transparent;
     transition:background .15s,border-color .15s,box-shadow .15s;
   }
-  .ball.made{background:#fff;border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,.35);}
-  .ball.made.money{background:#F5C518;border-color:#F5C518;box-shadow:0 0 14px rgba(245,197,24,.55);}
+  .ball.made{background:#fff;border-color:#fff;box-shadow:0 0 5px rgba(255,255,255,.35);}
+  .ball.made.money{background:#F5C518;border-color:#F5C518;box-shadow:0 0 9px rgba(245,197,24,.55);}
 
   /* ── Total ── */
   .ct-total{
-    display:flex;align-items:baseline;gap:10px;
-    padding-top:8px;border-top:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:baseline;gap:6px;
+    padding-top:5px;border-top:1px solid rgba(255,255,255,.08);
   }
-  .ct-total-lbl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
-  .ct-total-val{font-family:'Anton',Impact,sans-serif;font-size:52px;line-height:1;}
-  .ct-total-max{font-size:13px;color:rgba(255,255,255,.22);}
+  .ct-total-lbl{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-total-val{font-family:'Anton',Impact,sans-serif;font-size:33px;line-height:1;}
+  .ct-total-max{font-size:9px;color:rgba(255,255,255,.22);}
 
   /* ── Finals = single panel, centered & slightly wider ── */
-  .tpt-wrap.finals .court-panel{min-width:440px;}
+  .tpt-wrap.finals .court-panel{min-width:275px;}
 </style>
 </head>
 <body>
@@ -202,25 +201,6 @@
   }
 
   connect();
-
-  // Court param positioning
-  (function() {
-    const courtParam = new URLSearchParams(location.search).get('court');
-    const wrap = document.getElementById('tptWrap');
-    if (courtParam === '1') {
-      wrap.style.top = '20px';
-      wrap.style.left = '20px';
-      wrap.style.transform = 'none';
-      document.getElementById('court2Panel').style.display = 'none';
-    } else if (courtParam === '2') {
-      wrap.style.top = '20px';
-      wrap.style.right = '20px';
-      wrap.style.left = 'auto';
-      wrap.style.transform = 'none';
-      document.getElementById('court1Panel').style.display = 'none';
-    }
-    // No param: keeps existing center position with both panels
-  })();
 </script>
 </body>
 </html>

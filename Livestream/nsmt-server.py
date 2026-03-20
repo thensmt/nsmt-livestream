@@ -5,7 +5,7 @@
 # WS  : ws://localhost:8765
 # Requires:  pip install websockets
 
-import asyncio, json, threading, os, time, mimetypes
+import asyncio, json, threading, os, time, mimetypes, socket, subprocess
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
@@ -143,7 +143,11 @@ async def ws_handler(websocket):
     await websocket.send(json.dumps({"type":"snapshot","data":STATE}))
     try:
         async for message in websocket:
-            data = json.loads(message)
+            try:
+                data = json.loads(message)
+            except json.JSONDecodeError:
+                print(f"[WS] Bad JSON from client, skipping")
+                continue
             kind = data.get("type")
             if kind == "set_state":
                 for k in ("bug","ticker","stats"):
@@ -286,8 +290,35 @@ async def start_ws():
     async with websockets.serve(ws_handler, "0.0.0.0", WS_PORT, max_size=1<<20):
         await asyncio.Future()  # run forever
 
+def get_local_ip():
+    try:
+        result = subprocess.run(['ipconfig', 'getifaddr', 'en0'],
+                                capture_output=True, text=True, timeout=2)
+        ip = result.stdout.strip()
+        if ip: return ip
+    except Exception: pass
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception: return 'unknown'
+
 if __name__ == "__main__":
     load_state()
+    local_ip = get_local_ip()
+    print(f"""
+─────────────────────────────────────────────────────
+  NSMT Server Running
+
+  Producer : http://localhost:{HTTP_PORT}/nsmt-producer.html
+  Overlay  : http://localhost:{HTTP_PORT}/nsmt-combined-overlay.html
+
+  iPad URL : http://{local_ip}:{HTTP_PORT}/ipad-control/ipad-control.html
+  Stats    : http://{local_ip}:{HTTP_PORT}/nsmt-stats.html
+─────────────────────────────────────────────────────
+""")
     threading.Thread(target=start_http, daemon=True).start()
     try:
         asyncio.run(start_ws())

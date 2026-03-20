@@ -19,7 +19,7 @@
     position:absolute;bottom:32px;left:50%;
     transform:translateX(-50%);
     min-width:680px;
-    background:linear-gradient(160deg,#0a0b0f 0%,#141720 100%);
+    background:rgba(10,11,16,0.20);
     border:1px solid rgba(255,255,255,.12);border-radius:18px;
     padding:28px 36px 30px;
     display:flex;flex-direction:column;gap:18px;
@@ -120,6 +120,8 @@
     ? 'ws://localhost:8765'
     : 'ws://' + location.hostname + ':8765';
 
+  const JUDGE_NAMES = ['Keith Honore', 'Sherman Rivers', 'Tony Bently', 'Coach 4', 'Coach 5'];
+
   let ws, _prevRevealed = [false,false,false,false,false];
 
   function connect() {
@@ -168,7 +170,7 @@
       const val        = isRevealed && s != null ? s : '—';
       const newReveal  = isRevealed && !_prevRevealed[i];
       return `<div class="dk-judge${isRevealed?' revealed':''}${isPerfect?' perfect':''}">
-        <div class="dk-judge-lbl">Judge ${i+1}</div>
+        <div class="dk-judge-lbl">${JUDGE_NAMES[i] || 'Judge '+(i+1)}</div>
         <div class="dk-judge-val${isRevealed?' revealed':''}${isPerfect?' perfect':''}${newReveal?' animating':''}">${val}</div>
       </div>`;
     }).join('');
