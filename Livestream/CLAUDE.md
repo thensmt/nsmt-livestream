@@ -30,7 +30,7 @@ node nsmt-server-node.js
 |-----------|-----|
 | Producer (MBP) | `http://mbp.local:8000/nsmt-producer.html` |
 | OBS Browser Source | `http://mbp.local:8000/nsmt_hoopfest_overlay.html` |
-| **iPad Game Controller** | `http://MBP.local:8000/ipad-control/` |
+| **iPad Game Controller** | `http://MBP.local:8000/ipad-control/ipad-control.html` |
 | iPad stat tracker | `http://MBP.local:8000/nsmt-stats.html` |
 
 The iPad controller (`ipad-control/`) is a combined page with two tabs:
@@ -75,7 +75,7 @@ MBP (nsmt-producer.html) ───┘
 | `nsmt-server-node.js` | Node.js drop-in alternative |
 | `nsmt-ws-client.js` | Shared WS client (auto-reconnect; included by all pages) |
 | `nsmt-producer.html` | Producer control panel (MBP) |
-| `ipad-control/index.html` | **iPad primary controller** — GAME + STATS tabs combined |
+| `ipad-control/ipad-control.html` | **iPad primary controller** — GAME + STATS tabs combined |
 | `nsmt-stats.html` | Legacy iPad stat tracker (PWA, Firebase sync) |
 | `nsmt_hoopfest_overlay.html` | OBS scorebug overlay (FOX-style, 1920×1080) |
 | `Start NSMT.command` | macOS launcher |

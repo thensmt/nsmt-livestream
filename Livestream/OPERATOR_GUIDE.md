@@ -13,25 +13,25 @@
 |------|-----|--------|
 | Producer control panel | `http://mbp.local:8000/nsmt-producer.html` | MBP only |
 | OBS scorebug overlay | `http://mbp.local:8000/nsmt_hoopfest_overlay.html` | OBS Browser Source |
-| **iPad unified controller** | `http://MBP.local:8000/ipad-control/` | Primary device |
+| **iPad unified controller** | `http://MBP.local:8000/ipad-control/ipad-control.html` | Primary device |
 
 ### 3-Point Contest
 | What | URL | Device |
 |------|-----|--------|
 | OBS overlay (add as 2nd Browser Source) | `http://mbp.local:8000/3pt-overlay.html` | OBS Browser Source |
-| Court 1 scorer | `http://MBP.local:8000/ipad-control/` → 3PT tab | Primary device |
-| **Court 2 scorer** | `http://MBP.local:8000/ipad-control/?court=2` | **Second device only** |
+| Court 1 scorer | `http://MBP.local:8000/ipad-control/ipad-control.html` → 3PT tab | Primary device |
+| **Court 2 scorer** | `http://MBP.local:8000/ipad-control/ipad-control.html?court=2` | **Second device only** |
 
 ### Dunk Contest
 | What | URL | Device |
 |------|-----|--------|
 | OBS overlay (add as 2nd Browser Source) | `http://mbp.local:8000/dunk-overlay.html` | OBS Browser Source |
-| Head table control | `http://MBP.local:8000/ipad-control/` → Dunk tab | Primary device |
-| Judge 1 | `http://MBP.local:8000/ipad-control/?judge=1` | Any device |
-| Judge 2 | `http://MBP.local:8000/ipad-control/?judge=2` | Any device |
-| Judge 3 | `http://MBP.local:8000/ipad-control/?judge=3` | Any device |
-| Judge 4 | `http://MBP.local:8000/ipad-control/?judge=4` | Any device |
-| Judge 5 | `http://MBP.local:8000/ipad-control/?judge=5` | Any device |
+| Head table control | `http://MBP.local:8000/ipad-control/ipad-control.html` → Dunk tab | Primary device |
+| Judge 1 | `http://MBP.local:8000/ipad-control/ipad-control.html?judge=1` | Any device |
+| Judge 2 | `http://MBP.local:8000/ipad-control/ipad-control.html?judge=2` | Any device |
+| Judge 3 | `http://MBP.local:8000/ipad-control/ipad-control.html?judge=3` | Any device |
+| Judge 4 | `http://MBP.local:8000/ipad-control/ipad-control.html?judge=4` | Any device |
+| Judge 5 | `http://MBP.local:8000/ipad-control/ipad-control.html?judge=5` | Any device |
 
 > **Device compatibility:** Every page works on any device with a modern browser —
 > iPad, Android tablet, phone, laptop, Chromebook. No app install needed.
@@ -70,7 +70,7 @@ python3 nsmt-server.py
 ```
 ipconfig getifaddr en0
 ```
-Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-control/`
+Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-control/ipad-control.html`
 
 ---
 
@@ -105,7 +105,7 @@ Use that IP in place of `MBP.local` — e.g. `http://192.168.1.50:8000/ipad-cont
 ### Pre-game
 1. Start server (`Start NSMT.command`)
 2. Open OBS, confirm scorebug overlay is connected (you'll see team names)
-3. Open the game controller on the primary device: `http://MBP.local:8000/ipad-control/`
+3. Open the game controller on the primary device: `http://MBP.local:8000/ipad-control/ipad-control.html`
 4. Look for the **green dot** in the top-right corner — that means it's connected
 5. On the MBP Producer, go to **Settings** tab and set team names, logos, colors, records
 6. On the MBP Producer, go to **Rosters** tab and assign rosters to home/away teams
@@ -250,7 +250,7 @@ The event type also affects the accent color on the intro card:
 
 ### Round 1 (2 courts shooting simultaneously)
 1. On the primary device: tap the **🏀 3PT** tab → tap **Court 1** at the top
-2. On the second device: open `http://MBP.local:8000/ipad-control/?court=2` (auto-opens on 3PT tab, Court 2 selected)
+2. On the second device: open `http://MBP.local:8000/ipad-control/ipad-control.html?court=2` (auto-opens on 3PT tab, Court 2 selected)
 3. On Court 1 scorer: set **Round** to **Round 1**
 4. On each scorer: type the shooter's name
 5. On each scorer: tap the **★ money rack** button (1–5) to select which rack is the money rack — the shooter chooses this before they start
@@ -293,14 +293,14 @@ The event type also affects the accent color on the intro card:
 2. Switch to your dunk scene in OBS
 3. On the primary device: tap the **✊ Dunk** tab — this is the head table control
 4. Each judge opens their page on their own device:
-   - Judge 1: `http://MBP.local:8000/ipad-control/?judge=1`
-   - Judge 2: `http://MBP.local:8000/ipad-control/?judge=2`
-   - Judge 3: `http://MBP.local:8000/ipad-control/?judge=3`
-   - Judge 4: `http://MBP.local:8000/ipad-control/?judge=4`
-   - Judge 5: `http://MBP.local:8000/ipad-control/?judge=5`
+   - Judge 1: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=1`
+   - Judge 2: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=2`
+   - Judge 3: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=3`
+   - Judge 4: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=4`
+   - Judge 5: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=5`
 
    > All 5 judge URLs are shown at the bottom of the Dunk tab for easy reference/sharing.
-   > If a judge opens `ipad-control/` without a `?judge=N` param, they'll be asked "Which judge are you?" before seeing the score buttons.
+   > If a judge opens `ipad-control/ipad-control.html` without a `?judge=N` param, they'll be asked "Which judge are you?" before seeing the score buttons.
 
 ### Per dunk
 1. Head table: enter **dunker name** (and optional photo URL)

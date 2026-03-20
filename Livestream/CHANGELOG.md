@@ -66,6 +66,10 @@ _Last updated: 2026-03-19_
 | 4 | 03-19 | Overlay | **Player photos in spotlight** — Spotlight card auto-resolves uploaded photos via `/uploads/players/{name}/photo.jpg` fallback. `onerror` hides photo wrap if image missing. |
 | 5 | 03-19 | iPad Control | **Granular overlay toggles** — BUG, TICKER, ADS toggle buttons added. Fixed `showScoreboard` → `showScorebug` naming mismatch (show/hide was broken). |
 | 6 | 03-19 | iPad Control | **Auto-hide overlays on tab switch** — Switching to Game tab shows scorebug, switching to 3PT/Dunk hides scorebug and activates the relevant contest overlay. |
+| 7 | 03-19 | iPad Control | **2x font scaling** — All text and touch targets doubled for iPad readability. Topbar, modals, buttons, and layout constraints updated to match. |
+| 8 | 03-19 | iPad Control | **Removed duplicate nav** — GAME/3PT/DUNK tab bar removed. Added GAME button to preset bar (GAME/NOVA24/3PT/DUNK/PVP). |
+| 9 | 03-19 | iPad Control | **Symmetric scoring layout** — Away scoring buttons positioned right (near clock), home buttons positioned left (near clock). |
+| 10 | 03-19 | iPad Control | **File renamed** — `ipad-control/index.html` → `ipad-control/ipad-control.html`. All 35+ URL references updated across docs, runbook, and start script. |
 
 ---
 
@@ -73,7 +77,7 @@ _Last updated: 2026-03-19_
 
 1. Open `jersey-numbers.html` on iPad Safari, enter all jersey numbers, tap **Save**
 2. Double-click `Start NSMT.command` on MBP
-3. On iPad, open `http://mbp.local:8000/ipad-control/`
+3. On iPad, open `http://mbp.local:8000/ipad-control/ipad-control.html`
 4. In OBS, set browser source to `http://localhost:8000/nsmt-combined-overlay.html`
 5. Tap event preset (Nova 24, PVP, 3PT, or Dunk) to load teams
 6. Verify overlay shows scorebug with correct teams

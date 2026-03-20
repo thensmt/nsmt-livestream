@@ -85,22 +85,22 @@ Same fields as Away.
 
 ### Primary device (game control + all tabs)
 1. Open browser on iPad
-2. Go to: `http://MBP.local:8000/ipad-control/`
-   - If that doesn't load, use the IP: `http://192.168.x.x:8000/ipad-control/`
+2. Go to: `http://MBP.local:8000/ipad-control/ipad-control.html`
+   - If that doesn't load, use the IP: `http://192.168.x.x:8000/ipad-control/ipad-control.html`
 3. Wait for the **green dot** in the top-right corner
 4. Tap STATS tab → confirm both team rosters show player grids
 
 ### 3-Point Contest — Second device (Court 2 only)
-- Open: `http://MBP.local:8000/ipad-control/?court=2`
+- Open: `http://MBP.local:8000/ipad-control/ipad-control.html?court=2`
 - The 3PT tab opens automatically with Court 2 selected
 - No other setup needed
 
 ### Dunk Contest — Judge devices (one per judge)
-- Judge 1: `http://MBP.local:8000/ipad-control/?judge=1`
-- Judge 2: `http://MBP.local:8000/ipad-control/?judge=2`
-- Judge 3: `http://MBP.local:8000/ipad-control/?judge=3`
-- Judge 4: `http://MBP.local:8000/ipad-control/?judge=4`
-- Judge 5: `http://MBP.local:8000/ipad-control/?judge=5`
+- Judge 1: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=1`
+- Judge 2: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=2`
+- Judge 3: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=3`
+- Judge 4: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=4`
+- Judge 5: `http://MBP.local:8000/ipad-control/ipad-control.html?judge=5`
 - (If a judge opens without `?judge=N`, they'll be asked "Which judge are you?" on screen)
 
 ---
@@ -313,7 +313,7 @@ All graphics auto-dismiss after ~5 seconds.
 
 ### Judges (each on their own device)
 
-1. Open `http://MBP.local:8000/ipad-control/?judge=N`
+1. Open `http://MBP.local:8000/ipad-control/ipad-control.html?judge=N`
 2. See the dunker name, round, attempt (read-only)
 3. Tap a score: **1 through 10**
 4. Tap **✓ Submit Score**
