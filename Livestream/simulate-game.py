@@ -85,10 +85,19 @@ def empty_stats():
 def calc_pts(s):
     return (s["fgm"] - s["t3m"]) * 2 + s["t3m"] * 3 + s["ftm"]
 
+def split_stat_across_quarters(total, quarters=4):
+    """Randomly distribute an integer total across N quarters."""
+    if total <= 0: return [0]*quarters
+    parts = [0]*quarters
+    for _ in range(total):
+        parts[random.randint(0, quarters-1)] += 1
+    return parts
+
 def simulate_game(preset):
     """Generate realistic stats for a full 4-quarter game."""
     game = PRESETS[preset]
     stats = {}
+    period_stats = {"away": {}, "home": {}}  # period_stats[side][quarter] = {fgm,fga,...}
 
     for side in ("away", "home"):
         for p in game[side]["players"]:
@@ -113,16 +122,12 @@ def simulate_game(preset):
             is_forward = p["pos"] in ("F",)
 
             if is_starter:
-                # Starters: higher volume
-                fg_att = random.randint(6, 14)
-                t3_att = random.randint(2, 7) if is_guard else random.randint(1, 4)
-                ft_att = random.randint(1, 6)
+                fg_att = random.randint(5, 12)
+                t3_att = random.randint(1, 6) if is_guard else random.randint(1, 3)
+                ft_att = random.randint(1, 5)
             else:
-                # Bench: lower volume, some DNP
-                if random.random() < 0.25:
-                    continue  # DNP
-                fg_att = random.randint(2, 8)
-                t3_att = random.randint(0, 4) if is_guard else random.randint(0, 2)
+                fg_att = random.randint(4, 10)
+                t3_att = random.randint(1, 5) if is_guard else random.randint(0, 3)
                 ft_att = random.randint(0, 4)
 
             # Shooting percentages (realistic HS)
@@ -162,15 +167,30 @@ def simulate_game(preset):
             s["to"] = random.randint(0, 3)
             s["pf"] = random.randint(0, 4)
 
-            # Minutes played (32 min game = 4x8min quarters)
-            if is_starter:
-                s["min"] = random.randint(22, 32)
-            else:
-                s["min"] = random.randint(8, 20)
+            # Minutes played — all-star game, equal time for everyone
+            s["min"] = random.randint(14, 20)
 
             s["pts"] = calc_pts(s)
 
-    return stats
+    # Build per-quarter team aggregates
+    for side in ("away", "home"):
+        for q in range(1, 5):
+            period_stats[side][q] = empty_stats()
+
+        for p in game[side]["players"]:
+            s = stats[p["id"]]
+            # Split each stat across 4 quarters
+            for key in ("fgm","fga","t3m","t3a","ftm","fta","off","def","ast","stl","blk","to","pf"):
+                parts = split_stat_across_quarters(s[key])
+                for q in range(4):
+                    period_stats[side][q+1][key] += parts[q]
+
+        # Recalculate pts per quarter
+        for q in range(1, 5):
+            ps = period_stats[side][q]
+            ps["pts"] = (ps["fgm"] - ps["t3m"]) * 2 + ps["t3m"] * 3 + ps["ftm"]
+
+    return stats, period_stats
 
 def build_team_payload(game, side, stats):
     """Build the stats team object for a WebSocket patch."""
@@ -196,7 +216,7 @@ async def run_simulation(preset_name):
     import websockets
 
     game = PRESETS[preset_name]
-    stats = simulate_game(preset_name)
+    stats, period_stats = simulate_game(preset_name)
 
     # Calculate team scores
     away_score = sum(stats[p["id"]]["pts"] for p in game["away"]["players"])
@@ -235,7 +255,11 @@ async def run_simulation(preset_name):
                     "gameStatus": "Final"
                 },
                 "away": away_team,
-                "home": home_team
+                "home": home_team,
+                "periodStats": {
+                    "away": {str(q): period_stats["away"][q] for q in range(1,5)},
+                    "home": {str(q): period_stats["home"][q] for q in range(1,5)}
+                }
             }
         }
 

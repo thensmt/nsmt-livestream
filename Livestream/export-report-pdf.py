@@ -64,6 +64,19 @@ def build_report_html(state, label_override=None):
     a_rows, *a_t = build_team("away")
     h_rows, *h_t = build_team("home")
 
+    # Build period breakdown HTML
+    ps = stats.get("periodStats", {})
+    def pb_section(side, side_name, t_totals, score):
+        team_ps = ps.get(side, {})
+        rows = ""
+        for q in range(1, 5):
+            s = team_ps.get(str(q), {})
+            pts=s.get("pts",0); reb=(s.get("off",0)+s.get("def",0))
+            rows += f'<tr><td class="nl">Q{q}</td><td class="b">{pts}</td><td>{s.get("fgm",0)}-{s.get("fga",0)}</td><td>{s.get("t3m",0)}-{s.get("t3a",0)}</td><td>{s.get("ftm",0)}-{s.get("fta",0)}</td><td>{reb}</td><td>{s.get("ast",0)}</td><td>{s.get("to",0)}</td></tr>'
+        rows += f'<tr class="tr"><td class="nl">Final</td><td class="b">{score}</td><td>{t_totals[1]}-{t_totals[2]}</td><td>{t_totals[3]}-{t_totals[4]}</td><td>{t_totals[5]}-{t_totals[6]}</td><td>{t_totals[7]+t_totals[8]}</td><td>{t_totals[9]}</td><td>{t_totals[12]}</td></tr>'
+        return f'<div class="pb"><div class="pb-title">Period Breakdown — {esc(side_name)}</div><table><thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead><tbody>{rows}</tbody></table></div>'
+    pb_html = pb_section("away", away_name, a_t, away_score) + '\n' + pb_section("home", home_name, h_t, home_score)
+
     html = f'''<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Game Report</title>
 <style>
 @page{{size:letter portrait;margin:.4in .35in}}
@@ -160,26 +173,7 @@ tr.tr td{{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}}
   </div>
 </div>
 
-<div class="pb">
-  <div class="pb-title">Period Breakdown</div>
-  <table><thead>
-    <tr>
-      <th class="nl" style="width:30pt"></th>
-      <th colspan="7" class="pb-team-hdr">{esc(away_name)}</th>
-      <th colspan="7" class="pb-team-hdr">{esc(home_name)}</th>
-    </tr>
-    <tr>
-      <th class="nl"></th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
-    </tr>
-  </thead><tbody>
-    <tr class="tr"><td class="nl">Final</td>
-      <td class="b">{away_score}</td><td>{a_t[1]}-{a_t[2]}</td><td>{a_t[3]}-{a_t[4]}</td><td>{a_t[5]}-{a_t[6]}</td><td>{a_t[7]+a_t[8]}</td><td>{a_t[9]}</td><td>{a_t[12]}</td>
-      <td class="b">{home_score}</td><td>{h_t[1]}-{h_t[2]}</td><td>{h_t[3]}-{h_t[4]}</td><td>{h_t[5]}-{h_t[6]}</td><td>{h_t[7]+h_t[8]}</td><td>{h_t[9]}</td><td>{h_t[12]}</td>
-    </tr>
-  </tbody></table>
-</div>
+{pb_html}
 
 <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>{esc(event)} &bull; {esc(now)} {esc(tstr)} &bull; Official Game Report</div>
 </body></html>'''

@@ -1258,6 +1258,7 @@ NSMTClient.onMessage((msg) => {
         });
       }
     });
+    if (state.stats.periodStats) G.periodStats = state.stats.periodStats;
   }
 });
 
@@ -2319,28 +2320,22 @@ window.generateStatReport = function(autoPrint) {
     </div>
   </div>
 
-  <div class="pb">
-    <div class="pb-title">Period Breakdown &mdash; ${esc(G.away.name||'Away')}</div>
-    <table><thead><tr>
-      <th class="nl" style="width:30pt"></th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
-    </tr></thead><tbody>
-      <tr class="tr"><td class="nl">Final</td>
-        <td class="b">${G.away.score||0}</td><td>${aT.tFgm}-${aT.tFga}</td><td>${aT.t3m}-${aT.t3a}</td><td>${aT.tFtm}-${aT.tFta}</td><td>${aT.tOff+aT.tDef}</td><td>${aT.tAst}</td><td>${aT.tTo}</td>
-      </tr>
-    </tbody></table>
-  </div>
-  <div class="pb" style="margin-top:4pt">
-    <div class="pb-title">Period Breakdown &mdash; ${esc(G.home.name||'Home')}</div>
-    <table><thead><tr>
-      <th class="nl" style="width:30pt"></th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
-    </tr></thead><tbody>
-      <tr class="tr"><td class="nl">Final</td>
-        <td class="b">${G.home.score||0}</td><td>${hT.tFgm}-${hT.tFga}</td><td>${hT.t3m}-${hT.t3a}</td><td>${hT.tFtm}-${hT.tFta}</td><td>${hT.tOff+hT.tDef}</td><td>${hT.tAst}</td><td>${hT.tTo}</td>
-      </tr>
-    </tbody></table>
-  </div>
+  ${function(){
+    const ps = G.periodStats || {};
+    function pbRows(side, tTotals, score) {
+      const teamPs = ps[side] || {};
+      let rows = '';
+      for (let q = 1; q <= (G.totalPeriods||4); q++) {
+        const s = teamPs[q] || {};
+        const pts = s.pts||0, reb = (s.off||0)+(s.def||0);
+        rows += '<tr><td class="nl">Q'+q+'</td><td class="b">'+pts+'</td><td>'+(s.fgm||0)+'-'+(s.fga||0)+'</td><td>'+(s.t3m||0)+'-'+(s.t3a||0)+'</td><td>'+(s.ftm||0)+'-'+(s.fta||0)+'</td><td>'+reb+'</td><td>'+(s.ast||0)+'</td><td>'+(s.to||0)+'</td></tr>';
+      }
+      rows += '<tr class="tr"><td class="nl">Final</td><td class="b">'+score+'</td><td>'+tTotals.tFgm+'-'+tTotals.tFga+'</td><td>'+tTotals.t3m+'-'+tTotals.t3a+'</td><td>'+tTotals.tFtm+'-'+tTotals.tFta+'</td><td>'+(tTotals.tOff+tTotals.tDef)+'</td><td>'+tTotals.tAst+'</td><td>'+tTotals.tTo+'</td></tr>';
+      return rows;
+    }
+    return '<div class="pb"><div class="pb-title">Period Breakdown — '+esc(G.away.name||'Away')+'</div><table><thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead><tbody>'+pbRows('away',aT,G.away.score||0)+'</tbody></table></div>'
+    + '<div class="pb" style="margin-top:4pt"><div class="pb-title">Period Breakdown — '+esc(G.home.name||'Home')+'</div><table><thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead><tbody>'+pbRows('home',hT,G.home.score||0)+'</tbody></table></div>';
+  }()}
 
   <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(label)} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
   </body></html>`;
