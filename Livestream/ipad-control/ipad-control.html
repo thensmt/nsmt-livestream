@@ -1541,8 +1541,8 @@ tr.tr td{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}
 <div class="rh">
   <div class="rh-logo"><img src="http://localhost:8000/silver-hoopfest-logo.png" alt="NSMT"></div>
   <div class="rh-center">
-    <div class="rh-event">NSMT Hoopfest 2026</div>
-    <div class="rh-meta">${esc(dateStr)} ${esc(timeStr)} &bull; The St. James &bull; Springfield, VA</div>
+    <div class="rh-event">${esc(S.event||'NSMT Hoopfest 2026')}</div>
+    <div class="rh-meta">${esc(dateStr)} ${esc(timeStr)}${S.venue?' &bull; '+esc(S.venue):' &bull; The St. James &bull; Springfield, VA'}</div>
     <div class="rh-status">${esc(gameStatus)}</div>
   </div>
   <div class="rh-right">Operator<br>${esc(dateStr)}<br>thensmt.com</div>
@@ -1617,7 +1617,7 @@ tr.tr td{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}
   </thead><tbody>${breakdownRows}${breakFinal}</tbody></table>
 </div>
 
-<div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>NSMT Hoopfest 2026 &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
+<div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(S.event||'NSMT Hoopfest 2026')} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
 </body></html>`;
 
   const blob=new Blob([html],{type:'text/html'});
