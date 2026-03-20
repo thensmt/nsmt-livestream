@@ -27,22 +27,22 @@ html, body {
 }
 
 /* ── TOPBAR ── */
-.topbar { background: #000; border-bottom: 2px solid var(--gold); display: flex; flex-direction: column; height: 130px; flex-shrink: 0; }
-.tb-main-row { display: flex; align-items: center; height: 80px; flex-shrink: 0; width: 100%; }
-.tb-presets { display: flex; height: 50px; border-top: 1px solid var(--border2); width: 100%; }
-.tb-logo { font-size: 36px; font-weight: 900; letter-spacing: 3px; color: var(--blue); padding: 0 12px; flex-shrink: 0; }
+.topbar { background: #000; border-bottom: 2px solid var(--gold); display: flex; flex-direction: column; height: 100px; flex-shrink: 0; }
+.tb-main-row { display: flex; align-items: center; height: 60px; flex-shrink: 0; width: 100%; }
+.tb-presets { display: flex; height: 40px; border-top: 1px solid var(--border2); width: 100%; }
+.tb-logo { font-size: 27px; font-weight: 900; letter-spacing: 3px; color: var(--blue); padding: 0 12px; flex-shrink: 0; }
 .tb-score-strip { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0; height: 100%; }
 .tb-team { display: flex; flex-direction: column; align-items: center; padding: 0 12px; min-width: 90px; }
-.tb-team-name { font-size: 18px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
-.tb-team-score { font-size: 48px; font-weight: 900; color: var(--text); line-height: 1; }
+.tb-team-name { font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
+.tb-team-score { font-size: 36px; font-weight: 900; color: var(--text); line-height: 1; }
 .tb-center { display: flex; flex-direction: column; align-items: center; padding: 0 10px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); min-width: 90px; }
-.tb-period { font-size: 22px; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
-.tb-clock { font-size: 36px; font-weight: 900; color: var(--text); letter-spacing: 1px; }
+.tb-period { font-size: 16px; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
+.tb-clock { font-size: 27px; font-weight: 900; color: var(--text); letter-spacing: 1px; }
 .tb-clock.running { color: var(--green); }
 .tb-ws { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 12px; flex-shrink: 0; }
 .ws-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: background .3s; }
 .ws-dot.ok { background: var(--green); }
-.ws-label { font-size: 16px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.ws-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
 
 
@@ -51,56 +51,58 @@ html, body {
 .tab-pane.active { display: flex; flex-direction: column; }
 
 /* ── GAME TAB ── */
-.main { display: grid; grid-template-columns: 1fr 340px 1fr; gap: 0; height: calc(100vh - 130px); overflow: hidden; }
+.main { display: grid; grid-template-columns: 1fr auto auto auto 1fr; gap: 0; height: calc(100vh - 100px); overflow: hidden; }
+.score-btns-float { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; align-content: center; padding: 6px; }
+.score-btns-float .sbtn { width: auto; min-width: 45px; }
 .team-col { display: flex; flex-direction: column; padding: 10px 8px; gap: 8px; overflow: hidden; border-right: 1px solid var(--border); }
 .team-col:last-child { border-right: none; border-left: 1px solid var(--border); }
 .center-col { display: flex; flex-direction: column; align-items: center; padding: 10px 8px; gap: 8px; background: var(--surf); overflow: hidden; }
-.team-hdr { text-align: center; font-size: 20px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; border-bottom: 1px solid var(--border); }
-.team-name-big { text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: var(--text); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.score-display { text-align: center; font-size: 136px; font-weight: 900; line-height: 1; color: var(--text); background: var(--surf2); border-radius: var(--r); padding: 6px 0; cursor: pointer; }
+.team-hdr { text-align: center; font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.team-name-big { text-align: center; font-size: 24px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: var(--text); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.score-display { text-align: center; font-size: 102px; font-weight: 900; line-height: 1; color: var(--text); background: var(--surf2); border-radius: var(--r); padding: 6px 0; cursor: pointer; }
 .score-display:active { opacity: .75; }
 .score-btns { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; }
-.score-btns .sbtn { height: 104px; font-size: 36px; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; transition: transform .08s, opacity .1s; color: #fff; }
+.score-btns .sbtn { height: 78px; font-size: 27px; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; transition: transform .08s, opacity .1s; color: #fff; }
 .score-btns .sbtn:active { transform: scale(.92); opacity: .8; }
 .sbtn.plus3 { background: var(--blue); } .sbtn.plus2 { background: #1a65c0; }
 .sbtn.plus1 { background: var(--surf3); border: 1px solid var(--border2); color: var(--text); }
 .sbtn.minus1 { background: var(--surf3); border: 1px solid var(--border2); color: var(--red); }
-.section-label { font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: center; }
+.section-label { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: center; }
 .foul-pips { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
 .foul-pip { width: 32px; height: 32px; border-radius: 50%; background: var(--border2); transition: background .15s; }
 .foul-pip.on { background: var(--orange); } .foul-pip.red { background: var(--red); }
 .foul-adj { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.adj-btn { height: 92px; font-size: 44px; font-weight: 900; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; transition: transform .08s, opacity .1s; }
+.adj-btn { height: 69px; font-size: 33px; font-weight: 900; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; transition: transform .08s, opacity .1s; }
 .adj-btn:active { transform: scale(.92); opacity: .8; }
 .adj-btn.minus { color: var(--muted); } .adj-btn.plus-foul { color: var(--orange); }
 .to-pips { display: flex; gap: 5px; justify-content: center; }
 .to-pip { width: 40px; height: 40px; border-radius: 4px; background: var(--blue); transition: background .15s, opacity .15s; }
 .to-pip.used { background: var(--border2); opacity: .4; }
-.to-use-btn { height: 100px; width: 100%; font-size: 26px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; transition: transform .08s, background .1s; }
+.to-use-btn { height: 75px; width: 100%; font-size: 20px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; transition: transform .08s, background .1s; }
 .to-use-btn:active { transform: scale(.96); background: var(--surf3); }
 .divider { width: 100%; height: 1px; background: var(--border); flex-shrink: 0; }
-.clock-display { font-size: 112px; font-weight: 900; letter-spacing: 2px; color: var(--text); background: var(--surf2); border-radius: var(--r); padding: 8px 0; text-align: center; width: 100%; cursor: pointer; transition: color .2s; }
+.clock-display { font-size: 84px; font-weight: 900; letter-spacing: 2px; color: var(--text); background: var(--surf2); border-radius: var(--r); padding: 8px 0; text-align: center; width: 100%; cursor: pointer; transition: color .2s; }
 .clock-display.running { color: var(--green); } .clock-display:active { opacity: .8; }
 .clock-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; width: 100%; }
-.ck-btn { height: 108px; font-size: 40px; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; font-weight: 900; transition: transform .08s, background .1s; }
+.ck-btn { height: 81px; font-size: 30px; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; font-weight: 900; transition: transform .08s, background .1s; }
 .ck-btn:active { transform: scale(.93); opacity: .8; }
 .ck-btn.start { background: var(--green); color: #000; border: none; } .ck-btn.pause { background: var(--orange); color: #fff; border: none; } .ck-btn.reset { background: var(--surf3); }
-.period-label-big { font-size: 28px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-align: center; }
+.period-label-big { font-size: 21px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-align: center; }
 .period-pills { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; width: 100%; }
-.period-pill { height: 76px; min-width: 42px; padding: 0 8px; font-size: 26px; font-weight: 800; letter-spacing: 1px; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .12s; }
+.period-pill { height: 57px; min-width: 42px; padding: 0 8px; font-size: 20px; font-weight: 800; letter-spacing: 1px; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .12s; }
 .period-pill.active { background: var(--gold); color: #000; border-color: var(--gold); }
 .period-pill.ot { border-color: var(--orange); color: var(--orange); } .period-pill.ot.active { background: var(--orange); color: #fff; }
 .period-pill:active { transform: scale(.92); }
-.end-period-btn { width: 100%; height: 92px; font-size: 26px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 8px; cursor: pointer; transition: all .1s; }
+.end-period-btn { width: 100%; height: 69px; font-size: 20px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 8px; cursor: pointer; transition: all .1s; }
 .end-period-btn:active { background: var(--surf3); transform: scale(.97); }
-.reset-to-btn { height: 68px; width: 100%; font-size: 20px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; cursor: pointer; }
+.reset-to-btn { height: 68px; width: 100%; font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; cursor: pointer; }
 .reset-to-btn:active { color: var(--text); border-color: var(--border2); }
 .spotlight-row { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; margin-top: auto; }
-.dismiss-btn { height: 76px; padding: 0 10px; font-size: 20px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 8px; cursor: pointer; }
+.dismiss-btn { height: 57px; padding: 0 10px; font-size: 15px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 8px; cursor: pointer; }
 .dismiss-btn:active { opacity: .7; }
 
 /* ── GAME TAB TWO-ZONE LAYOUT ── */
-#tabGame.active { height: calc(100vh - 130px); overflow: hidden; }
+#tabGame.active { height: calc(100vh - 100px); overflow: hidden; }
 .game-top { flex-shrink: 0; border-bottom: 1px solid var(--border); overflow: hidden; }
 .game-top .main { height: auto; display: flex; align-items: stretch; gap: 0; padding: 0; }
 /* Collapse all secondary controls — keep only score + score-btns + clock essentials */
@@ -110,277 +112,277 @@ html, body {
 .game-top .period-pills,.game-top .end-period-btn,.game-top .spotlight-row { display: none !important; }
 .game-top .team-col { flex: 1; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 6px; border-right: 1px solid var(--border); }
 .game-top .team-col:last-child { border-right: none; border-left: 1px solid var(--border); }
-.game-top .team-name-big { font-size: 22px; width: 100%; text-align: center; }
-.game-top .score-display { font-size: 68px; padding: 2px 6px; flex: 1; }
-.game-top .score-btns { display: flex; gap: 3px; }
-.game-top .score-btns .sbtn { height: 64px; font-size: 24px; padding: 0 6px; flex: none; width: 48px; }
+.game-top .team-name-big { font-size: 16px; width: 100%; text-align: center; }
+.game-top .score-display { font-size: 51px; padding: 2px 6px; flex: 1; }
+.game-top .score-btns-float { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; align-content: center; padding: 4px; flex-shrink: 0; }
+.game-top .score-btns-float .sbtn { height: 48px; font-size: 18px; padding: 0 6px; width: 48px; min-width: 48px; }
 .game-top .center-col { flex-shrink: 0; width: 180px; padding: 5px 4px; gap: 4px; background: var(--surf); }
-.game-top .clock-display { font-size: 52px; padding: 2px 0; cursor: pointer; }
-.game-top .ck-btn { height: 60px; font-size: 28px; }
+.game-top .clock-display { font-size: 39px; padding: 2px 0; cursor: pointer; }
+.game-top .ck-btn { height: 45px; font-size: 21px; }
 .game-bottom { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .game-bottom .stats-pane { height: 100%; }
 /* Compact player cards for game tab */
-#tabGame .pbtn { min-height: 144px; padding: 7px 6px; gap: 1px; }
-#tabGame .pbtn-num { font-size: 90px; }
-#tabGame .pbtn-name { font-size: 42px; }
-#tabGame .pbtn-pts { font-size: 30px; }
+#tabGame .pbtn { min-height: 108px; padding: 7px 6px; gap: 1px; }
+#tabGame .pbtn-num { font-size: 68px; }
+#tabGame .pbtn-name { font-size: 32px; }
+#tabGame .pbtn-pts { font-size: 22px; }
 #tabGame .pbtn-pip { width: 14px; height: 14px; }
-#tabGame .pbtn-spotlight { width: 44px; height: 44px; font-size: 22px; top: 3px; left: 3px; }
+#tabGame .pbtn-spotlight { width: 44px; height: 33px; font-size: 16px; top: 3px; left: 3px; }
 
 /* ── MODALS ── */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: flex; align-items: center; justify-content: center; z-index: 100; }
 .modal-backdrop.hidden { display: none; }
 .modal-box { background: var(--surf); border: 1px solid var(--border2); border-radius: 14px; padding: 24px; width: 400px; display: flex; flex-direction: column; gap: 14px; }
-.modal-title { font-size: 26px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
-.modal-input { background: var(--surf3); border: 1px solid var(--border2); color: var(--text); padding: 12px 14px; font-size: 56px; font-weight: 700; font-family: inherit; border-radius: 8px; outline: none; width: 100%; text-align: center; }
+.modal-title { font-size: 20px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+.modal-input { background: var(--surf3); border: 1px solid var(--border2); color: var(--text); padding: 12px 14px; font-size: 42px; font-weight: 700; font-family: inherit; border-radius: 8px; outline: none; width: 100%; text-align: center; }
 .modal-input:focus { border-color: var(--gold); }
 .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.modal-btn { height: 100px; font-size: 28px; font-weight: 800; border: none; border-radius: 8px; cursor: pointer; }
+.modal-btn { height: 75px; font-size: 21px; font-weight: 800; border: none; border-radius: 8px; cursor: pointer; }
 .modal-btn.apply { background: var(--gold); color: #000; } .modal-btn.cancel { background: var(--surf3); color: var(--muted); }
 .score-preset-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.score-preset { height: 96px; font-size: 32px; font-weight: 800; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; }
+.score-preset { height: 72px; font-size: 24px; font-weight: 800; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; }
 .score-preset:active { background: var(--blue); }
 
 /* ── TOAST ── */
-.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(14,128,252,.92); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 26px; font-weight: 700; pointer-events: none; opacity: 0; transition: opacity .25s; z-index: 200; white-space: nowrap; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(14,128,252,.92); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 20px; font-weight: 700; pointer-events: none; opacity: 0; transition: opacity .25s; z-index: 200; white-space: nowrap; }
 .toast.show { opacity: 1; }
 
 /* ── STATS TAB ── */
-.stats-pane { height: calc(100vh - 130px); display: flex; flex-direction: column; overflow: hidden; }
+.stats-pane { height: calc(100vh - 100px); display: flex; flex-direction: column; overflow: hidden; }
 .stats-player-section { flex: 1; display: flex; overflow: hidden; }
 .stats-team-col { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
 .stats-team-col:last-child { border-right: none; }
-.stats-team-hdr { padding: 6px 10px; background: var(--surf); border-bottom: 1px solid var(--border); font-size: 20px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.stats-team-score { color: var(--gold); font-size: 28px; }
+.stats-team-hdr { padding: 6px 10px; background: var(--surf); border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.stats-team-score { color: var(--gold); font-size: 21px; }
 .player-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 5px; overflow-y: auto; align-content: start; }
 .player-grid::-webkit-scrollbar { width: 3px; } .player-grid::-webkit-scrollbar-thumb { background: var(--border2); }
 .pbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; cursor: pointer; transition: all .1s; min-height: 200px; position: relative; }
 .pbtn:active { transform: scale(.94); background: var(--surf3); }
 .pbtn.foul4 { border-color: var(--orange); } .pbtn.foul5 { border-color: var(--red); opacity: .5; }
-.pbtn-num { font-size: 72px; font-weight: 900; color: var(--gold); line-height: 1; }
-.pbtn-name { font-size: 28px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
-.pbtn-pts { font-size: 26px; color: var(--muted); }
+.pbtn-num { font-size: 54px; font-weight: 900; color: var(--gold); line-height: 1; }
+.pbtn-name { font-size: 21px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
+.pbtn-pts { font-size: 20px; color: var(--muted); }
 .pbtn-pips { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
 .pbtn-pip { width: 16px; height: 16px; border-radius: 50%; background: var(--border2); }
 .pbtn-pip.on { background: var(--red); }
-.no-roster { padding: 20px 12px; text-align: center; font-size: 22px; color: var(--muted); line-height: 1.6; grid-column: 1 / -1; }
+.no-roster { padding: 20px 12px; text-align: center; font-size: 16px; color: var(--muted); line-height: 1.6; grid-column: 1 / -1; }
 .pbtn.starter { border-color: var(--gold); background: rgba(245,197,24,.08); }
-.pbtn-starter-badge { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #000; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; line-height: 1; }
-.pbtn-spotlight { position: absolute; top: 4px; left: 4px; width: 52px; height: 52px; border-radius: 50%; background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.3); color: #F5C518; font-size: 26px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
+.pbtn-starter-badge { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #000; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.pbtn-spotlight { position: absolute; top: 4px; left: 4px; width: 52px; height: 39px; border-radius: 50%; background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.3); color: #F5C518; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
 .pbtn-spotlight:active { background: rgba(245,197,24,.35); transform: scale(.88); }
 .pbtn.on-court { border-color:var(--gold); background:rgba(245,197,24,.06); }
 .pbtn.out-sel { border-color:var(--red) !important; background:rgba(229,63,63,.12) !important; }
 .pbtn.can-sub-in { border-color:var(--green); background:rgba(34,197,94,.08); }
-.pbtn-status { font-size:16px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
-.lineup-lock-btn { display:block; width:calc(100% - 16px); margin:8px 8px 0; padding:14px; background:var(--green); color:#000; font-size:26px; font-weight:900; border:none; border-radius:8px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; }
-.sub-section-hdr { font-size:16px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:8px 6px 4px; }
-.starter-mode-btn { height: 52px; padding: 0 8px; font-size: 18px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 5px; cursor: pointer; transition: all .12s; }
+.pbtn-status { font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+.lineup-lock-btn { display:block; width:calc(100% - 16px); margin:8px 8px 0; padding:14px; background:var(--green); color:#000; font-size:20px; font-weight:900; border:none; border-radius:8px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; }
+.sub-section-hdr { font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:8px 6px 4px; }
+.starter-mode-btn { height: 39px; padding: 0 8px; font-size: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted); border-radius: 5px; cursor: pointer; transition: all .12s; }
 .starter-mode-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
-.starter-count { font-size: 20px; font-weight: 800; color: var(--gold); }
-.stat-detail { position: absolute; inset: 130px 0 0 0; background: var(--bg); display: flex; flex-direction: column; z-index: 10; overflow-y: auto; }
+.starter-count { font-size: 15px; font-weight: 800; color: var(--gold); }
+.stat-detail { position: absolute; inset: 100px 0 0 0; background: var(--bg); display: flex; flex-direction: column; z-index: 10; overflow-y: auto; }
 .stat-detail.hidden { display: none; }
 .stat-detail-hdr { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surf); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.stat-back-btn { height: 80px; padding: 0 14px; font-size: 26px; font-weight: 800; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; flex-shrink: 0; }
+.stat-back-btn { height: 60px; padding: 0 14px; font-size: 20px; font-weight: 800; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: 8px; cursor: pointer; flex-shrink: 0; }
 .stat-back-btn:active { opacity: .7; }
-.stat-player-name { flex: 1; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
-.stat-player-pts { font-size: 40px; font-weight: 900; color: var(--gold); }
-.stat-spotlight-btn { height: 80px; padding: 0 14px; font-size: 26px; font-weight: 800; background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3); color: #fbbf24; border-radius: 8px; cursor: pointer; }
+.stat-player-name { flex: 1; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+.stat-player-pts { font-size: 30px; font-weight: 900; color: var(--gold); }
+.stat-spotlight-btn { height: 60px; padding: 0 14px; font-size: 20px; font-weight: 800; background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3); color: #fbbf24; border-radius: 8px; cursor: pointer; }
 .stat-spotlight-btn:active { background: rgba(251,191,36,.2); }
 .stat-rows { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
-.stat-group-label { font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 4px 0 2px; border-bottom: 1px solid var(--border); }
+.stat-group-label { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 4px 0 2px; border-bottom: 1px solid var(--border); }
 .stat-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .stat-row { display: flex; align-items: center; gap: 8px; background: var(--surf2); border-radius: 8px; padding: 8px 10px; border: 1px solid var(--border); }
-.stat-row-label { font-size: 20px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); flex: 1; }
-.stat-val { font-size: 40px; font-weight: 900; color: var(--text); min-width: 32px; text-align: center; }
-.stat-sub { font-size: 18px; color: var(--muted); min-width: 36px; text-align: right; }
-.stat-adj { height: 76px; width: 76px; font-size: 40px; font-weight: 900; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); border-radius: 6px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.stat-row-label { font-size: 15px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); flex: 1; }
+.stat-val { font-size: 30px; font-weight: 900; color: var(--text); min-width: 32px; text-align: center; }
+.stat-sub { font-size: 14px; color: var(--muted); min-width: 36px; text-align: right; }
+.stat-adj { height: 57px; width: 76px; font-size: 30px; font-weight: 900; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); border-radius: 6px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 .stat-adj:active { transform: scale(.88); opacity: .8; }
 .stat-adj.plus { color: var(--green); } .stat-adj.minus { color: var(--muted); }
 
 /* ── LIVE SUB-TABS (game tab operator flow) ── */
 .live-tabs { display:flex; background:var(--surf); border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; }
-.ltab { flex:1; min-width:60px; padding:10px 4px; font-size:18px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; }
+.ltab { flex:1; min-width:60px; padding:10px 4px; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; }
 .ltab.active { color:var(--gold); border-bottom-color:var(--gold); }
 .live-panel { flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0; }
 .hidden-panel { display:none !important; }
 .flow-bar { display:flex; align-items:center; flex-wrap:wrap; min-height:36px; padding:6px 10px; gap:6px; background:var(--surf2); border-bottom:1px solid var(--border); flex-shrink:0; }
-.flow-crumb { font-size:18px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+.flow-crumb { font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
 .flow-crumb.done { color:var(--green); cursor:pointer; }
 .flow-crumb.active { color:var(--gold); }
-.flow-sep { color:var(--muted); font-size:22px; }
+.flow-sep { color:var(--muted); font-size:16px; }
 .op-panel { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .teams-split { display:grid; grid-template-columns:1fr 1fr; min-height:100%; }
 .team-split-col { overflow-y:auto; border-right:1px solid var(--border); padding:6px; }
 .team-split-col:last-child { border-right:none; }
-.team-split-label { font-size:18px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+.team-split-label { font-size:14px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
 .player-col-grid { display:flex; flex-direction:column; gap:4px; }
 .evt-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; padding:8px; }
 .evt-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:10px 4px; cursor:pointer; gap:3px; transition:all .08s; }
 .evt-btn:active { background:var(--surf3); transform:scale(.94); }
-.evt-icon { font-size:36px; }
-.evt-label { font-size:16px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); text-align:center; }
+.evt-icon { font-size:27px; }
+.evt-label { font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); text-align:center; }
 .result-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px; }
 .result-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:10px; padding:20px 10px; cursor:pointer; border:2px solid; transition:transform .08s; }
 .result-btn:active { transform:scale(.94); }
 .result-btn.made { border-color:var(--green); background:rgba(34,197,94,.08); color:var(--green); }
 .result-btn.miss { border-color:var(--red); background:rgba(229,63,63,.08); color:var(--red); }
-.result-icon { font-size:68px; }
-.result-label { font-size:36px; font-weight:900; letter-spacing:1px; margin-top:6px; }
+.result-icon { font-size:51px; }
+.result-label { font-size:27px; font-weight:900; letter-spacing:1px; margin-top:6px; }
 .assist-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; padding:8px; }
 .abtn { display:flex; flex-direction:column; align-items:center; background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:9px 4px; cursor:pointer; gap:2px; transition:all .08s; }
 .abtn:active { border-color:var(--gold); transform:scale(.94); }
-.abtn-num { font-size:40px; font-weight:900; color:var(--gold); line-height:1; }
-.abtn-name { font-size:16px; color:var(--muted); text-align:center; line-height:1.2; }
-.skip-btn { display:block; width:calc(100% - 16px); margin:0 8px 8px; padding:9px; background:var(--surf2); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:20px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
+.abtn-num { font-size:30px; font-weight:900; color:var(--gold); line-height:1; }
+.abtn-name { font-size:12px; color:var(--muted); text-align:center; line-height:1.2; }
+.skip-btn { display:block; width:calc(100% - 16px); margin:0 8px 8px; padding:9px; background:var(--surf2); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:15px; font-weight:800; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
 .skip-btn:active { color:var(--text); }
 .rebound-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px; }
 .reb-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:10px; padding:14px 10px; cursor:pointer; border:2px solid var(--border); background:var(--surf2); gap:3px; transition:all .08s; }
 .reb-btn:active { transform:scale(.94); }
-.reb-icon { font-size:48px; }
-.reb-label { font-size:26px; font-weight:900; letter-spacing:1px; }
+.reb-icon { font-size:36px; }
+.reb-label { font-size:20px; font-weight:900; letter-spacing:1px; }
 .period-tabs { display:flex; gap:4px; padding:6px 8px; flex-wrap:wrap; flex-shrink:0; background:var(--surf2); border-bottom:1px solid var(--border); }
-.ptab { padding:5px 13px; background:var(--surf2); border:1px solid var(--border); border-radius:6px; font-size:26px; font-weight:800; color:var(--muted); cursor:pointer; }
+.ptab { padding:5px 13px; background:var(--surf2); border:1px solid var(--border); border-radius:6px; font-size:20px; font-weight:800; color:var(--muted); cursor:pointer; }
 .ptab.active { border-color:var(--gold); color:var(--gold); background:rgba(245,197,24,.08); }
 .box-scroll { overflow-x:auto; overflow-y:auto; flex:1; min-height:0; }
 .box-team-hdr { display:flex; justify-content:space-between; align-items:center; background:#111; border-bottom:1px solid var(--border); padding:6px 10px; margin-top:6px; }
 .box-team-hdr:first-child { margin-top:0; }
-.box-team-name { font-size:36px; font-weight:900; color:var(--gold); letter-spacing:1px; text-transform:uppercase; }
-.box-team-score { font-size:44px; font-weight:900; color:#fff; background:rgba(255,255,255,.15); padding:1px 8px; border-radius:4px; }
-.box-table { width:100%; border-collapse:collapse; min-width:480px; font-size:26px; }
-.box-table th { background:#111; color:var(--muted); font-size:20px; font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:5px 5px; text-align:center; position:sticky; top:0; z-index:1; }
+.box-team-name { font-size:27px; font-weight:900; color:var(--gold); letter-spacing:1px; text-transform:uppercase; }
+.box-team-score { font-size:33px; font-weight:900; color:#fff; background:rgba(255,255,255,.15); padding:1px 8px; border-radius:4px; }
+.box-table { width:100%; border-collapse:collapse; min-width:480px; font-size:20px; }
+.box-table th { background:#111; color:var(--muted); font-size:15px; font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:5px 5px; text-align:center; position:sticky; top:0; z-index:1; }
 .box-table th:nth-child(2) { text-align:left; }
-.box-table td { padding:8px 5px; text-align:center; border-bottom:1px solid var(--border); font-size:26px; }
+.box-table td { padding:8px 5px; text-align:center; border-bottom:1px solid var(--border); font-size:20px; }
 .box-table td:nth-child(2) { text-align:left; font-weight:600; max-width:80px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .box-table tr.tot td { background:var(--surf2); font-weight:800; border-top:1px solid var(--border2); }
 .box-pts { color:var(--gold); font-weight:800; }
 .leaders-scroll { overflow-y:auto; flex:1; padding:8px; min-height:0; }
 .leaders-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
 .leader-card { background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:9px; }
-.leader-card-title { font-size:24px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+.leader-card-title { font-size:18px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
 .leader-row { display:flex; align-items:center; gap:5px; border-bottom:1px solid var(--border); padding:4px 0; }
 .leader-row:last-child { border-bottom:none; }
-.leader-rank { font-size:24px; color:var(--muted); width:14px; }
-.leader-num { font-size:32px; font-weight:900; color:var(--muted); width:24px; }
-.leader-name { font-size:26px; font-weight:700; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.leader-team-badge { font-size:20px; font-weight:800; letter-spacing:1px; text-transform:uppercase; background:rgba(245,197,24,.12); color:var(--gold); border-radius:3px; padding:2px 5px; }
-.leader-val { font-size:48px; font-weight:900; color:var(--gold); min-width:30px; text-align:right; }
+.leader-rank { font-size:18px; color:var(--muted); width:14px; }
+.leader-num { font-size:24px; font-weight:900; color:var(--muted); width:24px; }
+.leader-name { font-size:20px; font-weight:700; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.leader-team-badge { font-size:15px; font-weight:800; letter-spacing:1px; text-transform:uppercase; background:rgba(245,197,24,.12); color:var(--gold); border-radius:3px; padding:2px 5px; }
+.leader-val { font-size:36px; font-weight:900; color:var(--gold); min-width:30px; text-align:right; }
 .ts-scroll { overflow-y:auto; flex:1; min-height:0; }
 .ts-section { padding:8px; }
 .ts-header { display:grid; grid-template-columns:1fr auto 1fr; gap:6px; padding:7px; background:var(--surf2); border-radius:7px; margin-bottom:7px; }
-.ts-header-a { font-size:36px; font-weight:900; color:var(--gold); }
-.ts-header-mid { font-size:24px; color:var(--muted); display:flex; align-items:center; justify-content:center; }
-.ts-header-h { font-size:36px; font-weight:900; color:var(--green); text-align:right; }
+.ts-header-a { font-size:27px; font-weight:900; color:var(--gold); }
+.ts-header-mid { font-size:18px; color:var(--muted); display:flex; align-items:center; justify-content:center; }
+.ts-header-h { font-size:27px; font-weight:900; color:var(--green); text-align:right; }
 .ts-row { padding:5px 0; border-bottom:1px solid var(--border); }
-.ts-label { font-size:20px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:2px; }
+.ts-label { font-size:15px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:2px; }
 .ts-vals { display:grid; grid-template-columns:48px 1fr 48px; gap:4px; align-items:center; }
-.ts-val-a { font-size:42px; font-weight:900; color:var(--gold); }
-.ts-val-h { font-size:42px; font-weight:900; color:var(--green); text-align:right; }
+.ts-val-a { font-size:32px; font-weight:900; color:var(--gold); }
+.ts-val-h { font-size:32px; font-weight:900; color:var(--green); text-align:right; }
 .ts-bar-wrap { height:5px; display:flex; border-radius:3px; overflow:hidden; background:var(--border); }
 .ts-bar-a { background:var(--gold); }
 .ts-bar-h { background:var(--green); }
 .pbp-scroll { overflow-y:auto; flex:1; min-height:0; }
 .pbp-item { display:flex; align-items:flex-start; gap:7px; padding:9px 10px; border-bottom:1px solid var(--border); border-left:3px solid transparent; }
-.pbp-q { font-size:30px; font-weight:900; min-width:28px; }
-.pbp-clock { font-size:26px; color:var(--muted); min-width:44px; }
-.pbp-text { font-size:30px; flex:1; line-height:1.3; }
-.pbp-pts { font-size:36px; font-weight:900; color:var(--gold); }
+.pbp-q { font-size:22px; font-weight:900; min-width:28px; }
+.pbp-clock { font-size:20px; color:var(--muted); min-width:44px; }
+.pbp-text { font-size:22px; flex:1; line-height:1.3; }
+.pbp-pts { font-size:27px; font-weight:900; color:var(--gold); }
 
 /* ═══ 3PT TAB ═══ */
-.tp-pane { height: calc(100vh - 130px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; padding: 10px 14px 100px; display: flex; flex-direction: column; gap: 8px; }
+.tp-pane { height: calc(100vh - 100px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; padding: 10px 14px 100px; display: flex; flex-direction: column; gap: 8px; }
 .tp-pane::-webkit-scrollbar { width: 3px; } .tp-pane::-webkit-scrollbar-thumb { background: var(--border2); }
 .tp-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 10px; }
-.tp-card-title { font-size: 20px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.tp-card-title { font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
 .tp-court-row, .tp-round-row, .tp-vis-row, .tp-ctrl-row, .tp-money-row { display: flex; gap: 8px; }
-.tp-court-btn { flex: 1; height: 84px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 26px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.tp-court-btn { flex: 1; height: 63px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 20px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-court-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
-.tp-round-btn { flex: 1; padding: 7px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 26px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.tp-round-btn { flex: 1; padding: 7px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 20px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-round-btn.active { background: rgba(245,197,24,.12); border-color: var(--gold); color: var(--gold); }
-.tp-shooter-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-size: 30px; font-weight: 700; padding: 8px 10px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
+.tp-shooter-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-size: 22px; font-weight: 700; padding: 8px 10px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
 .tp-shooter-input:focus { border-color: var(--gold); }
-.tp-vis-btn { flex: 1; height: 60px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.tp-vis-btn { flex: 1; height: 45px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-vis-btn.active { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green); }
-.tp-money-btn { flex: 1; height: 80px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 28px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+.tp-money-btn { flex: 1; height: 60px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-size: 21px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
 .tp-money-btn.active { background: rgba(245,197,24,.15); border-color: var(--gold); color: var(--gold); }
 .tp-racks { display: flex; flex-direction: column; gap: 8px; }
 .tp-rack-row { display: flex; align-items: center; gap: 10px; }
-.tp-rack-lbl { font-size: 18px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); width: 52px; flex-shrink: 0; line-height: 1.2; }
+.tp-rack-lbl { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); width: 52px; flex-shrink: 0; line-height: 1.2; }
 .tp-rack-lbl.money { color: var(--gold); }
 .tp-balls { display: flex; gap: 8px; flex: 1; }
-.tp-ball-btn { flex: 1; max-width: 52px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--border2); background: var(--surf3); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: transparent; }
+.tp-ball-btn { flex: 1; max-width: 52px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--border2); background: var(--surf3); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: transparent; }
 .tp-ball-btn:active { transform: scale(.88); }
 .tp-ball-btn.made { background: #fff; border-color: #fff; color: #000; }
 .tp-ball-btn.made.money { background: var(--gold); border-color: var(--gold); color: #000; }
 .tp-total-row { display: flex; align-items: baseline; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-.tp-total-lbl { font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-.tp-total-val { font-size: 72px; font-weight: 900; line-height: 1; }
-.tp-total-max { font-size: 26px; color: var(--muted); }
-.tp-ctrl-btn { flex: 1; height: 88px; border: none; border-radius: var(--r); font-size: 28px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform .1s; }
+.tp-total-lbl { font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.tp-total-val { font-size: 54px; font-weight: 900; line-height: 1; }
+.tp-total-max { font-size: 20px; color: var(--muted); }
+.tp-ctrl-btn { flex: 1; height: 66px; border: none; border-radius: var(--r); font-size: 21px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform .1s; }
 .tp-ctrl-btn:active { transform: scale(.96); }
 .btn-tp-gold { background: var(--gold); color: #000; }
 .btn-tp-surf { background: var(--surf3); color: var(--text); border: 1px solid var(--border2); }
 
 /* ═══ DUNK TAB ═══ */
-.dk-pane { height: calc(100vh - 130px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 12px 14px 100px; display: flex; flex-direction: column; gap: 12px; }
+.dk-pane { height: calc(100vh - 100px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 12px 14px 100px; display: flex; flex-direction: column; gap: 12px; }
 .dk-pane::-webkit-scrollbar { width: 3px; } .dk-pane::-webkit-scrollbar-thumb { background: var(--border2); }
 .dk-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
-.dk-card-title { font-size: 20px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.dk-card-title { font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
 .dk-field-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
-.dk-field-lbl { font-size: 20px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-.dk-text-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-size: 32px; font-weight: 600; padding: 9px 12px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
+.dk-field-lbl { font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.dk-text-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-size: 24px; font-weight: 600; padding: 9px 12px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
 .dk-text-input:focus { border-color: var(--gold); }
 .dk-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .dk-stepper { display: flex; align-items: center; gap: 10px; }
-.dk-step-btn { width: 96px; height: 96px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--text); font-size: 40px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+.dk-step-btn { width: 96px; height: 72px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--text); font-size: 30px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .12s; }
 .dk-step-btn:active { transform: scale(.88); }
-.dk-step-val { flex: 1; text-align: center; font-size: 40px; font-weight: 700; }
+.dk-step-val { flex: 1; text-align: center; font-size: 30px; font-weight: 700; }
 .dk-vis-row { display: flex; gap: 10px; }
-.dk-vis-btn { flex: 1; height: 60px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
+.dk-vis-btn { flex: 1; height: 45px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .dk-vis-btn.active { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green); }
 .dk-judges-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
 .dk-judge-cell { background: var(--surf3); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: background .2s, border-color .2s; }
 .dk-judge-cell.submitted { background: rgba(14,128,252,.08); border-color: rgba(14,128,252,.3); }
 .dk-judge-cell.revealed { background: rgba(245,197,24,.08); border-color: rgba(245,197,24,.35); }
-.dk-judge-lbl { font-size: 18px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-.dk-judge-score { font-size: 56px; font-weight: 900; color: var(--muted); }
+.dk-judge-lbl { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.dk-judge-score { font-size: 42px; font-weight: 900; color: var(--muted); }
 .dk-judge-cell.submitted .dk-judge-score { color: var(--blue); }
 .dk-judge-cell.revealed .dk-judge-score { color: var(--gold); }
-.dk-reveal-btn { width: 100%; height: 72px; border: 1px solid var(--border2); border-radius: 6px; background: var(--surf3); color: var(--muted); font-size: 22px; font-weight: 700; cursor: pointer; transition: all .12s; letter-spacing: 1px; text-transform: uppercase; }
+.dk-reveal-btn { width: 100%; height: 54px; border: 1px solid var(--border2); border-radius: 6px; background: var(--surf3); color: var(--muted); font-size: 16px; font-weight: 700; cursor: pointer; transition: all .12s; letter-spacing: 1px; text-transform: uppercase; }
 .dk-reveal-btn:active { transform: scale(.92); }
 .dk-reveal-btn.ready { background: rgba(14,128,252,.12); border-color: var(--blue); color: var(--blue); }
 .dk-reveal-btn.done { background: rgba(245,197,24,.1); border-color: var(--gold); color: var(--gold); }
 .dk-total-strip { display: flex; align-items: baseline; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-.dk-total-lbl { font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-.dk-total-val { font-size: 88px; font-weight: 900; }
-.dk-total-max { font-size: 26px; color: var(--muted); }
+.dk-total-lbl { font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.dk-total-val { font-size: 66px; font-weight: 900; }
+.dk-total-max { font-size: 20px; color: var(--muted); }
 .dk-action-row { display: flex; gap: 10px; }
-.dk-action-btn { flex: 1; height: 112px; border: none; border-radius: var(--r); font-size: 26px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform .12s; }
+.dk-action-btn { flex: 1; height: 84px; border: none; border-radius: var(--r); font-size: 20px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform .12s; }
 .dk-action-btn:active { transform: scale(.96); }
 .btn-dk-blue { background: var(--blue); color: #fff; }
 .btn-dk-surf { background: var(--surf3); color: var(--text); border: 1px solid var(--border2); }
 .btn-dk-red { background: var(--red); color: #fff; }
 .dk-url-list { display: flex; flex-direction: column; gap: 6px; }
-.dk-url-item { background: var(--surf3); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 24px; word-break: break-all; }
-.dk-url-lbl { font-size: 18px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+.dk-url-item { background: var(--surf3); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 18px; word-break: break-all; }
+.dk-url-lbl { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
 .dk-score-pick-row { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin: 4px 0 2px; }
-.dk-score-pick { min-height: 56px; min-width: 44px; padding: 0 3px; background: #1a2030; color: #aaa; border: 1px solid var(--border2); border-radius: 4px; font-size: 22px; font-weight: 700; cursor: pointer; transition: all .1s; }
+.dk-score-pick { min-height: 42px; min-width: 44px; padding: 0 3px; background: #1a2030; color: #aaa; border: 1px solid var(--border2); border-radius: 4px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all .1s; }
 .dk-score-pick:active { transform: scale(.88); }
 .dk-score-pick.active { background: #0E80FC; color: #fff; border-color: #0E80FC; }
 .dk-history-row { display: flex; align-items: center; gap: 8px; background: var(--surf3); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; }
-.dk-history-name { font-weight: 800; font-size: 26px; flex-shrink: 0; min-width: 80px; }
+.dk-history-name { font-weight: 800; font-size: 20px; flex-shrink: 0; min-width: 80px; }
 .dk-history-scores { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
-.dk-history-score-item { font-size: 22px; color: var(--muted); }
-.dk-history-total { font-size: 32px; font-weight: 900; color: var(--gold); flex-shrink: 0; }
+.dk-history-score-item { font-size: 16px; color: var(--muted); }
+.dk-history-total { font-size: 24px; font-weight: 900; color: var(--gold); flex-shrink: 0; }
 
 
 /* ── EVENT PRESET BUTTONS (in topbar) ── */
-.ep-btn { flex: 1; height: 100%; font-size: 18px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; background: transparent; border: none; border-right: 1px solid var(--border2); color: var(--muted); cursor: pointer; transition: color .12s, background .12s; padding: 0 4px; white-space: nowrap; }
+.ep-btn { flex: 1; height: 100%; font-size: 14px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; background: transparent; border: none; border-right: 1px solid var(--border2); color: var(--muted); cursor: pointer; transition: color .12s, background .12s; padding: 0 4px; white-space: nowrap; }
 .ep-btn:last-child { border-right: none; }
 .ep-btn:active { opacity: .7; }
 .ep-btn.active { color: var(--gold); background: rgba(245,197,24,.1); }
 
 /* ── GAME OVERLAY ROW ── */
 .ov-row { display: flex; gap: 6px; padding: 4px 10px; flex-shrink: 0; }
-.ov-btn { flex: 1; height: 60px; font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; transition: transform .1s, opacity .1s; }
+.ov-btn { flex: 1; height: 45px; font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; transition: transform .1s, opacity .1s; }
 .ov-btn:active { transform: scale(.95); opacity: .85; }
 .ov-btn.show-btn { background: var(--green); color: #000; border: 2px solid transparent; }
 .ov-btn.hide-btn { background: var(--red); color: #fff; border: 2px solid transparent; }
@@ -389,9 +391,9 @@ html, body {
 
 /* ── BROADCAST GRAPHICS ── */
 .bcast-section { padding: 8px 10px; flex-shrink: 0; border-top: 1px solid var(--border); }
-.bcast-label { font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.bcast-label { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .bcast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.bcast-btn { min-height: 120px; font-size: 24px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: var(--r); cursor: pointer; transition: transform .1s, opacity .1s; }
+.bcast-btn { min-height: 90px; font-size: 18px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: var(--r); cursor: pointer; transition: transform .1s, opacity .1s; }
 .bcast-btn:active { transform: scale(.94); opacity: .8; background: var(--surf3); }
 .bcast-btn.full-width { grid-column: 1 / -1; }
 </style>
@@ -401,7 +403,7 @@ html, body {
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="tb-main-row">
-    <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:44px;object-fit:contain;display:block;padding:0 10px;flex-shrink:0">
+    <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:33px;object-fit:contain;display:block;padding:0 10px;flex-shrink:0">
     <div class="tb-score-strip" id="tbScoreStrip">
       <div class="tb-team">
         <div class="tb-team-name" id="tbAwayName">Away</div>
@@ -441,24 +443,16 @@ html, body {
     <button class="ov-btn" style="background:var(--blue);color:#fff;flex:0 0 auto;padding:0 14px;" onclick="printStatReport()">📊 REPORT</button>
   </div>
   <div class="ov-row" style="gap:6px;">
-    <button class="ov-btn" id="tog_scorebug" onclick="toggleOverlayLayer('scorebug')" style="font-size:24px;padding:6px 10px;">BUG ●</button>
-    <button class="ov-btn" id="tog_ticker" onclick="toggleOverlayLayer('ticker')" style="font-size:24px;padding:6px 10px;">TICKER</button>
-    <button class="ov-btn" id="tog_ads" onclick="toggleOverlayLayer('ads')" style="font-size:24px;padding:6px 10px;">ADS ●</button>
+    <button class="ov-btn" id="tog_scorebug" onclick="toggleOverlayLayer('scorebug')" style="font-size:18px;padding:6px 10px;">BUG ●</button>
+    <button class="ov-btn" id="tog_ticker" onclick="toggleOverlayLayer('ticker')" style="font-size:18px;padding:6px 10px;">TICKER</button>
+    <button class="ov-btn" id="tog_ads" onclick="toggleOverlayLayer('ads')" style="font-size:18px;padding:6px 10px;">ADS ●</button>
   </div>
   <div class="game-top">
   <div class="main">
     <div class="team-col away">
       <div class="team-hdr">AWAY</div>
       <div class="team-name-big" id="awayNameDisplay">Away</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-  <div class="score-display" id="awayScoreDisplay" onclick="openScoreModal('away')" style="flex:1;">0</div>
-  <div class="score-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:0 0 auto;width:240px;">
-    <button class="sbtn plus3"  onclick="adjScore('away',3)">+3</button>
-    <button class="sbtn plus2"  onclick="adjScore('away',2)">+2</button>
-    <button class="sbtn plus1"  onclick="adjScore('away',1)">+1</button>
-    <button class="sbtn minus1" onclick="adjScore('away',-1)">−1</button>
-  </div>
-</div>
+      <div class="score-display" id="awayScoreDisplay" onclick="openScoreModal('away')">0</div>
       <div class="divider"></div>
       <div class="section-label">Team Fouls</div>
       <div class="foul-pips" id="awayFoulPips"></div>
@@ -471,6 +465,13 @@ html, body {
       <div class="to-pips" id="awayToPips"></div>
       <button class="to-use-btn"  onclick="useTimeout('away')">⏱ Use Timeout</button>
       <button class="reset-to-btn" onclick="resetTOs('away')">Reset TOs</button>
+    </div>
+
+    <div class="score-btns-float away-float" id="awayScoreBtns">
+      <button class="sbtn plus3"  onclick="adjScore('away',3)">+3</button>
+      <button class="sbtn plus2"  onclick="adjScore('away',2)">+2</button>
+      <button class="sbtn plus1"  onclick="adjScore('away',1)">+1</button>
+      <button class="sbtn minus1" onclick="adjScore('away',-1)">−1</button>
     </div>
 
     <div class="center-col">
@@ -492,18 +493,17 @@ html, body {
       </div>
     </div>
 
+    <div class="score-btns-float home-float" id="homeScoreBtns">
+      <button class="sbtn plus3"  onclick="adjScore('home',3)">+3</button>
+      <button class="sbtn plus2"  onclick="adjScore('home',2)">+2</button>
+      <button class="sbtn plus1"  onclick="adjScore('home',1)">+1</button>
+      <button class="sbtn minus1" onclick="adjScore('home',-1)">−1</button>
+    </div>
+
     <div class="team-col home">
       <div class="team-hdr">HOME</div>
       <div class="team-name-big" id="homeNameDisplay">Home</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-  <div class="score-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:0 0 auto;width:240px;">
-    <button class="sbtn plus3"  onclick="adjScore('home',3)">+3</button>
-    <button class="sbtn plus2"  onclick="adjScore('home',2)">+2</button>
-    <button class="sbtn plus1"  onclick="adjScore('home',1)">+1</button>
-    <button class="sbtn minus1" onclick="adjScore('home',-1)">−1</button>
-  </div>
-  <div class="score-display" id="homeScoreDisplay" onclick="openScoreModal('home')" style="flex:1;">0</div>
-</div>
+      <div class="score-display" id="homeScoreDisplay" onclick="openScoreModal('home')">0</div>
       <div class="divider"></div>
       <div class="section-label">Team Fouls</div>
       <div class="foul-pips" id="homeFoulPips"></div>
@@ -579,7 +579,7 @@ html, body {
       <input class="tp-shooter-input" id="tp-shooterName" type="text" placeholder="Enter player name…"
              list="tp-contestantList" oninput="tpOnShooterInput()" autocorrect="off" spellcheck="false">
       <datalist id="tp-contestantList"></datalist>
-      <div style="margin-top:8px;font-size:24px;color:var(--muted)" id="tp-shooterMeta"></div>
+      <div style="margin-top:8px;font-size:18px;color:var(--muted)" id="tp-shooterMeta"></div>
     </div>
 
     <div class="tp-card" id="tp-roundCard">
@@ -637,11 +637,11 @@ html, body {
       <div class="dk-card-title">Dunker</div>
       <div class="dk-field-row">
         <div class="dk-field-lbl">Select Contestant</div>
-        <select class="dk-text-input" id="dk-dunkerSelect" onchange="dkSelectDunker(this.value)" style="font-size:30px">
+        <select class="dk-text-input" id="dk-dunkerSelect" onchange="dkSelectDunker(this.value)" style="font-size:22px">
           <option value="">— Choose dunker —</option>
         </select>
       </div>
-      <div style="margin-top:4px;font-size:24px;color:var(--muted)" id="dk-dunkerMeta"></div>
+      <div style="margin-top:4px;font-size:18px;color:var(--muted)" id="dk-dunkerMeta"></div>
       <div class="dk-field-row" style="margin-top:10px">
         <div class="dk-field-lbl">Photo URL (optional)</div>
         <input class="dk-text-input" id="dk-dunkerPhoto" type="text"
@@ -692,7 +692,7 @@ html, body {
 
     <div class="dk-card" style="user-select:text;-webkit-user-select:text">
       <div class="dk-card-title">Judge URLs</div>
-      <div style="font-size:24px;line-height:2.2;color:var(--muted)">
+      <div style="font-size:18px;line-height:2.2;color:var(--muted)">
         <div>Judge 1 — mbp.local:8000/dunk-judge/?judge=1</div>
         <div>Judge 2 — mbp.local:8000/dunk-judge/?judge=2</div>
         <div>Judge 3 — mbp.local:8000/dunk-judge/?judge=3</div>
@@ -946,7 +946,7 @@ function resetFlow() {
 
 function renderFlowBar() {
   const el = document.getElementById('flowBar'); if (!el) return;
-  const btnStyle = 'height:48px;padding:0 16px;font-size:32px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--surf3);border:1px solid var(--border2);border-radius:5px;cursor:pointer';
+  const btnStyle = 'height:36px;padding:0 16px;font-size:24px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--surf3);border:1px solid var(--border2);border-radius:5px;cursor:pointer';
   let html = '';
 
   if (_subMode) {
@@ -1028,7 +1028,7 @@ function renderPlayerSelect() {
     const starters = S[team].starters || [];
     const players = (S[team].players||[]).filter(p => p.name && starters.includes(p.id));
     const label = S[team].name || team.toUpperCase();
-    if (!players.length) return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="no-roster" style="padding:16px;text-align:center;font-size:22px;color:var(--muted)">No players<br>on court</div></div>`;
+    if (!players.length) return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="no-roster" style="padding:16px;text-align:center;font-size:16px;color:var(--muted)">No players<br>on court</div></div>`;
     const btns = players.map(p => {
       const st=STATS[p.id]||{},pts=calcPts(st),pf=st.pf||0;
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
@@ -1064,11 +1064,11 @@ function renderLineupSetup() {
     const count = (t.starters||[]).length;
     const countColor = count===5 ? 'var(--green)' : 'var(--gold)';
     const btns = players.map(p=>mkCard(team,p)).join('');
-    return `<div class="team-split-col"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:22px">${count}/5</span></div><div class="player-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${btns}</div></div>`;
+    return `<div class="team-split-col"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:16px">${count}/5</span></div><div class="player-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${btns}</div></div>`;
   };
   const bothFull = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
   const lockBtn = bothFull ? `<button class="lineup-lock-btn" onclick="lockLineup()">✓ LOCK LINEUP — START GAME</button>` : '';
-  return `<div style="display:flex;flex-direction:column;flex:1;min-height:0"><div style="padding:8px 10px;font-size:18px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--surf2);border-bottom:1px solid var(--border);flex-shrink:0">SELECT STARTING 5 PER TEAM</div>${lockBtn}<div class="teams-split" style="flex:1;overflow-y:auto">${mkTeam('away')}${mkTeam('home')}</div></div>`;
+  return `<div style="display:flex;flex-direction:column;flex:1;min-height:0"><div style="padding:8px 10px;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--surf2);border-bottom:1px solid var(--border);flex-shrink:0">SELECT STARTING 5 PER TEAM</div>${lockBtn}<div class="teams-split" style="flex:1;overflow-y:auto">${mkTeam('away')}${mkTeam('home')}</div></div>`;
 }
 function toggleLineupPlayer(team, pid) {
   if (!S[team].starters) S[team].starters = [];
@@ -1136,7 +1136,7 @@ function renderEventSelect() {
     {key:'TO', icon:'💸',label:'Turnover'},{key:'PF', icon:'🚨',label:'Foul'},
   ];
   const btns = evts.map(e => `<button class="evt-btn" onclick="flowSelectEvent('${e.key}')"><div class="evt-icon">${e.icon}</div><div class="evt-label">${e.label}</div></button>`).join('');
-  return `<div style="padding:6px 8px 0;font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">${pLabel} — Select Event</div><div class="evt-grid">${btns}</div>`;
+  return `<div style="padding:6px 8px 0;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">${pLabel} — Select Event</div><div class="evt-grid">${btns}</div>`;
 }
 
 function flowSelectEvent(evt) {
@@ -1147,7 +1147,7 @@ function flowSelectEvent(evt) {
 
 function renderResultPanel() {
   const label = _flow.event==='FG3' ? '3-Point FG' : _flow.event==='FG2' ? '2-Point FG' : 'Free Throw';
-  return `<div style="padding:8px 10px 4px;font-size:20px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">${label} — Made or Missed?</div>
+  return `<div style="padding:8px 10px 4px;font-size:15px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">${label} — Made or Missed?</div>
   <div class="result-grid">
     <button class="result-btn made" onclick="flowSelectResult('made')"><div class="result-icon">✅</div><div class="result-label">MADE</div></button>
     <button class="result-btn miss" onclick="flowSelectResult('missed')"><div class="result-icon">❌</div><div class="result-label">MISSED</div></button>
@@ -1173,7 +1173,7 @@ function renderReboundPanel() {
     const rebType = team === _flow.team ? 'OREB' : 'DREB';
     return `<button class="abtn" onclick="flowSelectRebounder('${team}','${p.id}','${rebType}')"><div class="abtn-num">${p.num||'#'}</div><div class="abtn-name">${p.name.split(' ').pop()}</div></button>`;
   };
-  return `<div style="padding:6px 10px 4px;font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Missed — Select Rebounder</div>
+  return `<div style="padding:6px 10px 4px;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Missed — Select Rebounder</div>
   <div class="teams-split">
     <div class="team-split-col"><div class="team-split-label">${away.name}</div><div class="player-col-grid">${awayPlayers.map(p=>mkBtn('away',p)).join('')}</div></div>
     <div class="team-split-col"><div class="team-split-label">${home.name}</div><div class="player-col-grid">${homePlayers.map(p=>mkBtn('home',p)).join('')}</div></div>
@@ -1208,7 +1208,7 @@ function renderAssistPanel() {
   const btns = players.map(p =>
     `<button class="abtn" onclick="flowSelectAssist('${p.id}')"><div class="abtn-num">${p.num||'#'}</div><div class="abtn-name">${p.name.split(' ').pop()}</div></button>`
   ).join('');
-  return `<div style="padding:8px 10px 4px;font-size:20px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Made! Did someone assist? (${label})</div>
+  return `<div style="padding:8px 10px 4px;font-size:15px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Made! Did someone assist? (${label})</div>
   <div class="assist-grid">${btns}</div>
   <button class="skip-btn" onclick="logStat()">No Assist</button>`;
 }
@@ -1377,7 +1377,7 @@ function renderTeamStatsPanel() {
 // ── PLAY-BY-PLAY ──
 function renderPBP() {
   const el=document.getElementById('pbpContent'); if(!el)return;
-  if(!_events.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:24px">No events logged yet.<br>Use the LOG tab to track stats.</div>';return;}
+  if(!_events.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:18px">No events logged yet.<br>Use the LOG tab to track stats.</div>';return;}
   const awayColor='#F5C518', homeColor='#22c55e';
   const items=[..._events].reverse().slice(0,100).map(e=>{
     const color=e.team==='away'?awayColor:homeColor;
