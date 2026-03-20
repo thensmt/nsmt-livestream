@@ -33,6 +33,7 @@
     if (url) _url = url;
     _intentionalClose = false;
     clearTimeout(_reconnectTimer);
+    if (_ws) { try { _ws.onclose = null; _ws.close(); } catch(e) {} _ws = null; }
 
     try {
       _ws = new WebSocket(_url);

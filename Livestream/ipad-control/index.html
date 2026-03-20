@@ -797,6 +797,7 @@ function fmtClock(s) { s = Math.max(0,s); return Math.floor(s/60)+':'+String(s%6
 function parseClock(str) { const p=(str||'0:00').trim().split(':'); return p.length===2?(parseInt(p[0])||0)*60+(parseInt(p[1])||0):parseInt(str)||0; }
 function clockStart() {
   if (S.clock.running) return;
+  if(_clockInterval){clearInterval(_clockInterval);_clockInterval=null;}
   if (S.clock.secs <= 0) { S.clock.secs = S.periodLen*60; S.clock.display = fmtClock(S.clock.secs); }
   S.clock.running = true; renderClock(); pushBug();
   _clockInterval = setInterval(() => {
@@ -824,7 +825,7 @@ function useTimeout(team) { if(S[team].timeouts<=0){toast('No timeouts left');re
 function resetTOs(team) { S[team].timeouts=4; renderTOs(team); pushBug(); }
 function getPeriodLabel(n) { n=n==null?S.period:n; if(S.periods===2)return n<=2?'H'+n:'OT'+(n-2); return n<=4?'Q'+n:'OT'+(n-4); }
 function setPeriod(n) { S.period=n; renderPeriod(); pushBug(); toast('Now '+getPeriodLabel(n)); }
-function endPeriod() { clockPause(); if(S.period<S.totalPeriods){S.period++;S.away.fouls=0;S.home.fouls=0;renderFouls('away');renderFouls('home');clockReset();renderPeriod();pushBug();toast(getPeriodLabel()+' started');}else{S.totalPeriods++;S.period=S.totalPeriods;renderPeriod();pushBug();toast('Overtime!');} }
+function endPeriod() { clockPause(); if(S.period<S.totalPeriods){S.period++;S.away.fouls=0;S.home.fouls=0;renderFouls('away');renderFouls('home');clockReset();renderPeriod();pushBug();toast(getPeriodLabel()+' started');}else{S.totalPeriods++;S.period=S.totalPeriods;S.away.fouls=0;S.home.fouls=0;renderFouls('away');renderFouls('home');clockReset();renderPeriod();pushBug();toast('Overtime!');} }
 function addOT() { S.totalPeriods++; renderPeriod(); }
 
 // ═══════════════════════════════════
@@ -1252,7 +1253,9 @@ function undoLast() {
   if (!_events.length) { toast('Nothing to undo'); return; }
   _events.pop();
   Object.keys(STATS).forEach(k=>{ STATS[k]=statDefaults(); });
+  S.away.fouls=0; S.home.fouls=0;
   _events.forEach(e => replayEvent(e));
+  renderFouls('away'); renderFouls('home'); pushBug();
   pushStats(); saveState(); renderOperatorPanel(); toast('↩ Undone');
 }
 
@@ -1267,7 +1270,7 @@ function replayEvent(e) {
   else if(e.evt==='STL')s.stl++;
   else if(e.evt==='BLK')s.blk++;
   else if(e.evt==='TO')s.to++;
-  else if(e.evt==='PF')s.pf++;
+  else if(e.evt==='PF'){s.pf++;S[e.team].fouls=(S[e.team].fouls||0)+1;}
   if(e.assistPid){getStats(e.assistPid).ast++;}
   s.pts=calcPts(s);
 }
