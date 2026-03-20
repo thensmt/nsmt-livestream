@@ -10,6 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>NSMT Live Producer v2</title>
 <script src="nsmt-ws-client.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -2342,22 +2343,43 @@ window.generateStatReport = function(autoPrint) {
   <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(label)} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
   </body></html>`;
 
-  const blob = new Blob([html], {type:'text/html'});
-  const fileName = (label.replace(/[^a-zA-Z0-9 ]/g,'')||'Game').replace(/ +/g,'_') + '_Report.html';
+  const fileName = (label.replace(/[^a-zA-Z0-9 ]/g,'')||'Game').replace(/ +/g,'_') + '_Report';
+  toast('Generating PDF...');
 
-  // Try native share sheet (macOS Safari/Chrome)
-  if (navigator.canShare && navigator.canShare({files:[new File([blob],fileName,{type:'text/html'})]})) {
-    const file = new File([blob], fileName, {type:'text/html'});
-    navigator.share({title: label + ' - Game Report', files:[file]}).catch(()=>{});
-    toast('Share sheet opened');
-  } else {
-    // Fallback: download the file
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = fileName; a.click();
-    URL.revokeObjectURL(url);
-    toast('Report downloaded');
-  }
+  // Render HTML in hidden iframe, then convert to PDF
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:816px;height:1056px;border:none;';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+
+  iframe.onload = function() {
+    const body = iframe.contentDocument.body;
+    html2pdf().set({
+      margin: [0.3, 0.3, 0.3, 0.3],
+      filename: fileName + '.pdf',
+      image: { type:'jpeg', quality:0.98 },
+      html2canvas: { scale:2, useCORS:true, width:816, windowWidth:816 },
+      jsPDF: { unit:'in', format:'letter', orientation:'portrait' }
+    }).from(body).outputPdf('blob').then(function(pdfBlob) {
+      document.body.removeChild(iframe);
+      const pdfFile = new File([pdfBlob], fileName+'.pdf', {type:'application/pdf'});
+
+      // Try native share sheet
+      if (navigator.canShare && navigator.canShare({files:[pdfFile]})) {
+        navigator.share({title: label+' - Game Report', files:[pdfFile]}).catch(()=>{});
+        toast('Share sheet opened');
+      } else {
+        // Fallback: download
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName+'.pdf'; a.click();
+        URL.revokeObjectURL(url);
+        toast('PDF downloaded');
+      }
+    });
+  };
 };
 
 // ═══════════════════════════════════
