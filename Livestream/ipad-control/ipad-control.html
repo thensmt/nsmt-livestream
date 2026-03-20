@@ -28,6 +28,8 @@ html, body {
   background: var(--bg); color: var(--text);
   font-family: 'Rubik', sans-serif;
   overflow: hidden; -webkit-tap-highlight-color: transparent; user-select: none;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ── TOPBAR ── */
@@ -505,7 +507,10 @@ html, body {
       <div class="divider" style="width:100%"></div>
       <div class="period-label-big" id="periodLabel">Q1</div>
       <div class="period-pills" id="periodPills"></div>
-      <button class="end-period-btn" onclick="endPeriod()">End Period ▸</button>
+      <div style="display:flex;gap:6px;width:100%">
+        <button class="end-period-btn" onclick="endPeriod()" style="flex:1">End Period ▸</button>
+        <button class="end-period-btn" onclick="endGame()" style="flex:1;background:var(--red);color:#fff;border-color:var(--red)">End Game ■</button>
+      </div>
       <div class="divider" style="width:100%"></div>
       <div class="spotlight-row">
         <button class="dismiss-btn" onclick="dismissSpotlight()">✕ Dismiss Card</button>
@@ -547,6 +552,7 @@ html, body {
         <button class="ltab" onclick="setLiveTab(2)">LEADERS</button>
         <button class="ltab" onclick="setLiveTab(3)">TEAM</button>
         <button class="ltab" onclick="setLiveTab(4)">PBP</button>
+        <button class="ltab" onclick="printStatReport()" style="margin-left:auto;color:var(--gold);border-left:1px solid var(--border)">📋 REPORT</button>
       </div>
       <div id="livePanelLog" class="live-panel">
         <div id="flowBar" class="flow-bar"></div>
@@ -836,7 +842,26 @@ function useTimeout(team) { if(S[team].timeouts<=0){toast('No timeouts left');re
 function resetTOs(team) { S[team].timeouts=4; renderTOs(team); pushBug(); }
 function getPeriodLabel(n) { n=n==null?S.period:n; if(S.periods===2)return n<=2?'H'+n:'OT'+(n-2); return n<=4?'Q'+n:'OT'+(n-4); }
 function setPeriod(n) { S.period=n; renderPeriod(); pushBug(); toast('Now '+getPeriodLabel(n)); }
-function endPeriod() { clockPause(); if(S.period<S.totalPeriods){S.period++;S.away.fouls=0;S.home.fouls=0;renderFouls('away');renderFouls('home');clockReset();renderPeriod();pushBug();toast(getPeriodLabel()+' started');}else{S.totalPeriods++;S.period=S.totalPeriods;S.away.fouls=0;S.home.fouls=0;renderFouls('away');renderFouls('home');clockReset();renderPeriod();pushBug();toast('Overtime!');} }
+function endPeriod() {
+  clockPause();
+  const halfwayPeriod = Math.floor(S.totalPeriods / 2);
+  const isHalftime = S.period === halfwayPeriod;
+  if (S.period < S.totalPeriods) {
+    S.period++; S.away.fouls=0; S.home.fouls=0;
+    renderFouls('away'); renderFouls('home'); clockReset(); renderPeriod(); pushBug();
+    if (isHalftime) { toast('HALFTIME — Generating report...'); setTimeout(printStatReport, 400); }
+    else toast(getPeriodLabel()+' started');
+  } else {
+    S.totalPeriods++; S.period=S.totalPeriods; S.away.fouls=0; S.home.fouls=0;
+    renderFouls('away'); renderFouls('home'); clockReset(); renderPeriod(); pushBug(); toast('Overtime!');
+  }
+}
+function endGame() {
+  clockPause();
+  toast('FINAL — Generating report...');
+  pushBug();
+  setTimeout(printStatReport, 400);
+}
 function addOT() { S.totalPeriods++; renderPeriod(); }
 
 // ═══════════════════════════════════

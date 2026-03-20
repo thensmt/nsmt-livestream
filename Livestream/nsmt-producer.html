@@ -2189,105 +2189,131 @@ window.fireSpecial = function(type) {
 // STAT REPORT PDF
 // ═══════════════════════════════════
 window.generateStatReport = function(autoPrint) {
-  const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'});
+  const timeStr = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   const label = G.event || 'Game';
   const period = getPeriodLabel(G.currentPeriod);
+  const gameStatus = (G.clock && G.clock.secs===0 && G.currentPeriod>=G.totalPeriods) ? 'FINAL' : period;
+  const aC = G.away.code||G.away.name||'AWAY', hC = G.home.code||G.home.name||'HOME';
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function pct(m,a){return a?((m/a)*100).toFixed(1)+'%':'--';}
 
-  function teamTable(team) {
+  function buildTeamTable(team) {
     const t = G[team];
     const players = (t.players||[]).filter(p=>p.name).sort((a,b)=>parseInt(a.num||0)-parseInt(b.num||0));
+    let tPts=0,tFgm=0,tFga=0,t3m=0,t3a=0,tFtm=0,tFta=0,tOff=0,tDef=0,tAst=0,tStl=0,tBlk=0,tTo=0,tPf=0;
+    const isDNP = p => !(p.fga||p.fta||p.off||p.def||p.ast||p.stl||p.blk||p.to||p.pf);
     const rows = players.map(p => {
-      const fgPct = p.fga ? Math.round(p.fgm/p.fga*100) : 0;
-      const t3Pct = p.t3a ? Math.round(p.t3m/p.t3a*100) : 0;
-      const ftPct = p.fta ? Math.round(p.ftm/p.fta*100) : 0;
-      const reb = (p.off||0)+(p.def||0);
-      return `<tr>
-        <td>${p.num||''}</td><td class="name">${p.name}</td><td>${p.pos||''}</td>
-        <td>${p.fgm||0}-${p.fga||0}</td><td class="pct">${fgPct}%</td>
-        <td>${p.t3m||0}-${p.t3a||0}</td><td class="pct">${t3Pct}%</td>
-        <td>${p.ftm||0}-${p.fta||0}</td><td class="pct">${ftPct}%</td>
-        <td>${p.off||0}</td><td>${p.def||0}</td><td>${reb}</td>
-        <td>${p.ast||0}</td><td>${p.stl||0}</td><td>${p.blk||0}</td>
-        <td>${p.to||0}</td><td>${p.pf||0}</td><td class="pts">${p.pts||0}</td>
-      </tr>`;
+      const pts=p.pts||0,off=p.off||0,def=p.def||0,reb=off+def;
+      const dnp=isDNP(p);
+      tPts+=pts;tFgm+=p.fgm||0;tFga+=p.fga||0;t3m+=p.t3m||0;t3a+=p.t3a||0;
+      tFtm+=p.ftm||0;tFta+=p.fta||0;tOff+=off;tDef+=def;
+      tAst+=p.ast||0;tStl+=p.stl||0;tBlk+=p.blk||0;tTo+=p.to||0;tPf+=p.pf||0;
+      const nameCell = dnp ? `${esc(p.name)} <span style="color:#999;font-style:italic">DNP</span>` : esc(p.name);
+      return `<tr><td>${esc(p.num||'')}</td><td class="nl">${nameCell}</td><td class="b">${pts}</td>
+        <td>${(p.fgm||0)}-${(p.fga||0)}</td><td>${(p.t3m||0)}-${(p.t3a||0)}</td><td>${(p.ftm||0)}-${(p.fta||0)}</td>
+        <td>${off}</td><td>${def}</td><td>${reb}</td><td>${p.ast||0}</td><td>${p.stl||0}</td><td>${p.blk||0}</td><td>${p.to||0}</td><td>${p.pf||0}</td><td class="b">${pts}</td></tr>`;
     }).join('');
-    const tot = players.reduce((s,p)=>({
-      fgm:(s.fgm||0)+(p.fgm||0), fga:(s.fga||0)+(p.fga||0),
-      t3m:(s.t3m||0)+(p.t3m||0), t3a:(s.t3a||0)+(p.t3a||0),
-      ftm:(s.ftm||0)+(p.ftm||0), fta:(s.fta||0)+(p.fta||0),
-      off:(s.off||0)+(p.off||0), def:(s.def||0)+(p.def||0),
-      ast:(s.ast||0)+(p.ast||0), stl:(s.stl||0)+(p.stl||0),
-      blk:(s.blk||0)+(p.blk||0), to:(s.to||0)+(p.to||0),
-      pf:(s.pf||0)+(p.pf||0), pts:(s.pts||0)+(p.pts||0)
-    }), {});
-    const tReb = (tot.off||0)+(tot.def||0);
-    const tFgPct = tot.fga ? Math.round(tot.fgm/tot.fga*100) : 0;
-    const tT3Pct = tot.t3a ? Math.round(tot.t3m/tot.t3a*100) : 0;
-    const tFtPct = tot.fta ? Math.round(tot.ftm/tot.fta*100) : 0;
-    const totRow = `<tr class="total">
-      <td colspan="3">TOTALS</td>
-      <td>${tot.fgm||0}-${tot.fga||0}</td><td class="pct">${tFgPct}%</td>
-      <td>${tot.t3m||0}-${tot.t3a||0}</td><td class="pct">${tT3Pct}%</td>
-      <td>${tot.ftm||0}-${tot.fta||0}</td><td class="pct">${tFtPct}%</td>
-      <td>${tot.off||0}</td><td>${tot.def||0}</td><td>${tReb}</td>
-      <td>${tot.ast||0}</td><td>${tot.stl||0}</td><td>${tot.blk||0}</td>
-      <td>${tot.to||0}</td><td>${tot.pf||0}</td><td class="pts">${tot.pts||0}</td>
-    </tr>`;
-    return `<div class="team-section">
-      <div class="team-hdr">
-        <span class="team-name">${t.name||cap(team)}</span>
-        <span class="team-score">${t.score||0}</span>
-      </div>
-      <table><thead><tr>
-        <th>#</th><th class="name">Player</th><th>Pos</th>
-        <th>FGM-A</th><th class="pct">%</th>
-        <th>3PM-A</th><th class="pct">%</th>
-        <th>FTM-A</th><th class="pct">%</th>
-        <th>OR</th><th>DR</th><th>REB</th>
-        <th>AST</th><th>STL</th><th>BLK</th>
-        <th>TO</th><th>PF</th><th class="pts">PTS</th>
-      </tr></thead><tbody>${rows}${totRow}</tbody></table>
-    </div>`;
+    const tot = `<tr class="tr"><td></td><td class="nl">TOTAL</td><td class="b">${tPts}</td>
+      <td>${tFgm}-${tFga}</td><td>${t3m}-${t3a}</td><td>${tFtm}-${tFta}</td>
+      <td>${tOff}</td><td>${tDef}</td><td>${tOff+tDef}</td><td>${tAst}</td><td>${tStl}</td><td>${tBlk}</td><td>${tTo}</td><td>${tPf}</td><td class="b">${tPts}</td></tr>`;
+    return {rows:rows+tot,tPts,tFgm,tFga,t3m,t3a,tFtm,tFta,tOff,tDef,tAst,tStl,tBlk,tTo,tPf};
   }
+  const aT=buildTeamTable('away'), hT=buildTeamTable('home');
 
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <title>Box Score — ${label}</title>
+  <title>NSMT Game Report</title>
   <style>
+    @page{size:letter portrait;margin:.4in .35in}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Arial',sans-serif;font-size:14px;color:#111;background:#fff;padding:16px}
-    .report-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;border-bottom:2px solid #111;padding-bottom:10px}
-    .report-header-left{}
-    .report-logo{height:32px;object-fit:contain;display:block}
-    h1{font-size:22px;font-weight:900;letter-spacing:.5px;margin-bottom:2px}
-    .meta{font-size:13px;color:#555;margin-bottom:0}
-    .score-line{font-size:29px;font-weight:900;margin-bottom:18px;letter-spacing:.5px}
-    .team-section{margin-bottom:24px}
-    .team-hdr{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;border-bottom:3px solid #111;padding-bottom:4px}
-    .team-name{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
-    .team-score{font-size:29px;font-weight:900}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    thead tr{background:#111;color:#fff}
-    th{padding:4px 5px;text-align:center;font-weight:700;letter-spacing:.3px;white-space:nowrap}
-    td{padding:4px 5px;text-align:center;border-bottom:1px solid #e0e0e0}
-    td.name,th.name{text-align:left;min-width:110px}
-    td.pts,th.pts{font-weight:900;font-size:14px}
-    td.pct{color:#555;font-size:12px}
-    tr.total td{font-weight:900;border-top:2px solid #111;border-bottom:none;background:#f5f5f5}
-    tr:nth-child(even){background:#fafafa}
-    .footer{margin-top:20px;font-size:12px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:8px}
-    @media print{body{padding:8px}@page{margin:10mm}}
+    body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:7.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rh{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10pt;padding-bottom:6pt;border-bottom:2pt solid #111;margin-bottom:8pt}
+    .rh-logo{border:1pt solid #333;padding:4pt 7pt;display:flex;align-items:center;justify-content:center}
+    .rh-logo img{height:24pt;display:block}
+    .rh-center{text-align:center}
+    .rh-event{font-size:12pt;font-weight:900;letter-spacing:.3px}
+    .rh-meta{font-size:6.5pt;color:#444;margin-top:2pt}
+    .rh-status{font-size:8.5pt;font-weight:900;text-transform:uppercase;margin-top:2pt;letter-spacing:1px}
+    .rh-right{text-align:right;font-size:6.5pt;color:#555;line-height:1.6}
+    .ts{margin-bottom:8pt}
+    .th{display:flex;align-items:center;background:#111;color:#fff;padding:3.5pt 8pt}
+    .th-name{flex:1;font-size:10pt;font-weight:900;letter-spacing:.3px}
+    .th-score{font-size:14pt;font-weight:900;background:#fff;color:#111;padding:1pt 7pt;border-radius:2pt;min-width:26pt;text-align:center;line-height:1.4}
+    table{width:100%;border-collapse:collapse}
+    th{background:#f0f0f0;font-size:5.5pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2.5pt 3pt;text-align:center;border:1pt solid #ccc}
+    th.nl,td.nl{text-align:left}
+    td{padding:2pt 3pt;text-align:center;border-bottom:.5pt solid #eee;border-right:.5pt solid #eee;font-size:7pt}
+    td.b{font-weight:800}
+    tr.tr td{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}
+    .sec3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8pt;margin-top:8pt}
+    .sec-title{font-size:6pt;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#555;padding-bottom:2pt;border-bottom:1pt solid #bbb;margin-bottom:3pt}
+    .smtbl{width:100%;border-collapse:collapse}
+    .smtbl th{font-size:5.5pt;padding:2pt 4pt;background:#f0f0f0;border:1pt solid #ccc}
+    .smtbl td{font-size:7pt;padding:2pt 4pt;border-bottom:.5pt solid #eee;text-align:center}
+    .smtbl td.nl{text-align:left}
+    .rf{margin-top:8pt;padding-top:4pt;border-top:.5pt solid #ccc;font-size:5.5pt;color:#999;text-align:center;letter-spacing:.3px}
+    @media print{body{padding:8px}}
   </style></head><body>
-  <div class="report-header">
-    <div class="report-header-left">
-      <h1>${label}</h1>
-      <div class="meta">${now} &nbsp;|&nbsp; ${period}${G.venue ? ' &nbsp;|&nbsp; '+G.venue : ''}</div>
+  <div class="rh">
+    <div class="rh-logo"><img src="http://localhost:8000/NSMTWordmarkBlue.png" alt="NSMT"></div>
+    <div class="rh-center">
+      <div class="rh-event">${esc(label)}</div>
+      <div class="rh-meta">${esc(dateStr)} ${esc(timeStr)}${G.venue?' &bull; '+esc(G.venue):''}</div>
+      <div class="rh-status">${esc(gameStatus)}</div>
     </div>
-    <img class="report-logo" src="http://localhost:8000/NSMTWordmarkBlue.png" alt="NSMT">
+    <div class="rh-right">Keeper: Producer<br>${esc(dateStr)}<br>thensmt.com</div>
   </div>
-  <div class="score-line">${G.home.name||'Home'} ${G.home.score||0} &nbsp;&ndash;&nbsp; ${G.away.name||'Away'} ${G.away.score||0}</div>
-  ${teamTable('home')}
-  ${teamTable('away')}
-  <div class="footer">Nova Sports Media Team &nbsp;|&nbsp; NSMT Live Producer &nbsp;|&nbsp; ${now}</div>
+
+  <div class="ts">
+    <div class="th"><span class="th-name">${esc(G.away.name||'Away')}</span><span class="th-score">${G.away.score||0}</span></div>
+    <table><thead><tr>
+      <th style="width:16pt">#</th><th class="nl" style="width:90pt">PLAYER</th>
+      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th><th>PTS</th>
+    </tr></thead><tbody>${aT.rows}</tbody></table>
+  </div>
+
+  <div class="ts">
+    <div class="th"><span class="th-name">${esc(G.home.name||'Home')}</span><span class="th-score">${G.home.score||0}</span></div>
+    <table><thead><tr>
+      <th style="width:16pt">#</th><th class="nl" style="width:90pt">PLAYER</th>
+      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th><th>PTS</th>
+    </tr></thead><tbody>${hT.rows}</tbody></table>
+  </div>
+
+  <div class="sec3">
+    <div>
+      <div class="sec-title">Period Scores</div>
+      <table class="smtbl"><thead><tr><th class="nl"></th><th>${esc(aC)}</th><th>${esc(hC)}</th></tr></thead>
+      <tbody><tr class="tr"><td class="nl">Final</td><td><b>${G.away.score||0}</b></td><td><b>${G.home.score||0}</b></td></tr></tbody></table>
+    </div>
+    <div>
+      <div class="sec-title">Point Type</div>
+      <table class="smtbl"><thead><tr><th class="nl"></th><th>${esc(aC)}</th><th>${esc(hC)}</th></tr></thead>
+      <tbody>
+        <tr><td class="nl">In Paint</td><td>0</td><td>0</td></tr>
+        <tr><td class="nl">Fast Break</td><td>0</td><td>0</td></tr>
+        <tr><td class="nl">2nd Chance</td><td>0</td><td>0</td></tr>
+        <tr><td class="nl">Off Turnovers</td><td>0</td><td>0</td></tr>
+      </tbody></table>
+    </div>
+    <div>
+      <div class="sec-title">Team Stats</div>
+      <table class="smtbl"><thead><tr><th class="nl"></th><th>${esc(aC)}</th><th>${esc(hC)}</th></tr></thead>
+      <tbody>
+        <tr><td class="nl">FG%</td><td>${pct(aT.tFgm,aT.tFga)}</td><td>${pct(hT.tFgm,hT.tFga)}</td></tr>
+        <tr><td class="nl">3PT%</td><td>${pct(aT.t3m,aT.t3a)}</td><td>${pct(hT.t3m,hT.t3a)}</td></tr>
+        <tr><td class="nl">FT%</td><td>${pct(aT.tFtm,aT.tFta)}</td><td>${pct(hT.tFtm,hT.tFta)}</td></tr>
+        <tr><td class="nl">Rebounds</td><td>${aT.tOff+aT.tDef}</td><td>${hT.tOff+hT.tDef}</td></tr>
+        <tr><td class="nl">Assists</td><td>${aT.tAst}</td><td>${hT.tAst}</td></tr>
+        <tr><td class="nl">Turnovers</td><td>${aT.tTo}</td><td>${hT.tTo}</td></tr>
+        <tr><td class="nl">Steals</td><td>${aT.tStl}</td><td>${hT.tStl}</td></tr>
+        <tr><td class="nl">Blocks</td><td>${aT.tBlk}</td><td>${hT.tBlk}</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(label)} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
   <script>window.onload=function(){${autoPrint?'window.print();':''}}<\/script>
   </body></html>`;
 
