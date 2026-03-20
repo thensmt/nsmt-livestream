@@ -81,7 +81,7 @@ def build_report_html(state, label_override=None):
     pt = stats.get("pointTypes", {})
     apt = pt.get("away", {}); hpt = pt.get("home", {})
 
-    html = f'''<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Game Report</title>
+    html = f'''<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="format-detection" content="telephone=no,date=no,address=no"><title>NSMT Game Report</title>
 <style>
 @page{{size:letter portrait;margin:.4in .35in}}
 *{{box-sizing:border-box;margin:0;padding:0}}
