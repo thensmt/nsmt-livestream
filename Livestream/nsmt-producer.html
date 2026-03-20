@@ -942,7 +942,7 @@ textarea{resize:vertical;min-height:80px;height:auto}
     <div class="bc-col">
       <div class="bc-col-hdr">
         <span class="bc-col-title">Live Event Log</span>
-        <button class="btn btn-surf btn-sm" onclick="generateStatReport(true)" style="border-color:var(--gold);color:var(--gold)">Stat Report PDF</button>
+        <button class="btn btn-surf btn-sm" onclick="generateStatReport()" style="border-color:var(--gold);color:var(--gold)">Share Report</button>
         <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
       </div>
       <div class="bc-col-body" style="padding:0">
@@ -2180,7 +2180,7 @@ window.fireSpecial = function(type) {
     period:getPeriodLabel(G.currentPeriod), clockAt:G.clock.display, event:G.event }});
   toast(type + ' fired');
   if (type === 'HALFTIME' || type === 'END OF GAME') {
-    setTimeout(() => generateStatReport(true), 600);
+    setTimeout(() => generateStatReport(), 600);
   }
 };
 
@@ -2340,13 +2340,24 @@ window.generateStatReport = function(autoPrint) {
   </div>
 
   <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(label)} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
-  <script>window.onload=function(){${autoPrint?'window.print();':''}}<\/script>
   </body></html>`;
 
-  const win = window.open('','_blank','width=1000,height=750');
-  if (!win) { toast('Allow pop-ups to open stat report'); return; }
-  win.document.write(html);
-  win.document.close();
+  const blob = new Blob([html], {type:'text/html'});
+  const fileName = (label.replace(/[^a-zA-Z0-9 ]/g,'')||'Game').replace(/ +/g,'_') + '_Report.html';
+
+  // Try native share sheet (macOS Safari/Chrome)
+  if (navigator.canShare && navigator.canShare({files:[new File([blob],fileName,{type:'text/html'})]})) {
+    const file = new File([blob], fileName, {type:'text/html'});
+    navigator.share({title: label + ' - Game Report', files:[file]}).catch(()=>{});
+    toast('Share sheet opened');
+  } else {
+    // Fallback: download the file
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName; a.click();
+    URL.revokeObjectURL(url);
+    toast('Report downloaded');
+  }
 };
 
 // ═══════════════════════════════════
