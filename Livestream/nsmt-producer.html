@@ -2343,7 +2343,9 @@ window.generateStatReport = function(autoPrint) {
   <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(label)} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>
   </body></html>`;
 
-  const fileName = (label.replace(/[^a-zA-Z0-9 ]/g,'')||'Game').replace(/ +/g,'_') + '_Report';
+  const awayName = (G.away.name||'Away').replace(/[^a-zA-Z0-9 ]/g,'');
+  const homeName = (G.home.name||'Home').replace(/[^a-zA-Z0-9 ]/g,'');
+  const fileName = `${awayName}_vs_${homeName}_${G.away.score||0}-${G.home.score||0}_${gameStatus}`.replace(/ +/g,'_');
   toast('Generating PDF...');
 
   // Render HTML in hidden iframe, then convert to PDF
