@@ -128,12 +128,12 @@ html, body {
 .game-bottom { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .game-bottom .stats-pane { height: 100%; }
 /* Compact player cards for game tab */
-#tabGame .pbtn { min-height: 108px; padding: 7px 6px; gap: 1px; }
-#tabGame .pbtn-num { font-size: 68px; }
-#tabGame .pbtn-name { font-size: 32px; }
-#tabGame .pbtn-pts { font-size: 22px; }
-#tabGame .pbtn-pip { width: 14px; height: 14px; }
-#tabGame .pbtn-spotlight { width: 44px; height: 33px; font-size: 16px; top: 3px; left: 3px; }
+#tabGame .pbtn { min-height: 0; padding: 6px 6px; gap: 1px; }
+#tabGame .pbtn-num { font-size: 28px; }
+#tabGame .pbtn-name { font-size: 13px; }
+#tabGame .pbtn-pts { font-size: 12px; }
+#tabGame .pbtn-pip { width: 8px; height: 8px; }
+#tabGame .pbtn-spotlight { width: 28px; height: 22px; font-size: 12px; top: 2px; left: 2px; }
 
 /* ── MODALS ── */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: flex; align-items: center; justify-content: center; z-index: 100; }
@@ -162,23 +162,23 @@ html, body {
 .stats-team-score { font-family: 'Bebas Neue', cursive; color: var(--gold); font-size: 21px; }
 .player-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 5px; overflow-y: auto; align-content: start; }
 .player-grid::-webkit-scrollbar { width: 3px; } .player-grid::-webkit-scrollbar-thumb { background: var(--border2); }
-.pbtn-photo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0}
-.pbtn-photo-none{width:52px;height:52px;border-radius:50%;background:var(--surf3);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:24px;color:var(--muted);flex-shrink:0}
-#tabGame .pbtn-photo{width:44px;height:44px}
-#tabGame .pbtn-photo-none{width:44px;height:44px;font-size:20px}
-.pbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; cursor: pointer; transition: all .1s; min-height: 200px; position: relative; }
+.pbtn-photo{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0}
+.pbtn-photo-none{width:36px;height:36px;border-radius:50%;background:var(--surf3);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:16px;color:var(--muted);flex-shrink:0}
+#tabGame .pbtn-photo{width:32px;height:32px}
+#tabGame .pbtn-photo-none{width:32px;height:32px;font-size:14px}
+.pbtn { display: flex; flex-direction: column; align-items: center; gap:1px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 6px; cursor: pointer; transition: all .1s; min-height: 0; position: relative; }
 .pbtn:active { transform: scale(.94); background: var(--surf3); }
 .pbtn.foul4 { border-color: var(--orange); } .pbtn.foul5 { border-color: var(--red); opacity: .5; }
-.pbtn-num { font-family: 'Bebas Neue', cursive; font-size: 54px; font-weight: 400; color: var(--gold); line-height: 1; }
-.pbtn-name { font-family: 'Rubik', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
-.pbtn-pts { font-size: 20px; color: var(--muted); }
-.pbtn-pips { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
-.pbtn-pip { width: 16px; height: 16px; border-radius: 50%; background: var(--border2); }
+.pbtn-num { font-family: 'Bebas Neue', cursive; font-size: 32px; font-weight: 400; color: var(--gold); line-height: 1; }
+.pbtn-name { font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.1; }
+.pbtn-pts { font-size: 13px; color: var(--muted); }
+.pbtn-pips { display: flex; gap: 2px; justify-content: center; margin-top: 1px; }
+.pbtn-pip { width: 10px; height: 10px; border-radius: 50%; background: var(--border2); }
 .pbtn-pip.on { background: var(--red); }
 .no-roster { padding: 20px 12px; text-align: center; font-family: 'Rubik', sans-serif; font-size: 13px; color: var(--muted); line-height: 1.6; grid-column: 1 / -1; }
 .pbtn.starter { border-color: var(--gold); border-width: 2px; background: rgba(14,128,252,.15); }
 .pbtn-starter-badge { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; line-height: 1; }
-.pbtn-spotlight { position: absolute; top: 4px; left: 4px; width: 52px; height: 39px; border-radius: 50%; background: rgba(14,128,252,.15); border: 1px solid rgba(14,128,252,.3); color: #0E80FC; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
+.pbtn-spotlight { position: absolute; top: 3px; left: 3px; width: 28px; height: 22px; border-radius: 50%; background: rgba(14,128,252,.15); border: 1px solid rgba(14,128,252,.3); color: #0E80FC; font-size: 12px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
 .pbtn-spotlight:active { background: rgba(14,128,252,.35); transform: scale(.88); }
 .pbtn.on-court { border-color:var(--gold); background:rgba(14,128,252,.15); }
 .pbtn.out-sel { border-color:var(--red) !important; background:rgba(229,63,63,.12) !important; }
@@ -457,7 +457,6 @@ html, body {
     </div>
   </div>
   <div class="tb-presets">
-    <button class="ep-btn" onclick="switchTab('game')" style="background:var(--green);color:#000;">🏠 GAME</button>
     <button class="ep-btn" id="epBtnNova24"  onclick="setEventPreset('nova24')">★ NOVA 24</button>
     <button class="ep-btn" id="epBtn3pt"     onclick="setEventPreset('3pt')">🎯 3PT</button>
     <button class="ep-btn" id="epBtnDunk"    onclick="setEventPreset('dunk')">🏀 DUNK</button>
