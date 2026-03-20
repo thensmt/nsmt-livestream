@@ -2213,11 +2213,11 @@ window.generateStatReport = function(autoPrint) {
       const nameCell = dnp ? `${esc(p.name)} <span style="color:#999;font-style:italic">DNP</span>` : esc(p.name);
       return `<tr><td>${esc(p.num||'')}</td><td class="nl">${nameCell}</td><td class="b">${pts}</td>
         <td>${(p.fgm||0)}-${(p.fga||0)}</td><td>${(p.t3m||0)}-${(p.t3a||0)}</td><td>${(p.ftm||0)}-${(p.fta||0)}</td>
-        <td>${off}</td><td>${def}</td><td>${reb}</td><td>${p.ast||0}</td><td>${p.stl||0}</td><td>${p.blk||0}</td><td>${p.to||0}</td><td>${p.pf||0}</td><td class="b">${pts}</td></tr>`;
+        <td>${off}</td><td>${def}</td><td>${reb}</td><td>${p.ast||0}</td><td>${p.stl||0}</td><td>${p.blk||0}</td><td>${p.to||0}</td><td>${p.pf||0}</td></tr>`;
     }).join('');
     const tot = `<tr class="tr"><td></td><td class="nl">TOTAL</td><td class="b">${tPts}</td>
       <td>${tFgm}-${tFga}</td><td>${t3m}-${t3a}</td><td>${tFtm}-${tFta}</td>
-      <td>${tOff}</td><td>${tDef}</td><td>${tOff+tDef}</td><td>${tAst}</td><td>${tStl}</td><td>${tBlk}</td><td>${tTo}</td><td>${tPf}</td><td class="b">${tPts}</td></tr>`;
+      <td>${tOff}</td><td>${tDef}</td><td>${tOff+tDef}</td><td>${tAst}</td><td>${tStl}</td><td>${tBlk}</td><td>${tTo}</td><td>${tPf}</td></tr>`;
     return {rows:rows+tot,tPts,tFgm,tFga,t3m,t3a,tFtm,tFta,tOff,tDef,tAst,tStl,tBlk,tTo,tPf};
   }
   const aT=buildTeamTable('away'), hT=buildTeamTable('home');
@@ -2259,7 +2259,7 @@ window.generateStatReport = function(autoPrint) {
     <div class="rh-logo"><img src="http://localhost:8000/silver-hoopfest-logo.png" alt="NSMT"></div>
     <div class="rh-center">
       <div class="rh-event">${esc(label)}</div>
-      <div class="rh-meta">${esc(dateStr)} ${esc(timeStr)}${G.venue?' &bull; '+esc(G.venue):''}</div>
+      <div class="rh-meta">${esc(dateStr)} ${esc(timeStr)}${G.venue?' &bull; '+esc(G.venue):''}${G.venue?'':' &bull; thensmt.com'}</div>
       <div class="rh-status">${esc(gameStatus)}</div>
     </div>
     <div class="rh-right">Keeper: Producer<br>${esc(dateStr)}<br>thensmt.com</div>
@@ -2269,7 +2269,7 @@ window.generateStatReport = function(autoPrint) {
     <div class="th"><span class="th-name">${esc(G.away.name||'Away')}</span><span class="th-score">${G.away.score||0}</span></div>
     <table><thead><tr>
       <th style="width:16pt">#</th><th class="nl" style="width:90pt">PLAYER</th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th><th>PTS</th>
+      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
     </tr></thead><tbody>${aT.rows}</tbody></table>
   </div>
 
@@ -2277,7 +2277,7 @@ window.generateStatReport = function(autoPrint) {
     <div class="th"><span class="th-name">${esc(G.home.name||'Home')}</span><span class="th-score">${G.home.score||0}</span></div>
     <table><thead><tr>
       <th style="width:16pt">#</th><th class="nl" style="width:90pt">PLAYER</th>
-      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th><th>PTS</th>
+      <th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>OFF</th><th>DEF</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th>
     </tr></thead><tbody>${hT.rows}</tbody></table>
   </div>
 
