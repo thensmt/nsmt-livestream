@@ -214,6 +214,8 @@ textarea{resize:vertical;min-height:80px}
 .stats-player-grid::-webkit-scrollbar{width:3px}
 .stats-player-grid::-webkit-scrollbar-thumb{background:var(--border2)}
 .sp-card{display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:8px 4px;min-height:104px;cursor:pointer;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent;text-align:center;width:100%}
+.sp-card-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0}
+.sp-card-photo-none{width:38px;height:38px;border-radius:50%;background:var(--surf3);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:18px;color:var(--muted);flex-shrink:0}
 .sp-card:active{transform:scale(.94)}
 .sp-card.sel{background:rgba(14,128,252,.12);border-color:var(--gold)}
 .sp-card.foul4{border-color:var(--orange)}
@@ -2970,7 +2972,9 @@ function renderStatsTab() {
       const fouls = p.pf||0;
       const foulClass = fouls>=5?' foul5':(fouls===3||fouls===4)?' foul4':'';
       const pips = [0,1,2,3,4].map(i=>`<div class="sp-card-fp${i<fouls?' on':''}"></div>`).join('');
+      const photoEl = p.photo ? `<img class="sp-card-photo" src="${p.photo}" onerror="this.outerHTML='<div class=sp-card-photo-none>${(p.num||'?')}</div>'">` : `<div class="sp-card-photo-none">${p.num||'?'}</div>`;
       return `<button id="sc-${team}-${p.id}" class="sp-card${foulClass}" data-pid="${p.id}" onclick="selectPlayer('${team}','${p.id}')">
+        ${photoEl}
         <div class="sp-card-num">${p.num||'?'}</div>
         <div class="sp-card-name">${p.name.split(' ').pop()}</div>
         <div class="sp-card-pts">${p.pts||0}pts</div>

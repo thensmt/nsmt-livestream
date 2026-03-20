@@ -157,6 +157,10 @@ html, body {
 .stats-team-score { color: var(--gold); font-size: 21px; }
 .player-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 5px; overflow-y: auto; align-content: start; }
 .player-grid::-webkit-scrollbar { width: 3px; } .player-grid::-webkit-scrollbar-thumb { background: var(--border2); }
+.pbtn-photo{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0}
+.pbtn-photo-none{width:52px;height:52px;border-radius:50%;background:var(--surf3);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:24px;color:var(--muted);flex-shrink:0}
+#tabGame .pbtn-photo{width:44px;height:44px}
+#tabGame .pbtn-photo-none{width:44px;height:44px;font-size:20px}
 .pbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--surf2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; cursor: pointer; transition: all .1s; min-height: 200px; position: relative; }
 .pbtn:active { transform: scale(.94); background: var(--surf3); }
 .pbtn.foul4 { border-color: var(--orange); } .pbtn.foul5 { border-color: var(--red); opacity: .5; }
@@ -890,7 +894,8 @@ function renderPlayerGrids() {
         ? `toggleStarter('${team}','${p.id}',event)`
         : `openStatDetail('${team}','${p.id}')`;
       const spotlightBtn = !_starterMode ? `<button class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</button>` : '';
-      return `<button class="pbtn${cls}${starterCls}" onclick="${clickHandler}">${spotlightBtn}${starterBadge}<div class="pbtn-num">${p.num||''}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
+      const photoEl = p.photo ? `<img class="pbtn-photo" src="${p.photo}" onerror="this.outerHTML='<div class=pbtn-photo-none>'+(this.dataset.num||'')+'</div>'" data-num="${p.num||''}">` : `<div class="pbtn-photo-none">${p.num||''}</div>`;
+      return `<button class="pbtn${cls}${starterCls}" onclick="${clickHandler}">${spotlightBtn}${starterBadge}${photoEl}<div class="pbtn-num">${p.num||''}</div><div class="pbtn-name">${p.name.split(' ').pop()}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
     const lbl = document.getElementById('stats'+(team==='away'?'Away':'Home')+'Label'); if(lbl) lbl.textContent=S[team].name;
     const scr = document.getElementById('stats'+(team==='away'?'Away':'Home')+'Score'); if(scr) scr.textContent=S[team].score;
@@ -1026,7 +1031,8 @@ function renderPlayerSelect() {
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
       const pips=[1,2,3,4,5].map(n=>`<div class="pbtn-pip${n<=pf?' on':''}"></div>`).join('');
       const spot=`<div class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</div>`;
-      return `<button class="pbtn${cls}" onclick="flowSelectPlayer('${team}','${p.id}')">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
+      const photoEl = p.photo ? `<img class="pbtn-photo" src="${p.photo}" onerror="this.outerHTML='<div class=pbtn-photo-none>'+(this.dataset.num||'')+'</div>'" data-num="${p.num||''}">` : `<div class="pbtn-photo-none">${p.num||''}</div>`;
+      return `<button class="pbtn${cls}" onclick="flowSelectPlayer('${team}','${p.id}')">${spot}${photoEl}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
     return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="player-col-grid">${btns}</div></div>`;
   }).join('') + '</div>';
@@ -1048,7 +1054,8 @@ function renderLineupSetup() {
     const statusText = isOn ? '✓ STARTING' : 'BENCH';
     const disStyle = disabled ? 'opacity:.3;pointer-events:none;' : '';
     const spot = `<div class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</div>`;
-    return `<button class="pbtn${cls}" onclick="toggleLineupPlayer('${team}','${p.id}')" style="${disStyle}">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-status" style="color:${statusColor}">${statusText}</div></button>`;
+    const photoEl = p.photo ? `<img class="pbtn-photo" src="${p.photo}" onerror="this.outerHTML='<div class=pbtn-photo-none>'+(this.dataset.num||'')+'</div>'" data-num="${p.num||''}">` : `<div class="pbtn-photo-none">${p.num||''}</div>`;
+    return `<button class="pbtn${cls}" onclick="toggleLineupPlayer('${team}','${p.id}')" style="${disStyle}">${spot}${photoEl}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-status" style="color:${statusColor}">${statusText}</div></button>`;
   };
   const mkTeam = (team) => {
     const t = S[team];
@@ -1104,7 +1111,8 @@ function renderSubPanel() {
     const statusText = isOutSel ? '↑ SUB OUT' : canSubIn ? '↓ SUB IN?' : role==='on-court' ? 'ON COURT' : 'BENCH';
     const statusColor = isOutSel ? 'var(--red)' : canSubIn ? 'var(--green)' : 'var(--muted)';
     const spot = `<div class="pbtn-spotlight" onclick="spotlightPlayer('${team}','${p.id}',event)">★</div>`;
-    return `<button class="pbtn${cls}" onclick="${click}" style="${dimStyle}">${spot}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-status" style="color:${statusColor}">${statusText}</div></button>`;
+    const photoEl = p.photo ? `<img class="pbtn-photo" src="${p.photo}" onerror="this.outerHTML='<div class=pbtn-photo-none>'+(this.dataset.num||'')+'</div>'" data-num="${p.num||''}">` : `<div class="pbtn-photo-none">${p.num||''}</div>`;
+    return `<button class="pbtn${cls}" onclick="${click}" style="${dimStyle}">${spot}${photoEl}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-status" style="color:${statusColor}">${statusText}</div></button>`;
   };
   const mkTeam = (team) => {
     const t = S[team];
