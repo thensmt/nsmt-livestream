@@ -17,7 +17,10 @@
   --border: #1e1e2a; --border2: #2a2a38;
   --text: #ffffff; --muted: #6a6a7a;
   --gold: #0E80FC; --blue: #3A9DFF; --red: #e63946; --green: #22c55e; --orange: #f97316;
+  --away-accent: #3A9DFF; --away-bg: rgba(58,157,255,.08); --away-border: rgba(58,157,255,.25);
+  --home-accent: #22c55e; --home-bg: rgba(34,197,94,.08); --home-border: rgba(34,197,94,.25);
   --r: 8px;
+  font-size: 85%;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -220,6 +223,16 @@ html, body {
 .team-split-col { overflow-y:auto; border-right:1px solid var(--border); padding:6px; }
 .team-split-col:last-child { border-right:none; }
 .team-split-label { font-family:'Rubik',sans-serif; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+.team-split-col[data-team="away"] { background:var(--away-bg); }
+.team-split-col[data-team="away"] .team-split-label { color:var(--away-accent); border-bottom-color:var(--away-border); }
+.team-split-col[data-team="away"] .pbtn { border-color:var(--away-border); }
+.team-split-col[data-team="away"] .pbtn-num { color:var(--away-accent); }
+.team-split-col[data-team="away"] .pbtn-photo-none { border-color:var(--away-border); color:var(--away-accent); }
+.team-split-col[data-team="home"] { background:var(--home-bg); }
+.team-split-col[data-team="home"] .team-split-label { color:var(--home-accent); border-bottom-color:var(--home-border); }
+.team-split-col[data-team="home"] .pbtn { border-color:var(--home-border); }
+.team-split-col[data-team="home"] .pbtn-num { color:var(--home-accent); }
+.team-split-col[data-team="home"] .pbtn-photo-none { border-color:var(--home-border); color:var(--home-accent); }
 .player-col-grid { display:flex; flex-direction:column; gap:4px; }
 .evt-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; padding:8px; }
 .evt-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:10px 4px; cursor:pointer; gap:3px; transition:all .08s; }
@@ -881,6 +894,7 @@ function renderPlayerGrids() {
   ['away','home'].forEach(team => {
     const grid=document.getElementById(team+'PlayerGrid');
     if(!grid)return;
+    if(grid.parentElement)grid.parentElement.setAttribute('data-team',team);
     const players=(S[team].players||[]).filter(p=>p.name);
     if(!players.length){grid.innerHTML='<div class="no-roster">No roster loaded.<br>Load one in the producer first.</div>';return;}
     grid.innerHTML=players.map(p=>{
@@ -1025,7 +1039,7 @@ function renderPlayerSelect() {
     const starters = S[team].starters || [];
     const players = (S[team].players||[]).filter(p => p.name && starters.includes(p.id));
     const label = S[team].name || team.toUpperCase();
-    if (!players.length) return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="no-roster" style="padding:16px;text-align:center;font-size:16px;color:var(--muted)">No players<br>on court</div></div>`;
+    if (!players.length) return `<div class="team-split-col" data-team="${team}"><div class="team-split-label">${label}</div><div class="no-roster" style="padding:16px;text-align:center;font-size:16px;color:var(--muted)">No players<br>on court</div></div>`;
     const btns = players.map(p => {
       const st=STATS[p.id]||{},pts=calcPts(st),pf=st.pf||0;
       const cls=pf>=5?' foul5':pf===4?' foul4':'';
@@ -1034,7 +1048,7 @@ function renderPlayerSelect() {
       const photoEl = p.photo ? `<img class="pbtn-photo" src="${p.photo}" onerror="this.outerHTML='<div class=pbtn-photo-none>'+(this.dataset.num||'')+'</div>'" data-num="${p.num||''}">` : `<div class="pbtn-photo-none">${p.num||''}</div>`;
       return `<button class="pbtn${cls}" onclick="flowSelectPlayer('${team}','${p.id}')">${spot}${photoEl}<div class="pbtn-num">${p.num||'—'}</div><div class="pbtn-name">${p.name}</div><div class="pbtn-pts">${pts}pts</div><div class="pbtn-pips">${pips}</div></button>`;
     }).join('');
-    return `<div class="team-split-col"><div class="team-split-label">${label}</div><div class="player-col-grid">${btns}</div></div>`;
+    return `<div class="team-split-col" data-team="${team}"><div class="team-split-label">${label}</div><div class="player-col-grid">${btns}</div></div>`;
   }).join('') + '</div>';
 }
 
@@ -1063,7 +1077,7 @@ function renderLineupSetup() {
     const count = (t.starters||[]).length;
     const countColor = count===5 ? 'var(--green)' : 'var(--gold)';
     const btns = players.map(p=>mkCard(team,p)).join('');
-    return `<div class="team-split-col"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:16px">${count}/5</span></div><div class="player-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${btns}</div></div>`;
+    return `<div class="team-split-col" data-team="${team}"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:16px">${count}/5</span></div><div class="player-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${btns}</div></div>`;
   };
   const bothFull = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
   const lockBtn = bothFull ? `<button class="lineup-lock-btn" onclick="lockLineup()">✓ LOCK LINEUP — START GAME</button>` : '';
@@ -1120,7 +1134,7 @@ function renderSubPanel() {
     const starters = t.starters||[];
     const court = all.filter(p=>starters.includes(p.id));
     const bench = all.filter(p=>!starters.includes(p.id));
-    return `<div class="team-split-col"><div class="team-split-label">${t.name}</div>${court.length?`<div class="sub-section-hdr">On Court</div><div class="player-col-grid">${court.map(p=>mkBtn(team,p,'on-court')).join('')}</div>`:''} ${bench.length?`<div class="sub-section-hdr">Bench</div><div class="player-col-grid">${bench.map(p=>mkBtn(team,p,'bench')).join('')}</div>`:''}</div>`;
+    return `<div class="team-split-col" data-team="${team}"><div class="team-split-label">${t.name}</div>${court.length?`<div class="sub-section-hdr">On Court</div><div class="player-col-grid">${court.map(p=>mkBtn(team,p,'on-court')).join('')}</div>`:''} ${bench.length?`<div class="sub-section-hdr">Bench</div><div class="player-col-grid">${bench.map(p=>mkBtn(team,p,'bench')).join('')}</div>`:''}</div>`;
   };
   return `<div class="teams-split">${mkTeam('away')}${mkTeam('home')}</div>`;
 }
@@ -1175,8 +1189,8 @@ function renderReboundPanel() {
   };
   return `<div style="padding:6px 10px 4px;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Missed — Select Rebounder</div>
   <div class="teams-split">
-    <div class="team-split-col"><div class="team-split-label">${away.name}</div><div class="player-col-grid">${awayPlayers.map(p=>mkBtn('away',p)).join('')}</div></div>
-    <div class="team-split-col"><div class="team-split-label">${home.name}</div><div class="player-col-grid">${homePlayers.map(p=>mkBtn('home',p)).join('')}</div></div>
+    <div class="team-split-col" data-team="away"><div class="team-split-label">${away.name}</div><div class="player-col-grid">${awayPlayers.map(p=>mkBtn('away',p)).join('')}</div></div>
+    <div class="team-split-col" data-team="home"><div class="team-split-label">${home.name}</div><div class="player-col-grid">${homePlayers.map(p=>mkBtn('home',p)).join('')}</div></div>
   </div>
   <button class="skip-btn" onclick="logStat()">No Rebound / Skip</button>`;
 }
