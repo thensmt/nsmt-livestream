@@ -2228,7 +2228,7 @@ window.generateStatReport = function(autoPrint) {
   <style>
     @page{size:letter portrait;margin:.4in .35in}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:7.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:7.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6pt}
     .rh{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10pt;padding-bottom:6pt;border-bottom:2pt solid #111;margin-bottom:8pt}
     .rh-logo{display:flex;align-items:center;justify-content:center}
     .rh-logo img{height:37pt;display:block}
@@ -2288,38 +2288,6 @@ window.generateStatReport = function(autoPrint) {
     </tr></thead><tbody>${hT.rows}</tbody></table>
   </div>
 
-  <div class="sec3">
-    <div>
-      <div class="sec-title">Period Scores</div>
-      <table class="smtbl"><thead><tr><th class="nl"></th><th>${esc(aC)}</th><th>${esc(hC)}</th></tr></thead>
-      <tbody><tr class="tr"><td class="nl">Final</td><td><b>${G.away.score||0}</b></td><td><b>${G.home.score||0}</b></td></tr></tbody></table>
-    </div>
-    <div>
-      <div class="sec-title">Point Type</div>
-      <table class="smtbl"><thead><tr><th class="nl"></th><th>${esc(aC)}</th><th>${esc(hC)}</th></tr></thead>
-      <tbody>
-        <tr><td class="nl">In Paint</td><td>0</td><td>0</td></tr>
-        <tr><td class="nl">Fast Break</td><td>0</td><td>0</td></tr>
-        <tr><td class="nl">2nd Chance</td><td>0</td><td>0</td></tr>
-        <tr><td class="nl">Off Turnovers</td><td>0</td><td>0</td></tr>
-      </tbody></table>
-    </div>
-    <div>
-      <div class="sec-title">Team Stats</div>
-      <table class="smtbl"><thead><tr><th class="nl"></th><th>${esc(aC)}</th><th>${esc(hC)}</th></tr></thead>
-      <tbody>
-        <tr><td class="nl">FG%</td><td>${pct(aT.tFgm,aT.tFga)}</td><td>${pct(hT.tFgm,hT.tFga)}</td></tr>
-        <tr><td class="nl">3PT%</td><td>${pct(aT.t3m,aT.t3a)}</td><td>${pct(hT.t3m,hT.t3a)}</td></tr>
-        <tr><td class="nl">FT%</td><td>${pct(aT.tFtm,aT.tFta)}</td><td>${pct(hT.tFtm,hT.tFta)}</td></tr>
-        <tr><td class="nl">Rebounds</td><td>${aT.tOff+aT.tDef}</td><td>${hT.tOff+hT.tDef}</td></tr>
-        <tr><td class="nl">Assists</td><td>${aT.tAst}</td><td>${hT.tAst}</td></tr>
-        <tr><td class="nl">Turnovers</td><td>${aT.tTo}</td><td>${hT.tTo}</td></tr>
-        <tr><td class="nl">Steals</td><td>${aT.tStl}</td><td>${hT.tStl}</td></tr>
-        <tr><td class="nl">Blocks</td><td>${aT.tBlk}</td><td>${hT.tBlk}</td></tr>
-      </tbody></table>
-    </div>
-  </div>
-
   ${function(){
     const ps = G.periodStats || {};
     function pbRows(side, tTotals, score) {
@@ -2333,8 +2301,26 @@ window.generateStatReport = function(autoPrint) {
       rows += '<tr class="tr"><td class="nl">Final</td><td class="b">'+score+'</td><td>'+tTotals.tFgm+'-'+tTotals.tFga+'</td><td>'+tTotals.t3m+'-'+tTotals.t3a+'</td><td>'+tTotals.tFtm+'-'+tTotals.tFta+'</td><td>'+(tTotals.tOff+tTotals.tDef)+'</td><td>'+tTotals.tAst+'</td><td>'+tTotals.tTo+'</td></tr>';
       return rows;
     }
-    return '<div class="pb"><div class="pb-title">Period Breakdown — '+esc(G.away.name||'Away')+'</div><table><thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead><tbody>'+pbRows('away',aT,G.away.score||0)+'</tbody></table></div>'
-    + '<div class="pb" style="margin-top:4pt"><div class="pb-title">Period Breakdown — '+esc(G.home.name||'Home')+'</div><table><thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead><tbody>'+pbRows('home',hT,G.home.score||0)+'</tbody></table></div>';
+    const pbThead = '<thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead>';
+    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-top:8pt">'
+    + '<div><div class="sec-title">Point Type</div><table class="smtbl"><thead><tr><th class="nl"></th><th>'+esc(aC)+'</th><th>'+esc(hC)+'</th></tr></thead><tbody>'
+    + '<tr><td class="nl">In Paint</td><td>0</td><td>0</td></tr><tr><td class="nl">Fast Break</td><td>0</td><td>0</td></tr><tr><td class="nl">2nd Chance</td><td>0</td><td>0</td></tr><tr><td class="nl">Off Turnovers</td><td>0</td><td>0</td></tr>'
+    + '</tbody></table></div>'
+    + '<div><div class="sec-title">Team Stats</div><table class="smtbl"><thead><tr><th class="nl"></th><th>'+esc(aC)+'</th><th>'+esc(hC)+'</th></tr></thead><tbody>'
+    + '<tr><td class="nl">FG%</td><td>'+pct(aT.tFgm,aT.tFga)+'</td><td>'+pct(hT.tFgm,hT.tFga)+'</td></tr>'
+    + '<tr><td class="nl">3PT%</td><td>'+pct(aT.t3m,aT.t3a)+'</td><td>'+pct(hT.t3m,hT.t3a)+'</td></tr>'
+    + '<tr><td class="nl">FT%</td><td>'+pct(aT.tFtm,aT.tFta)+'</td><td>'+pct(hT.tFtm,hT.tFta)+'</td></tr>'
+    + '<tr><td class="nl">Rebounds</td><td>'+(aT.tOff+aT.tDef)+'</td><td>'+(hT.tOff+hT.tDef)+'</td></tr>'
+    + '<tr><td class="nl">Assists</td><td>'+aT.tAst+'</td><td>'+hT.tAst+'</td></tr>'
+    + '<tr><td class="nl">Turnovers</td><td>'+aT.tTo+'</td><td>'+hT.tTo+'</td></tr>'
+    + '<tr><td class="nl">Steals</td><td>'+aT.tStl+'</td><td>'+hT.tStl+'</td></tr>'
+    + '<tr><td class="nl">Blocks</td><td>'+aT.tBlk+'</td><td>'+hT.tBlk+'</td></tr>'
+    + '</tbody></table></div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-top:6pt">'
+    + '<div class="pb"><div class="pb-title">Quarter Breakdown — '+esc(G.away.name||'Away')+'</div><table>'+pbThead+'<tbody>'+pbRows('away',aT,G.away.score||0)+'</tbody></table></div>'
+    + '<div class="pb"><div class="pb-title">Quarter Breakdown — '+esc(G.home.name||'Home')+'</div><table>'+pbThead+'<tbody>'+pbRows('home',hT,G.home.score||0)+'</tbody></table></div>'
+    + '</div>';
   }()}
 
   <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>${esc(label)} &bull; ${esc(dateStr)} ${esc(timeStr)} &bull; Official Game Report</div>

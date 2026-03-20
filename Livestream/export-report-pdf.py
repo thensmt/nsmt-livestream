@@ -81,7 +81,7 @@ def build_report_html(state, label_override=None):
 <style>
 @page{{size:letter portrait;margin:.4in .35in}}
 *{{box-sizing:border-box;margin:0;padding:0}}
-body{{font-family:'Helvetica Neue',Arial,sans-serif;font-size:7.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+body{{font-family:'Helvetica Neue',Arial,sans-serif;font-size:7.5pt;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6pt}}
 .rh{{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10pt;padding-bottom:6pt;border-bottom:2pt solid #111;margin-bottom:8pt}}
 .rh-logo{{display:flex;align-items:center;justify-content:center}}
 .rh-logo img{{height:37pt;display:block}}
@@ -141,12 +141,7 @@ tr.tr td{{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}}
   </tr></thead><tbody>{h_rows}</tbody></table>
 </div>
 
-<div class="sec3">
-  <div>
-    <div class="sec-title">Period Scores</div>
-    <table class="smtbl"><thead><tr><th class="nl"></th><th>{esc(away_code)}</th><th>{esc(home_code)}</th></tr></thead>
-    <tbody><tr class="tr"><td class="nl">Final</td><td><b>{away_score}</b></td><td><b>{home_score}</b></td></tr></tbody></table>
-  </div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-top:8pt">
   <div>
     <div class="sec-title">Point Type</div>
     <table class="smtbl"><thead><tr><th class="nl"></th><th>{esc(away_code)}</th><th>{esc(home_code)}</th></tr></thead>
@@ -173,7 +168,9 @@ tr.tr td{{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}}
   </div>
 </div>
 
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-top:6pt">
 {pb_html}
+</div>
 
 <div class="rf">Nova Sports Media Team &mdash; thensmt.com &mdash; Northern Virginia High School Sports<br>{esc(event)} &bull; {esc(now)} {esc(tstr)} &bull; Official Game Report</div>
 </body></html>'''
