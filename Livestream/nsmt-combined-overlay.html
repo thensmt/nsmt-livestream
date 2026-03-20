@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="apple-touch-icon" href="/nsmt-icon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NSMT Overlay">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NSMT Combined Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════
+     SCOREBUG CSS
+  ═══════════════════════════════════════════════ */
+  :root{
+    --white:#fff;
+    --ticker-h:0px;
+    --bug-dark:#0b0b0b;
+    --bug-mid:#181818;
+    --bug-light:#f2f2f2;
+    --bug-edge:#0a0a0a;
+    --away-bg1:#00007f;
+    --away-bg2:#000061;
+    --away-text:#ffffff;
+    --away-score:#ffffff;
+    --away-accent:#7f7f7f;
+    --home-bg1:#046333;
+    --home-bg2:#034b27;
+    --home-text:#ffffff;
+    --home-score:#ffffff;
+    --home-accent:#c0c0c0;
+    --bug-scale:0.96;
+    --bug-w:980px;
+    --center-w:130px;
+  }
+  body.ticker-visible{ --ticker-h:31.05px; }
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:transparent;
+    overflow:hidden;
+    font-family:'Rubik',system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--white);
+  }
+  .stage{ position:relative; width:100%; height:100%; }
+  .bugWrap{ position:absolute; left:50%; bottom:32px;
+    display:inline-flex; flex-direction:column; align-items:stretch;
+    width:var(--bug-w);
+    transform:translateX(-50%) scale(var(--bug-scale));
+    transform-origin:center center; }
+  /* bugWrap stays fixed regardless of ticker state */
+  .eventBar{
+    position:relative; z-index:1; margin:0 auto 4px;
+    width:100%; height:24px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#1f2226,#0c0f12);
+    border:1px solid #000; border-radius:6px;
+    text-transform:uppercase; font-weight:800; letter-spacing:1.2px;
+    font-size:18px; color:#e6e6e6;
+  }
+  .bug{ position:relative; z-index:1; display:flex; align-items:stretch;
+    width:100%; min-width:var(--bug-w); height:88px; border-radius:6px; overflow:hidden;
+    box-shadow:0 10px 24px rgba(0,0,0,.45); }
+  .teamPanel{
+    flex:1; display:flex; align-items:center; justify-content:space-between;
+    padding:8px 14px; gap:10px;
+  }
+  .teamLogo{
+    width:72px; height:72px; flex:0 0 72px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.35);
+    border-radius:10px;
+    padding:6px;
+  }
+  .teamLogo img{ width:100%; height:100%; object-fit:contain; }
+  .teamPanel.away{ background:linear-gradient(180deg,var(--away-bg1),var(--away-bg2)); color:var(--away-text); }
+  .teamPanel.home{ background:linear-gradient(180deg,var(--home-bg1),var(--home-bg2)); color:var(--home-text);
+    border-left:2px solid var(--bug-edge); }
+  .teamInfo{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .teamName{ font-weight:900; font-size:24px; letter-spacing:1px; text-transform:uppercase; }
+  .teamRecord{ font-size:14px; font-weight:600; opacity:.92; }
+  .teamBonus{ display:flex; align-items:center; gap:8px; font-size:15px;
+    letter-spacing:.7px; text-transform:uppercase; }
+  .bonusLabel{ font-weight:700; color:#d7d7d7; }
+  .teamPanel.away .bonusLabel{ color:var(--away-accent); }
+  .teamPanel.home .bonusLabel{ color:var(--home-accent); }
+  .bonusDots{ display:flex; gap:6px; align-items:center; }
+  .box{ width:8px; height:8px; border-radius:50%;
+    background:#f0e93a; box-shadow:0 0 6px rgba(240,233,58,.65), inset 0 0 0 1px rgba(0,0,0,.35); }
+  .box.off{ background:transparent; box-shadow:inset 0 0 0 1px rgba(255,255,255,.45); }
+  .teamScore{
+    font-family:'Anton','Rubik',sans-serif; font-size:62px; line-height:.9;
+    letter-spacing:1px; text-shadow:0 2px 0 rgba(0,0,0,.35);
+  }
+  .teamPanel.away .teamScore{ color:#ffffff; }
+  .teamPanel.home .teamScore{ color:#ffffff; text-shadow:none; }
+  .centerPanel{
+    width:var(--center-w); background:linear-gradient(180deg,#1b1f24,#0d1116); color:#e9edf2;
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+    border-left:2px solid #000; border-right:2px solid #000;
+    text-align:center; padding:8px 6px;
+  }
+  .centerTop{
+    font-weight:800; text-transform:uppercase; font-size:14px; color:#c7cbd1; line-height:1;
+  }
+  .centerClock{ font-family:'Anton','Rubik',sans-serif; font-size:34px; letter-spacing:.6px; line-height:1; }
+  .promoCenter{
+    width:110px; height:28px; display:flex; align-items:center; justify-content:center;
+  }
+  .promoCenter img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .ddbar, .sponsorRow{ display:none !important; }
+  .cornerLogo{ position:absolute; width:120px; height:60px; display:none;
+    align-items:center; justify-content:center; pointer-events:none; z-index:3; }
+  .miniScore{
+    position:absolute; top:24px; right:24px; z-index:5;
+    background:linear-gradient(180deg,#121418,#0a0c10);
+    border:1px solid #000; border-radius:8px; padding:10px 12px;
+    color:#fff; min-width:220px; display:none;
+    box-shadow:0 8px 16px rgba(0,0,0,.45);
+    transform-origin:top right;
+  }
+  .miniRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .miniName{ font-weight:800; text-transform:uppercase; letter-spacing:.6px; font-size:16px; }
+  .miniScoreVal{ font-family:'Anton','Rubik',sans-serif; font-size:22px; }
+  .miniRow + .miniRow{ margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.08); }
+  .miniMeta{ display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.08);
+    font-size:12px; text-transform:uppercase; color:#c9d1da; letter-spacing:.6px; }
+  .miniMeta span{ font-weight:700; }
+  .promoLogo{
+    position:absolute; display:none; align-items:center; justify-content:center;
+    pointer-events:none; z-index:4;
+  }
+  .promoLogo img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .promo-tl{ top:24px; left:24px; width:360px; height:180px; }
+  .promo-tr{ top:24px; right:24px; width:360px; height:180px; }
+  .promo-bl{ bottom:calc(48px + var(--ticker-h)); left:24px; width:360px; height:180px; }
+  .promo-bar{ display:flex; }
+  .cornerLogo img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .corner-tl{ top:24px; left:24px; }
+  .corner-tr{ top:24px; right:24px; }
+  .corner-bl{ bottom:calc(48px + var(--ticker-h)); left:24px; }
+  .corner-br{ bottom:calc(48px + var(--ticker-h)); right:24px; }
+  /* ── Stats panel ── */
+  #statsPanel{
+    position:absolute; bottom:calc(var(--ticker-h) + 4px); left:50%;
+    transform:translateX(-50%);
+    display:none; flex-direction:row; gap:6px;
+    font-family:'Rubik',sans-serif; font-size:10px; z-index:6; pointer-events:none;
+  }
+  #statsPanel.visible{ display:flex; }
+  .sp-team{
+    background:rgba(10,10,12,.88); border:1px solid rgba(255,255,255,.1);
+    border-radius:6px; overflow:hidden; min-width:310px;
+  }
+  .sp-hdr{
+    padding:4px 8px; background:rgba(255,255,255,.07);
+    font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.8px;
+  }
+  .sp-table{ width:100%; border-collapse:collapse; }
+  .sp-table th{ font-size:8px; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+    color:rgba(255,255,255,.45); padding:3px 5px; text-align:right;
+    border-bottom:1px solid rgba(255,255,255,.07); }
+  .sp-table th:first-child,.sp-table th:nth-child(2){ text-align:left; }
+  .sp-table td{ padding:2px 5px; text-align:right; color:rgba(255,255,255,.85);
+    border-bottom:1px solid rgba(255,255,255,.04); }
+  .sp-table td:first-child{ font-weight:700; color:#F5C518; text-align:left; width:22px; }
+  .sp-table td:nth-child(2){ text-align:left; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sp-pts{ font-weight:700; color:#fff; }
+  #ticker{ position:absolute; left:0; right:0; bottom:0; height:var(--ticker-h);
+    background:#000; color:#fff; font-size:15.525px;
+    white-space:nowrap; overflow:hidden; display:none; padding:5.4px 0; }
+  .timeoutBanner{
+    position:absolute; top:calc(100% + 6px);
+    width:calc((var(--bug-w) - var(--center-w)) / 2);
+    background:linear-gradient(180deg,#1b1f24,#0d1116);
+    color:#f0e93a; font-weight:900; text-transform:uppercase;
+    letter-spacing:1px; padding:8px 14px; border-radius:8px; border:1px solid #000;
+    box-shadow:0 8px 16px rgba(0,0,0,.45); text-align:center; display:none;
+  }
+  .timeout-away{ left:0; }
+  .timeout-home{ right:0; }
+  #ticker::before{ display:none; }
+  #tickerText{ position:relative; display:inline-block; padding-left:100%; will-change:transform;
+    animation:tickerScroll 30s linear infinite; color:#fff; }
+  .tick-prefix{ display:none; }
+  .sep{ opacity:.6; margin:0 10px; }
+  .tick-item{ color:#fff; letter-spacing:.6px; animation:none; }
+  .tick-item.flash{ animation:flashPulse 1s steps(2,jump-none) infinite; }
+  @keyframes tickerScroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+  @keyframes flashPulse{0%{opacity:1;}25%{opacity:.2;}50%{opacity:1;}75%{opacity:.2;}100%{opacity:1;}}
+  @keyframes tickerHue{
+    0%{ color:#e9f7ff; text-shadow:0 0 6px rgba(80,186,255,.65); }
+    25%{ color:#9de7ff; text-shadow:0 0 6px rgba(120,210,255,.75); }
+    50%{ color:#c7f6ff; text-shadow:0 0 6px rgba(160,226,255,.75); }
+    75%{ color:#9de7ff; text-shadow:0 0 6px rgba(120,210,255,.75); }
+    100%{ color:#e9f7ff; text-shadow:0 0 6px rgba(80,186,255,.65); }
+  }
+  /* ─── Broadcast Graphic Overlay ─── */
+  .go-wrap{
+    position:absolute; left:50%; bottom:320px;
+    transform:translateX(-50%);
+    min-width:460px; max-width:820px;
+    background:linear-gradient(90deg,#080808 0%,#141414 100%);
+    border-left:5px solid #f0b51c;
+    padding:14px 28px 14px 22px;
+    display:flex; flex-direction:column; gap:3px;
+    box-shadow:0 8px 32px rgba(0,0,0,.8);
+    border-radius:0 6px 6px 0;
+    opacity:1; transition:opacity 0.4s;
+    z-index:200; white-space:nowrap;
+  }
+  .go-wrap.hidden{display:none;}
+  .go-wrap.fade-out{opacity:0;}
+  @keyframes goSlideIn{from{transform:translateX(calc(-50% - 20px));opacity:0;}to{transform:translateX(-50%);opacity:1;}}
+  .go-wrap.show{animation:goSlideIn 0.25s ease-out;}
+  .go-type{font-size:10px;font-weight:700;letter-spacing:3px;color:#f0b51c;text-transform:uppercase;}
+  .go-title{font-size:26px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.5px;line-height:1.1;}
+  .go-detail{font-size:15px;color:#c0c0c0;letter-spacing:0.3px;}
+  .go-meta{font-size:12px;color:#666;margin-top:1px;}
+  .go-warn{font-size:13px;color:#ef4444;font-weight:700;}
+  /* ── Player Spotlight Card ── */
+  .pc-wrap{
+    position:absolute; left:50%; bottom:320px;
+    transform:translateX(-50%);
+    display:flex; flex-direction:row;
+    background:linear-gradient(135deg,#0a0a0c 0%,#161820 100%);
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:12px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.9);
+    z-index:210; min-width:360px; max-width:520px;
+    animation:pcSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .pc-wrap.hidden{display:none;}
+  .pc-wrap.dismissing{animation:pcSlideOut 0.3s ease-in forwards;}
+  @keyframes pcSlideIn{from{opacity:0;transform:translateX(-50%) translateY(32px) scale(0.91);}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}}
+  @keyframes pcSlideOut{from{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}to{opacity:0;transform:translateX(-50%) translateY(32px) scale(0.91);}}
+  .pc-accent-bar{width:6px;flex-shrink:0;background:#0E80FC;}
+  .pc-photo-wrap{width:120px;flex-shrink:0;overflow:hidden;background:#111;}
+  .pc-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .pc-info{padding:14px 20px;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+  .pc-team{font-family:'Rubik',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+  .pc-num-name{font-family:'Anton',Impact,sans-serif;font-size:27px;text-transform:uppercase;letter-spacing:0.5px;color:#fff;line-height:1;}
+  .pc-num-name .pc-num{color:rgba(255,255,255,.4);margin-right:6px;font-size:22px;}
+  .pc-profile{font-family:'Rubik',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:0.5px;}
+  .pc-avgs{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:0.5px;}
+  .pc-commit{font-family:'Rubik',sans-serif;font-size:11px;font-weight:600;color:#F5C518;letter-spacing:0.5px;}
+  .pc-profile.hidden,.pc-avgs.hidden,.pc-commit.hidden{display:none;}
+  .pc-stats{display:flex;gap:16px;margin-top:4px;}
+  .pc-stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
+  .pc-stat span{font-family:'Anton',Impact,sans-serif;font-size:24px;color:#fff;line-height:1;}
+  .pc-stat label{font-family:'Rubik',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+  /* ── All-Star Intro Overlay ── */
+  .intro-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.88);z-index:300;animation:introFadeIn 0.5s ease-out;}
+  .intro-overlay.hidden{display:none;}
+  .intro-overlay.dismissing{animation:introFadeOut 0.4s ease-in forwards;pointer-events:none;}
+  @keyframes introFadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes introFadeOut{from{opacity:1;}to{opacity:0;}}
+  .intro-card{display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;padding:64px 90px;background:linear-gradient(160deg,#0a0b0f 0%,#131620 100%);border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.9);min-width:640px;animation:introCardIn 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes introCardIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .intro-presenter{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.28);}
+  .intro-event-name{font-family:'Anton',Impact,sans-serif;font-size:72px;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .intro-accent-bar{width:90px;height:5px;border-radius:3px;background:#0E80FC;}
+  .intro-matchup{display:flex;align-items:center;gap:28px;margin-top:4px;}
+  .intro-team{font-family:'Anton',Impact,sans-serif;font-size:34px;text-transform:uppercase;letter-spacing:1px;color:#fff;}
+  .intro-vs{font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.28);}
+  .intro-tipoff{font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px;}
+  /* ── LIVE bug ── */
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  /* ── Score pulse ── */
+  @keyframes scorePulse {
+    0% { color: inherit; text-shadow: none; }
+    30% { color: #FFD700; text-shadow: 0 0 12px #FFD700; }
+    100% { color: inherit; text-shadow: none; }
+  }
+  .score-pulse { animation: scorePulse 0.6s ease-out; }
+
+  /* ═══════════════════════════════════════════════
+     3-POINT CONTEST CSS
+  ═══════════════════════════════════════════════ */
+
+  /* ── Outer wrap ── */
+  .tpt-wrap{
+    position:absolute;
+    top:20px;left:20px;right:20px;
+    display:flex;gap:28px;align-items:flex-start;justify-content:space-between;
+    transition:opacity 0.4s;
+  }
+  .tpt-wrap.hidden{display:none;}
+
+  /* ── Court panel ── */
+  .court-panel{
+    background:rgba(10,11,16,0.20);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;padding:14px 19px 16px;
+    min-width:231px;display:flex;flex-direction:column;gap:9px;
+    box-shadow:0 15px 45px rgba(0,0,0,.85);
+    font-family:'Rubik',sans-serif;color:#fff;
+  }
+
+  /* ── Header ── */
+  .ct-hdr{display:flex;align-items:center;justify-content:space-between;}
+  .ct-label{font-size:6px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-badge{font-size:6px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0E80FC;}
+
+  /* ── Shooter name + info ── */
+  .ct-shooter{font-family:'Anton',Impact,sans-serif;font-size:24px;letter-spacing:1px;text-transform:uppercase;line-height:1;}
+  .ct-school{font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:1px;}
+  .ct-ig{font-size:6px;font-weight:600;letter-spacing:.5px;color:#0E80FC;margin-top:1px;}
+
+  /* ── Racks ── */
+  .rack-row{display:flex;align-items:center;gap:6px;}
+  .rack-label{
+    font-size:6px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:rgba(255,255,255,.28);width:31px;flex-shrink:0;
+  }
+  .rack-label.money{color:#F5C518;}
+  .balls{display:flex;gap:5px;}
+  .ball{
+    width:19px;height:19px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,.2);background:transparent;
+    transition:background .15s,border-color .15s,box-shadow .15s;
+  }
+  .ball.made{background:#fff;border-color:#fff;box-shadow:0 0 5px rgba(255,255,255,.35);}
+  .ball.made.money{background:#F5C518;border-color:#F5C518;box-shadow:0 0 9px rgba(245,197,24,.55);}
+
+  /* ── Total ── */
+  .ct-total{
+    display:flex;align-items:baseline;gap:6px;
+    padding-top:5px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .ct-total-lbl{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-total-val{font-family:'Anton',Impact,sans-serif;font-size:33px;line-height:1;}
+  .ct-total-max{font-size:9px;color:rgba(255,255,255,.22);}
+
+  /* ── Finals = single panel, centered & slightly wider ── */
+  .tpt-wrap.finals .court-panel{min-width:275px;}
+
+  /* ═══════════════════════════════════════════════
+     DUNK CONTEST CSS
+  ═══════════════════════════════════════════════ */
+
+  /* ── Main card ── */
+  .dk-wrap{
+    position:absolute;bottom:32px;left:50%;
+    transform:translateX(-50%);
+    min-width:680px;
+    background:rgba(10,11,16,0.20);
+    border:1px solid rgba(255,255,255,.12);border-radius:18px;
+    padding:28px 36px 30px;
+    display:flex;flex-direction:column;gap:18px;
+    box-shadow:0 28px 80px rgba(0,0,0,.9);
+    font-family:'Rubik',sans-serif;color:#fff;
+    animation:dkIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .dk-wrap.hidden{display:none;}
+  @keyframes dkIn{from{opacity:0;transform:translateX(-50%) scale(.88);}to{opacity:1;transform:translateX(-50%) scale(1);}}
+
+  /* ── Header ── */
+  .dk-hdr{display:flex;align-items:center;justify-content:space-between;}
+  .dk-badge{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0E80FC;}
+  .dk-round-info{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+
+  /* ── Dunker row ── */
+  .dk-dunker-row{display:flex;align-items:center;gap:18px;}
+  .dk-photo{
+    width:80px;height:80px;border-radius:10px;overflow:hidden;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);flex-shrink:0;
+  }
+  .dk-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .dk-photo.no-photo{display:none;}
+  .dk-dunker-info{display:flex;flex-direction:column;gap:2px;}
+  .dk-dunker-name{font-family:'Anton',Impact,sans-serif;font-size:44px;text-transform:uppercase;letter-spacing:1px;line-height:1;}
+  .dk-dunker-school{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:3px;}
+  .dk-dunker-ig{font-size:11px;font-weight:600;letter-spacing:.5px;color:#0E80FC;margin-top:1px;}
+  .dk-dunker-sub{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:4px;}
+
+  /* ── Judge scores ── */
+  .dk-judges{display:flex;gap:10px;justify-content:center;}
+  .dk-judge{
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;padding:10px 14px;min-width:80px;
+    transition:background .3s,border-color .3s;
+  }
+  .dk-judge.revealed{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);}
+  .dk-judge.perfect{background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.4);}
+  .dk-judge-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .dk-judge-val{
+    font-family:'Anton',Impact,sans-serif;font-size:38px;line-height:1;
+    color:rgba(255,255,255,.15);transition:color .4s,transform .4s;
+  }
+  .dk-judge-val.revealed{color:#fff;}
+  .dk-judge-val.perfect{color:#F5C518;}
+  .dk-judge.revealed .dk-judge-val{animation:scoreReveal 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes scoreReveal{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  /* ── Total ── */
+  .dk-total-row{
+    display:flex;align-items:baseline;gap:12px;justify-content:center;
+    padding-top:10px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .dk-total-lbl{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .dk-total-val{font-family:'Anton',Impact,sans-serif;font-size:60px;line-height:1;}
+  .dk-total-max{font-size:14px;color:rgba(255,255,255,.22);}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- ══════════════════════════════════════════
+       SCOREBUG HTML
+  ══════════════════════════════════════════ -->
+
+  <!-- LIVE bug -->
+  <div id="live-bug" style="display:none; position:absolute; top:20px; left:20px; align-items:center; gap:6px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:4px; z-index:100;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#FF0000;animation:livePulse 1.2s infinite;display:inline-block"></span>
+    <span style="color:#fff;font-weight:700;font-size:14px;letter-spacing:1px">LIVE</span>
+  </div>
+  <div class="cornerLogo corner-tl" id="cornerTL"><img id="cornerTLImg" alt="Top Left Sponsor"></div>
+  <div class="cornerLogo corner-tr" id="cornerTR"><img id="cornerTRImg" alt="Top Right Sponsor"></div>
+  <div class="cornerLogo corner-bl" id="cornerBL"><img id="cornerBLImg" alt="Bottom Left Sponsor"></div>
+  <div class="cornerLogo corner-br" id="cornerBR"><img id="cornerBRImg" alt="Bottom Right Sponsor"></div>
+  <div class="miniScore" id="miniScore">
+    <div class="miniRow">
+      <div class="miniName" id="otherAwayName">Manchester</div>
+      <div class="miniScoreVal" id="otherAwayScore">0</div>
+    </div>
+    <div class="miniRow">
+      <div class="miniName" id="otherHomeName">Westfield</div>
+      <div class="miniScoreVal" id="otherHomeScore">0</div>
+    </div>
+    <div class="miniMeta">
+      <div>QTR <span id="otherQuarter">1st</span></div>
+      <div>TIME <span id="otherClock">8:00</span></div>
+    </div>
+  </div>
+  <div class="promoLogo promo-tl" id="promoTL"><img id="promoTLImg" alt="Promo Top Left"></div>
+  <div class="promoLogo promo-tr" id="promoTR"><img id="promoTRImg" alt="Promo Top Right"></div>
+  <div class="promoLogo promo-bl" id="promoBL"><img id="promoBLImg" alt="Promo Bottom Left"></div>
+  <div class="bugWrap" id="bugWrap">
+    <div class="eventBar" id="eventBar"><div id="eventTitle">NIT - 1st ROUND</div></div>
+    <div class="bug" id="bug">
+      <div class="teamPanel away" id="awayTeam">
+        <div class="teamLogo"><img id="awayLogo" alt=""></div>
+        <div class="teamInfo">
+          <div class="teamName" id="awayName">AWAY</div>
+          <div class="teamRecord" id="awayRecord"></div>
+          <div class="teamBonus">
+            <div class="bonusDots">
+              <div class="box" id="ato1"></div>
+              <div class="box" id="ato2"></div>
+              <div class="box" id="ato3"></div>
+              <div class="box" id="ato4"></div>
+              <div class="box" id="ato5"></div>
+            </div>
+          </div>
+        </div>
+        <div class="teamScore" id="awayScore">0</div>
+      </div>
+      <div class="centerPanel">
+        <div class="centerTop" id="quarter">1st</div>
+        <div class="centerClock" id="clock">12:00</div>
+        <div class="promoCenter promo-bar" id="promoBar"><img id="promoBarImg" alt="Promo Center"></div>
+      </div>
+      <div class="teamPanel home" id="homeTeam">
+        <div class="teamScore" id="homeScore">0</div>
+        <div class="teamInfo">
+          <div class="teamName" id="homeName">HOME</div>
+          <div class="teamRecord" id="homeRecord"></div>
+          <div class="teamBonus">
+            <div class="bonusDots">
+              <div class="box" id="hto1"></div>
+              <div class="box" id="hto2"></div>
+              <div class="box" id="hto3"></div>
+              <div class="box" id="hto4"></div>
+              <div class="box" id="hto5"></div>
+            </div>
+          </div>
+        </div>
+        <div class="teamLogo"><img id="homeLogo" alt=""></div>
+      </div>
+    </div>
+    <div class="timeoutBanner timeout-away" id="timeoutBannerAway">Full Timeout</div>
+    <div class="timeoutBanner timeout-home" id="timeoutBannerHome">Full Timeout</div>
+  </div>
+  <div class="go-wrap hidden" id="graphicOverlay"></div>
+  <div id="playerCard" class="pc-wrap hidden">
+    <div class="pc-accent-bar" id="pcAccentBar"></div>
+    <div class="pc-photo-wrap" id="pcPhotoWrap"><img id="pcPhoto" src="" alt=""></div>
+    <div class="pc-info">
+      <div class="pc-team" id="pcTeamName"></div>
+      <div class="pc-num-name"><span class="pc-num" id="pcNum"></span><span id="pcName"></span></div>
+      <div class="pc-profile hidden" id="pcProfile"></div>
+      <div class="pc-avgs hidden" id="pcAvgs"></div>
+      <div class="pc-commit hidden" id="pcCommit"></div>
+      <div class="pc-stats">
+        <div class="pc-stat"><span id="pcPts">0</span><label>PTS</label></div>
+        <div class="pc-stat"><span id="pcReb">0</span><label>REB</label></div>
+        <div class="pc-stat"><span id="pcAst">0</span><label>AST</label></div>
+        <div class="pc-stat"><span id="pcStl">0</span><label>STL</label></div>
+        <div class="pc-stat"><span id="pcBlk">0</span><label>BLK</label></div>
+      </div>
+    </div>
+  </div>
+  <div id="statsPanel">
+    <div class="sp-team" id="spAway">
+      <div class="sp-hdr" id="spAwayHdr">AWAY</div>
+      <table class="sp-table"><thead><tr>
+        <th>#</th><th>Player</th><th>PTS</th><th>FG</th><th>3P</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
+      </tr></thead><tbody id="spAwayBody"></tbody></table>
+    </div>
+    <div class="sp-team" id="spHome">
+      <div class="sp-hdr" id="spHomeHdr">HOME</div>
+      <table class="sp-table"><thead><tr>
+        <th>#</th><th>Player</th><th>PTS</th><th>FG</th><th>3P</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th>
+      </tr></thead><tbody id="spHomeBody"></tbody></table>
+    </div>
+  </div>
+  <div id="ticker"><div id="tickerText"></div></div>
+  <!-- Lower-Third / Chyron -->
+  <div id="lower-third" style="display:none; position:absolute; bottom:80px; left:0; right:0; background:#0E80FC; padding:12px 40px; z-index:50; transform:translateY(100%); transition:transform 0.4s ease-out;">
+    <span id="lower-third-text" style="color:#fff; font-size:28px; font-weight:700; font-family:'Barlow Condensed',sans-serif; letter-spacing:1px;"></span>
+  </div>
+  <!-- Coming Up Next card -->
+  <div id="coming-up-card" style="display:none; position:absolute; inset:0; background:#000; z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:24px;">
+    <div style="color:#888; font-size:24px; font-weight:600; letter-spacing:4px; text-transform:uppercase">Coming Up Next</div>
+    <div id="coming-up-event-name" style="color:#fff; font-size:72px; font-weight:900; font-family:'Barlow Condensed',sans-serif; letter-spacing:2px; text-align:center;"></div>
+    <img src="/NSMTWordmarkBlue.png" alt="NSMT" style="height:48px; margin-top:24px; object-fit:contain;">
+  </div>
+  <!-- All-Star Intro Overlay -->
+  <div id="introOverlay" class="intro-overlay hidden">
+    <div class="intro-card">
+      <div class="intro-presenter" id="introPresenter">NOVA SPORTS MEDIA TEAM PRESENTS</div>
+      <div class="intro-event-name" id="introEventName">ALL-STAR</div>
+      <div class="intro-accent-bar" id="introAccentBar"></div>
+      <div class="intro-matchup">
+        <div class="intro-team" id="introAwayTeam">AWAY</div>
+        <div class="intro-vs">VS</div>
+        <div class="intro-team" id="introHomeTeam">HOME</div>
+      </div>
+      <div class="intro-tipoff">TIP OFF</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       3-POINT CONTEST HTML
+  ══════════════════════════════════════════ -->
+  <div class="tpt-wrap hidden" id="tptWrap">
+
+    <!-- Court 1 / Finals panel -->
+    <div class="court-panel" id="court1Panel">
+      <div class="ct-hdr">
+        <div class="ct-label" id="court1Label">COURT 1</div>
+        <div class="ct-badge">3-POINT CONTEST</div>
+      </div>
+      <div class="ct-shooter" id="court1Shooter">—</div>
+      <div class="ct-school" id="court1School"></div>
+      <div class="ct-ig" id="court1Ig"></div>
+      <div id="court1Racks"></div>
+      <div class="ct-total">
+        <div class="ct-total-lbl">TOTAL</div>
+        <div class="ct-total-val" id="court1Total">0</div>
+        <div class="ct-total-max">/30</div>
+      </div>
+    </div>
+
+    <!-- Court 2 panel (hidden in finals) -->
+    <div class="court-panel" id="court2Panel">
+      <div class="ct-hdr">
+        <div class="ct-label">COURT 2</div>
+        <div class="ct-badge">3-POINT CONTEST</div>
+      </div>
+      <div class="ct-shooter" id="court2Shooter">—</div>
+      <div class="ct-school" id="court2School"></div>
+      <div class="ct-ig" id="court2Ig"></div>
+      <div id="court2Racks"></div>
+      <div class="ct-total">
+        <div class="ct-total-lbl">TOTAL</div>
+        <div class="ct-total-val" id="court2Total">0</div>
+        <div class="ct-total-max">/30</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       DUNK CONTEST HTML
+  ══════════════════════════════════════════ -->
+  <div class="dk-wrap hidden" id="dkWrap">
+
+    <div class="dk-hdr">
+      <div class="dk-badge">DUNK CONTEST</div>
+      <div class="dk-round-info" id="dkRoundInfo">ROUND 1 · ATTEMPT 1</div>
+    </div>
+
+    <div class="dk-dunker-row">
+      <div class="dk-photo" id="dkPhotoWrap">
+        <img id="dkPhoto" src="" alt="">
+      </div>
+      <div class="dk-dunker-info">
+        <div class="dk-dunker-name" id="dkDunkerName">—</div>
+        <div class="dk-dunker-school" id="dkDunkerSchool"></div>
+        <div class="dk-dunker-ig" id="dkDunkerIg"></div>
+        <div class="dk-dunker-sub" id="dkDunkerSub"></div>
+      </div>
+    </div>
+
+    <div class="dk-judges" id="dkJudges"></div>
+
+    <div class="dk-total-row">
+      <div class="dk-total-lbl">TOTAL</div>
+      <div class="dk-total-val" id="dkTotal">—</div>
+      <div class="dk-total-max">/50</div>
+    </div>
+
+  </div>
+
+</div><!-- end .stage -->
+
+<script>
+  // ── OBS / preview detection ──
+  const isOBS = !!navigator.userAgent.match(/OBS|Chromium/i) && location.hostname === 'localhost';
+  if (!isOBS) document.body.style.background = '#000';
+
+  // ── WebSocket URL ──
+  const WS_URL = (location.protocol === 'file:' || location.hostname === 'localhost')
+    ? 'ws://localhost:8765'
+    : 'ws://' + location.hostname + ':8765';
+
+  // ══════════════════════════════════════════════
+  // SCOREBUG — module-level state & helpers
+  // ══════════════════════════════════════════════
+  let ws, state = null, flashCounts = [], _prevTickerJSON = '';
+  let _prevAwayScore = null, _prevHomeScore = null;
+  let gameClockMs = 0, gameRunning = false, gameTimer = null;
+  let gameStartPerf = 0, gameStartMs = 0;
+  const nowMs = () => (window.performance && performance.now) ? performance.now() : Date.now();
+  let lastClockText = null;
+
+  const cornerTL    = document.getElementById('cornerTL');
+  const cornerTR    = document.getElementById('cornerTR');
+  const cornerBL    = document.getElementById('cornerBL');
+  const cornerBR    = document.getElementById('cornerBR');
+  const cornerTLImg = document.getElementById('cornerTLImg');
+  const cornerTRImg = document.getElementById('cornerTRImg');
+  const cornerBLImg = document.getElementById('cornerBLImg');
+  const cornerBRImg = document.getElementById('cornerBRImg');
+  const miniScore      = document.getElementById('miniScore');
+  const otherAwayName  = document.getElementById('otherAwayName');
+  const otherAwayScore = document.getElementById('otherAwayScore');
+  const otherHomeName  = document.getElementById('otherHomeName');
+  const otherHomeScore = document.getElementById('otherHomeScore');
+  const otherQuarter   = document.getElementById('otherQuarter');
+  const otherClock     = document.getElementById('otherClock');
+  const timeoutBannerAway = document.getElementById('timeoutBannerAway');
+  const timeoutBannerHome = document.getElementById('timeoutBannerHome');
+  const promoTL    = document.getElementById('promoTL');
+  const promoTR    = document.getElementById('promoTR');
+  const promoBL    = document.getElementById('promoBL');
+  const promoBar   = document.getElementById('promoBar');
+  const promoTLImg = document.getElementById('promoTLImg');
+  const promoTRImg = document.getElementById('promoTRImg');
+  const promoBLImg = document.getElementById('promoBLImg');
+  const promoBarImg = document.getElementById('promoBarImg');
+
+  function parseClock(str) {
+    const [m, s] = String(str || '0:00').split(':').map(x => parseInt(x, 10) || 0);
+    return (m * 60 + s) * 1000;
+  }
+  function fmtClock(ms) {
+    ms = Math.max(0, ms | 0);
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+  function setGameRunning(run) {
+    if (run === gameRunning) return;
+    if (gameRunning) {
+      const elapsed = nowMs() - gameStartPerf;
+      gameClockMs = Math.max(0, gameStartMs - elapsed);
+    }
+    gameRunning = run;
+    if (gameTimer) { clearInterval(gameTimer); gameTimer = null; }
+    if (gameRunning) {
+      gameStartPerf = nowMs(); gameStartMs = gameClockMs;
+      gameTimer = setInterval(() => {
+        const elapsed = nowMs() - gameStartPerf;
+        gameClockMs = Math.max(0, gameStartMs - elapsed);
+        clock.textContent = fmtClock(gameClockMs);
+        if (gameClockMs <= 0) setGameRunning(false);
+      }, 100);
+    }
+  }
+  function setTO(prefix, count) {
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById(prefix + i);
+      if (el) el.classList.toggle('off', i > count);
+    }
+  }
+  const ASSET_BASE = (location.protocol === 'file:' ? 'http://localhost:8000/' : location.origin + '/');
+  function resolveAsset(url) {
+    const value = String(url || '').trim();
+    if (!value) return '';
+    if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return value;
+    if (value.startsWith('/')) return (location.protocol === 'file:' ? 'http://localhost:8000' : '') + value;
+    return ASSET_BASE + value;
+  }
+  function hexToRgb(hex) {
+    if (!hex) return null;
+    let v = String(hex).trim();
+    if (v.startsWith('#')) v = v.slice(1);
+    if (v.length === 3) { v = v.split('').map(ch => ch + ch).join(''); }
+    if (v.length !== 6) return null;
+    const num = parseInt(v, 16);
+    if (Number.isNaN(num)) return null;
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+  function shadeHex(hex, pct) {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return hex;
+    const t = pct < 0 ? 0 : 255;
+    const p = Math.abs(pct);
+    const ch = (c) => Math.round((t - c) * p + c).toString(16).padStart(2, '0');
+    return `#${ch(rgb.r)}${ch(rgb.g)}${ch(rgb.b)}`;
+  }
+  function setTeamColors(prefix, cfg) {
+    const root = document.documentElement;
+    root.style.setProperty(`--${prefix}-bg1`, cfg.primary);
+    root.style.setProperty(`--${prefix}-bg2`, shadeHex(cfg.primary, -0.22));
+    root.style.setProperty(`--${prefix}-text`, cfg.text);
+    root.style.setProperty(`--${prefix}-accent`, cfg.accent);
+  }
+  function setCorner(el, img, url, scale) {
+    if (!el || !img) return;
+    if (url) {
+      img.src = resolveAsset(url); el.style.display = 'flex';
+      const s = Math.max(50, Math.min(200, parseInt(scale, 10) || 100));
+      el.style.width  = (120 * s / 100) + 'px';
+      el.style.height = (60  * s / 100) + 'px';
+    } else {
+      img.src = ''; el.style.display = 'none';
+    }
+  }
+  function setPromo(el, img, url) {
+    if (!el || !img) return;
+    if (url) { img.src = resolveAsset(url); el.style.display = 'flex'; }
+    else      { img.src = ''; el.style.display = 'none'; }
+  }
+  let _graphicTimer = null;
+  function showGraphic(g, durations) {
+    const el = document.getElementById('graphicOverlay');
+    if (!el || !g || !g.type) return;
+    clearTimeout(_graphicTimer);
+    const dur = (durations && durations.graphic) || 5000;
+    let typeLabel = '', title = '', detail = '', meta = '', warn = '';
+    switch (g.type) {
+      case 'TIMEOUT':
+        typeLabel = 'TIMEOUT';
+        title  = escapeHtml(g.teamName || g.teamCode || '');
+        detail = escapeHtml(g.timeoutType || '') + (g.timeoutsLeft != null ? ' &nbsp;·&nbsp; ' + g.timeoutsLeft + ' remaining' : '');
+        meta   = (g.period || '') + (g.clockAt ? ' · ' + g.clockAt : '');
+        break;
+      case 'SUBSTITUTION':
+        typeLabel = 'SUBSTITUTION';
+        title  = escapeHtml(g.teamName || g.teamCode || '');
+        if (g.playerIn && g.playerOut)
+          detail = '⬆ #' + (g.playerIn.num || '') + ' ' + escapeHtml(g.playerIn.name || '') +
+                   ' &nbsp;·&nbsp; ⬇ #' + (g.playerOut.num || '') + ' ' + escapeHtml(g.playerOut.name || '');
+        meta = g.period || '';
+        break;
+      case 'FOUL':
+        typeLabel = 'PERSONAL FOUL';
+        if (g.player) title  = '#' + (g.player.num || '') + ' ' + escapeHtml(g.player.name || '');
+        if (g.player) detail = g.player.fouls + ' personal foul' + (g.player.fouls !== 1 ? 's' : '');
+        if (g.inTrouble) warn = '⚠️ FOUL TROUBLE';
+        meta = (g.period || '') + (g.clockAt ? ' · ' + g.clockAt : '');
+        break;
+      case 'HALFTIME':
+        typeLabel = 'HALFTIME';
+        title = escapeHtml(g.awayCode || g.awayName || 'AWAY') + ' ' + (g.awayScore || 0) +
+                '  –  ' + (g.homeScore || 0) + ' ' + escapeHtml(g.homeCode || g.homeName || 'HOME');
+        break;
+      case 'END OF GAME':
+        typeLabel = 'FINAL';
+        title = escapeHtml(g.awayCode || g.awayName || 'AWAY') + ' ' + (g.awayScore || 0) +
+                '  –  ' + (g.homeScore || 0) + ' ' + escapeHtml(g.homeCode || g.homeName || 'HOME');
+        break;
+      case 'MEDIA TIMEOUT':
+        typeLabel = 'MEDIA TIMEOUT';
+        title = 'TV / Media Timeout';
+        break;
+      case 'OFFICIALS TIMEOUT':
+        typeLabel = 'OFFICIALS TIMEOUT';
+        title = 'Officials Timeout';
+        break;
+      default:
+        typeLabel = escapeHtml(g.type);
+    }
+    el.innerHTML =
+      '<div class="go-type">'  + typeLabel + '</div>' +
+      (title  ? '<div class="go-title">'  + title  + '</div>' : '') +
+      (detail ? '<div class="go-detail">' + detail + '</div>' : '') +
+      (warn   ? '<div class="go-warn">'   + warn   + '</div>' : '') +
+      (meta   ? '<div class="go-meta">'   + escapeHtml(meta) + '</div>' : '');
+    el.classList.remove('hidden', 'fade-out', 'show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    _graphicTimer = setTimeout(function () {
+      el.classList.add('fade-out');
+      setTimeout(function () { el.classList.add('hidden'); el.classList.remove('fade-out', 'show'); }, 450);
+    }, dur);
+  }
+  function triggerScorePulse(el) {
+    el.classList.remove('score-pulse');
+    void el.offsetWidth;
+    el.classList.add('score-pulse');
+    setTimeout(() => el.classList.remove('score-pulse'), 700);
+  }
+  function updateTimeoutBanner(b) {
+    const ts   = parseInt(b && b.timeoutAt, 10) || 0;
+    const show = ts && (Date.now() - ts) < 10000;
+    const text = (b && b.timeoutType === '30') ? '30 Second Timeout' : 'Full Timeout';
+    if (timeoutBannerAway) {
+      timeoutBannerAway.textContent = text;
+      timeoutBannerAway.style.display = (show && b && b.timeoutTeam === 'away') ? 'block' : 'none';
+    }
+    if (timeoutBannerHome) {
+      timeoutBannerHome.textContent = text;
+      timeoutBannerHome.style.display = (show && b && b.timeoutTeam === 'home') ? 'block' : 'none';
+    }
+  }
+  let _spotlightTimer = null;
+  function applySpotlight(sp) {
+    const card = document.getElementById('playerCard');
+    if (!card) return;
+    if (!sp || !sp.active) {
+      if (!card.classList.contains('hidden')) {
+        card.classList.add('dismissing');
+        setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
+      }
+      return;
+    }
+    clearTimeout(_spotlightTimer);
+    document.getElementById('pcName').textContent     = sp.playerName || '';
+    document.getElementById('pcNum').textContent      = sp.playerNum ? '#' + sp.playerNum : '';
+    document.getElementById('pcTeamName').textContent = sp.teamName || '';
+    const st = sp.stats || {};
+    document.getElementById('pcPts').textContent  = st.pts  != null ? st.pts  : 0;
+    document.getElementById('pcReb').textContent  = st.reb  != null ? st.reb  : 0;
+    document.getElementById('pcAst').textContent  = st.ast  != null ? st.ast  : 0;
+    document.getElementById('pcStl').textContent  = st.stl  != null ? st.stl  : 0;
+    document.getElementById('pcBlk').textContent  = st.blk  != null ? st.blk  : 0;
+    var profileParts = [sp.height, sp.pos].filter(Boolean);
+    var profileEl    = document.getElementById('pcProfile');
+    if (profileParts.length) { profileEl.textContent = profileParts.join(' · '); profileEl.classList.remove('hidden'); }
+    else                     { profileEl.classList.add('hidden'); }
+    var avgsEl = document.getElementById('pcAvgs');
+    if (sp.ppg || sp.rpg || sp.apg) {
+      avgsEl.textContent = parseFloat(sp.ppg || 0).toFixed(1) + ' PPG · ' +
+                           parseFloat(sp.rpg || 0).toFixed(1) + ' RPG · ' +
+                           parseFloat(sp.apg || 0).toFixed(1) + ' APG';
+      avgsEl.classList.remove('hidden');
+    } else { avgsEl.classList.add('hidden'); }
+    var commitEl = document.getElementById('pcCommit');
+    if (sp.commitment) { commitEl.textContent = '→ ' + sp.commitment; commitEl.classList.remove('hidden'); }
+    else               { commitEl.classList.add('hidden'); }
+    const photoEl   = document.getElementById('pcPhoto');
+    const photoWrap = document.getElementById('pcPhotoWrap');
+    if (sp.playerPhoto) {
+      photoEl.src = resolveAsset(sp.playerPhoto);
+      photoWrap.style.width = '120px';
+    } else {
+      photoEl.src = '';
+      photoWrap.style.width = '0';
+    }
+    const accentBar = document.getElementById('pcAccentBar');
+    if (accentBar) accentBar.style.background = sp.teamColor || '#0E80FC';
+    card.classList.remove('hidden', 'dismissing');
+    void card.offsetWidth;
+    if (sp.dismissAfter && sp.dismissAfter > 0) {
+      _spotlightTimer = setTimeout(function () {
+        card.classList.add('dismissing');
+        setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
+      }, sp.dismissAfter);
+    }
+  }
+  function applyIntro(b) {
+    const overlay = document.getElementById('introOverlay');
+    if (!overlay) return;
+    const show = !!(b && b.showIntro);
+    if (show) {
+      const eventKey = (b.allStarEvent || '').toLowerCase();
+      const names      = { nova24: 'NOVA 24', pvp: 'PUBLIC vs PRIVATE' };
+      const colors     = { nova24: '#0E80FC', pvp: '#F5C518' };
+      const presenters = {
+        nova24: 'NOVA SPORTS MEDIA TEAM PRESENTS',
+        pvp:    'NOVA SPORTS MEDIA TEAM PRESENTS',
+      };
+      const awayDefault = eventKey === 'nova24' ? 'TEAM LIN'    : 'AWAY';
+      const homeDefault = eventKey === 'nova24' ? 'TEAM RIVERS' : 'HOME';
+      document.getElementById('introPresenter').textContent = presenters[eventKey] || 'NOVA SPORTS MEDIA TEAM PRESENTS';
+      document.getElementById('introEventName').textContent = names[eventKey] || 'ALL-STAR';
+      document.getElementById('introAccentBar').style.background = colors[eventKey] || '#0E80FC';
+      document.getElementById('introAwayTeam').textContent = (b.awayName || awayDefault).toUpperCase();
+      document.getElementById('introHomeTeam').textContent = (b.homeName || homeDefault).toUpperCase();
+      overlay.classList.remove('hidden', 'dismissing');
+      const bw = document.getElementById('bugWrap');
+      if (bw) bw.style.visibility = 'hidden';
+    } else {
+      if (!overlay.classList.contains('hidden')) {
+        overlay.classList.add('dismissing');
+        setTimeout(() => { overlay.classList.add('hidden'); overlay.classList.remove('dismissing'); }, 400);
+      }
+      const bw = document.getElementById('bugWrap');
+      if (bw) bw.style.visibility = '';
+    }
+  }
+  function applyStats(stats, bug) {
+    const show  = !!(bug && bug.showStats);
+    const panel = document.getElementById('statsPanel');
+    if (!panel) return;
+    panel.classList.toggle('visible', show);
+    if (!show || !stats) return;
+    function renderTeam(side, hdrId, bodyId) {
+      const team = stats[side];
+      if (!team) return;
+      const hdr = document.getElementById(hdrId);
+      if (hdr) hdr.textContent = (team.name || side.toUpperCase()) + (team.fouls != null ? ' — ' + team.fouls + ' TF' : '');
+      const body = document.getElementById(bodyId);
+      if (!body) return;
+      const players = (team.players || []).filter(function (p) { return p.name; });
+      body.innerHTML = players.map(function (p) {
+        const reb = (p.off || 0) + (p.def || 0);
+        return '<tr>'
+          + '<td>' + (p.num || '') + '</td>'
+          + '<td>' + escapeHtml(p.name || '') + '</td>'
+          + '<td class="sp-pts">' + (p.pts || 0) + '</td>'
+          + '<td>' + (p.fgm || 0) + '-' + (p.fga || 0) + '</td>'
+          + '<td>' + (p.t3m || 0) + '-' + (p.t3a || 0) + '</td>'
+          + '<td>' + (p.ftm || 0) + '-' + (p.fta || 0) + '</td>'
+          + '<td>' + reb + '</td>'
+          + '<td>' + (p.ast || 0) + '</td>'
+          + '<td>' + (p.to  || 0) + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+    renderTeam('away', 'spAwayHdr', 'spAwayBody');
+    renderTeam('home', 'spHomeHdr', 'spHomeBody');
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  }
+  function updateBugScale() {
+    const baseScale = 0.96;
+    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    document.documentElement.style.setProperty('--bug-scale', (baseScale * s).toFixed(4));
+  }
+  window.addEventListener('resize', updateBugScale);
+
+  // Ticker animation iteration — decrement flash counts
+  document.getElementById('tickerText').addEventListener('animationiteration', () => {
+    const items = document.getElementById('tickerText').querySelectorAll('.tick-item.flash');
+    items.forEach(it => {
+      const i = +it.getAttribute('data-i');
+      if (i >= 0) {
+        flashCounts[i] = Math.max(0, (flashCounts[i] || 0) - 1);
+        if (flashCounts[i] === 0) it.classList.remove('flash');
+      }
+    });
+  });
+
+  // ── applyBug (was apply in scorebug) ──
+  function applyBug(s) {
+    state = s;
+    const b = s.bug, t = s.ticker;
+    homeName.textContent  = b.homeName  || 'HOME';
+    awayName.textContent  = b.awayName  || 'AWAY';
+    if (_prevAwayScore !== null && b.awayScore !== _prevAwayScore) triggerScorePulse(awayScore);
+    if (_prevHomeScore !== null && b.homeScore !== _prevHomeScore) triggerScorePulse(homeScore);
+    _prevAwayScore = b.awayScore; _prevHomeScore = b.homeScore;
+    homeScore.textContent  = b.homeScore;
+    awayScore.textContent  = b.awayScore;
+    homeRecord.textContent = b.homeRecord || '';
+    awayRecord.textContent = b.awayRecord || '';
+    setTO('ato', b.awayTOs);
+    setTO('hto', b.homeTOs);
+    const homeLogoEl = document.getElementById('homeLogo');
+    const awayLogoEl = document.getElementById('awayLogo');
+    if (homeLogoEl && (b.homeLogo || b.homeLogoUrl)) homeLogoEl.src = resolveAsset(b.homeLogo || b.homeLogoUrl);
+    if (awayLogoEl && (b.awayLogo || b.awayLogoUrl)) awayLogoEl.src = resolveAsset(b.awayLogo || b.awayLogoUrl);
+    setTeamColors('away', {
+      primary: b.awayPrimary  || '#00007f',
+      secondary: b.awaySecondary || '#ffffff',
+      text:    b.awayText    || '#ffffff',
+      accent:  b.awayAccent  || '#7f7f7f'
+    });
+    setTeamColors('home', {
+      primary: b.homePrimary  || '#046333',
+      secondary: b.homeSecondary || '#ffffff',
+      text:    b.homeText    || '#ffffff',
+      accent:  b.homeAccent  || '#c0c0c0'
+    });
+    if (b.sponsorLabel !== undefined) eventTitle.textContent = b.sponsorLabel || '';
+    eventBar.style.display = b.sponsorShow ? 'flex' : 'none';
+    quarter.textContent = b.quarter;
+    setCorner(cornerTL, cornerTLImg, b.cornerTLLogo, b.cornerTLScale);
+    setCorner(cornerTR, cornerTRImg, b.cornerTRLogo, b.cornerTRScale);
+    setCorner(cornerBL, cornerBLImg, b.cornerBLLogo, b.cornerBLScale);
+    setCorner(cornerBR, cornerBRImg, b.cornerBRLogo, b.cornerBRScale);
+    if (miniScore) {
+      const scale = Math.max(50, Math.min(200, parseInt(b.otherGameScale, 10) || 100));
+      miniScore.style.transform = `scale(${scale / 100})`;
+      miniScore.style.display   = b.otherGameShow ? 'block' : 'none';
+      otherAwayName.textContent  = b.otherAwayName  || 'Manchester';
+      otherAwayScore.textContent = b.otherAwayScore != null ? b.otherAwayScore : 0;
+      otherHomeName.textContent  = b.otherHomeName  || 'Westfield';
+      otherHomeScore.textContent = b.otherHomeScore != null ? b.otherHomeScore : 0;
+      if (otherQuarter) otherQuarter.textContent = b.otherQuarter || '1st';
+      if (otherClock)   otherClock.textContent   = b.otherClock   || '8:00';
+    }
+    updateTimeoutBanner(b);
+    setPromo(promoTL, promoTLImg, b.promoTLLogo);
+    setPromo(promoTR, promoTRImg, b.promoTRLogo);
+    setPromo(promoBL, promoBLImg, b.promoBLLogo);
+    setPromo(promoBar, promoBarImg, b.nsmtLogo || b.promoBarLogo);
+    const clockWillRun = !!b.clockRunning;
+    if (lastClockText !== b.clock || (!gameRunning && clockWillRun)) {
+      lastClockText = b.clock;
+      gameClockMs   = parseClock(b.clock);
+      clock.textContent = fmtClock(gameClockMs);
+    }
+    setGameRunning(clockWillRun);
+    const el  = document.getElementById('ticker');
+    const txt = document.getElementById('tickerText');
+    el.style.display = t.show ? 'block' : 'none';
+    if (Array.isArray(t.entries)) {
+      const parts = t.entries.map((e, i) => {
+        const cls = (e.flash && e.flash > 0) ? 'tick-item flash' : 'tick-item';
+        return `<span class="${cls}" data-i="${i}">${escapeHtml(e.text)}</span>`;
+      }).join('<span class="sep">|</span>');
+      txt.innerHTML = parts;
+      flashCounts = t.entries.map(e => Math.max(0, e.flash || 0));
+    } else if (t.text) {
+      txt.textContent = t.text;
+    } else {
+      txt.textContent = '';
+    }
+    txt.style.animationDuration = ((t && t.speed) ? t.speed : 60) + 's';
+    if (s.stats) applyStats(s.stats, s.bug);
+    if (b.graphic) showGraphic(b.graphic, b.durations);
+    applySpotlight(b.spotlight);
+    applyIntro(b);
+    const bw = document.getElementById('bugWrap');
+    if (bw && b.showScorebug !== undefined) bw.style.display = b.showScorebug ? '' : 'none';
+    const liveBug = document.getElementById('live-bug');
+    if (liveBug) liveBug.style.display = b.isLive ? 'flex' : 'none';
+    const lt   = b.lowerThird;
+    const ltEl = document.getElementById('lower-third');
+    const ltText = document.getElementById('lower-third-text');
+    if (lt && ltEl && ltText) {
+      if (lt.text  !== undefined) ltText.textContent = lt.text;
+      if (lt.show  !== undefined) {
+        ltEl.style.display   = lt.show ? 'block' : 'none';
+        ltEl.style.transform = lt.show ? 'translateY(0)' : 'translateY(100%)';
+      }
+    }
+    const cu     = b.comingUp;
+    const cuCard = document.getElementById('coming-up-card');
+    const cuName = document.getElementById('coming-up-event-name');
+    if (cu && cuCard) {
+      if (cu.eventName !== undefined && cuName) cuName.textContent = cu.eventName;
+      if (cu.show !== undefined) cuCard.style.display = cu.show ? 'flex' : 'none';
+      const colors = { nova24: '#0E80FC', dunk: '#FFD700', '3pt': '#FFFFFF', pvp: '#FFD700' };
+      if (cu.event && cuCard) cuCard.style.borderTop = `6px solid ${colors[cu.event] || '#0E80FC'}`;
+    }
+  }
+
+  // ══════════════════════════════════════════════
+  // 3-POINT CONTEST helpers
+  // ══════════════════════════════════════════════
+  function calcScore(racks, moneyRack) {
+    let total = 0;
+    for (let r = 0; r < 5; r++) {
+      for (let b = 0; b < 5; b++) {
+        if (racks[r] && racks[r][b]) total += (r === moneyRack) ? 2 : 1;
+      }
+    }
+    return total;
+  }
+  function renderRacks(containerId, racks, moneyRack) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const rows = [];
+    for (let r = 0; r < 5; r++) {
+      const isMoney  = r === moneyRack;
+      const ballsHtml = Array.from({ length: 5 }, (_, b) => {
+        const made = racks[r] && racks[r][b];
+        const cls  = 'ball' + (made ? ' made' + (isMoney ? ' money' : '') : '');
+        return `<div class="${cls}"></div>`;
+      }).join('');
+      rows.push(`
+        <div class="rack-row">
+          <div class="rack-label${isMoney ? ' money' : ''}">${isMoney ? '💰💰💰💰💰' : 'RACK ' + (r + 1)}</div>
+          <div class="balls">${ballsHtml}</div>
+        </div>`);
+    }
+    el.innerHTML = rows.join('');
+  }
+
+  // ── applyThreePt (was apply in 3pt overlay) ──
+  function applyThreePt(state) {
+    const tp   = state && state.bug && state.bug.threePoint;
+    const wrap = document.getElementById('tptWrap');
+    if (!tp || !tp.show) { wrap.classList.add('hidden'); return; }
+
+    wrap.classList.remove('hidden');
+    const isFinals = tp.round === 'finals';
+    wrap.classList.toggle('finals', isFinals);
+
+    document.getElementById('court1Label').textContent        = isFinals ? 'FINALS' : 'COURT 1';
+    document.getElementById('court2Panel').style.display      = isFinals ? 'none' : '';
+
+    const c1      = tp.court1 || {};
+    const c1racks = c1.racks || Array.from({ length: 5 }, () => Array(5).fill(false));
+    const c1money = c1.moneyRack != null ? c1.moneyRack : 4;
+    document.getElementById('court1Shooter').textContent = (c1.shooter || '—').toUpperCase();
+    document.getElementById('court1School').textContent  = c1.school || '';
+    document.getElementById('court1Ig').textContent      = c1.ig ? '@' + c1.ig : '';
+    renderRacks('court1Racks', c1racks, c1money);
+    document.getElementById('court1Total').textContent = calcScore(c1racks, c1money);
+
+    if (!isFinals) {
+      const c2      = tp.court2 || {};
+      const c2racks = c2.racks || Array.from({ length: 5 }, () => Array(5).fill(false));
+      const c2money = c2.moneyRack != null ? c2.moneyRack : 4;
+      document.getElementById('court2Shooter').textContent = (c2.shooter || '—').toUpperCase();
+      document.getElementById('court2School').textContent  = c2.school || '';
+      document.getElementById('court2Ig').textContent      = c2.ig ? '@' + c2.ig : '';
+      renderRacks('court2Racks', c2racks, c2money);
+      document.getElementById('court2Total').textContent = calcScore(c2racks, c2money);
+    }
+  }
+
+  // ══════════════════════════════════════════════
+  // DUNK CONTEST helpers
+  // ══════════════════════════════════════════════
+  const JUDGE_NAMES = ['Keith Honore', 'Sherman Rivers', 'Tony Bently', 'Coach 4', 'Coach 5'];
+  let _prevRevealed = [false, false, false, false, false];
+
+  // ── applyDunk (was apply in dunk overlay) ──
+  function applyDunk(state) {
+    const dk   = state && state.bug && state.bug.dunk;
+    const wrap = document.getElementById('dkWrap');
+    if (!dk || !dk.show) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+
+    document.getElementById('dkDunkerName').textContent   = (dk.dunker || '—').toUpperCase();
+    document.getElementById('dkDunkerSchool').textContent = dk.dunkerSchool || '';
+    document.getElementById('dkDunkerIg').textContent     = dk.dunkerIg ? '@' + dk.dunkerIg : '';
+    document.getElementById('dkDunkerSub').textContent =
+      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ');
+    document.getElementById('dkRoundInfo').textContent =
+      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ').toUpperCase();
+
+    const photoWrap = document.getElementById('dkPhotoWrap');
+    const photoEl   = document.getElementById('dkPhoto');
+    if (dk.dunkerPhoto) {
+      photoEl.src = dk.dunkerPhoto;
+      photoWrap.classList.remove('no-photo');
+    } else {
+      photoEl.src = '';
+      photoWrap.classList.add('no-photo');
+    }
+
+    const scores   = dk.scores   || [null, null, null, null, null];
+    const revealed = dk.revealed || [false, false, false, false, false];
+    const judgesEl = document.getElementById('dkJudges');
+    judgesEl.innerHTML = scores.map((s, i) => {
+      const isRevealed = !!revealed[i];
+      const isPerfect  = isRevealed && s === 10;
+      const val        = isRevealed && s != null ? s : '—';
+      const newReveal  = isRevealed && !_prevRevealed[i];
+      return `<div class="dk-judge${isRevealed ? ' revealed' : ''}${isPerfect ? ' perfect' : ''}">
+        <div class="dk-judge-lbl">${JUDGE_NAMES[i] || 'Judge ' + (i + 1)}</div>
+        <div class="dk-judge-val${isRevealed ? ' revealed' : ''}${isPerfect ? ' perfect' : ''}${newReveal ? ' animating' : ''}">${val}</div>
+      </div>`;
+    }).join('');
+    _prevRevealed = [...revealed];
+
+    const total       = scores.reduce((sum, s, i) => sum + (revealed[i] && s != null ? s : 0), 0);
+    const anyRevealed = revealed.some(Boolean);
+    document.getElementById('dkTotal').textContent = anyRevealed ? total : '—';
+  }
+
+  // ══════════════════════════════════════════════
+  // SINGLE WebSocket connection
+  // ══════════════════════════════════════════════
+  function connect() {
+    ws = new WebSocket(WS_URL);
+    ws.onopen = () => ws.send(JSON.stringify({ type: 'get_state' }));
+    ws.onmessage = e => {
+      let msg;
+      try { msg = JSON.parse(e.data); } catch (_) { return; }
+      if (msg.type === 'snapshot' || msg.type === 'state') {
+        const s = msg.data;
+        applyBug(s);
+        applyThreePt(s);
+        applyDunk(s);
+      } else if (msg.type === 'patch') {
+        // Merge patch fields into existing state, then re-apply
+        if (!state) state = { bug: {}, ticker: {} };
+        if (msg.bug)    Object.assign(state.bug, msg.bug);
+        if (msg.ticker) Object.assign(state.ticker, msg.ticker);
+        applyBug(state);
+        applyThreePt(state);
+        applyDunk(state);
+      }
+    };
+    ws.onclose = () => setTimeout(connect, 1500);
+    ws.onerror = () => ws.close();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateBugScale();
+    connect();
+    setInterval(() => { if (state && state.bug) updateTimeoutBanner(state.bug); }, 250);
+  });
+</script>
+</body>
+</html>
