@@ -835,6 +835,7 @@
     const card = document.getElementById('playerCard');
     if (!card) return;
     if (!sp || !sp.active) {
+      clearTimeout(_spotlightTimer);
       if (!card.classList.contains('hidden')) {
         card.classList.add('dismissing');
         setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
@@ -1034,13 +1035,18 @@
     const el  = document.getElementById('ticker');
     const txt = document.getElementById('tickerText');
     el.style.display = t.show ? 'block' : 'none';
+    document.body.classList.toggle('ticker-visible', !!t.show);
     if (Array.isArray(t.entries)) {
-      const parts = t.entries.map((e, i) => {
-        const cls = (e.flash && e.flash > 0) ? 'tick-item flash' : 'tick-item';
-        return `<span class="${cls}" data-i="${i}">${escapeHtml(e.text)}</span>`;
-      }).join('<span class="sep">|</span>');
-      txt.innerHTML = parts;
-      flashCounts = t.entries.map(e => Math.max(0, e.flash || 0));
+      const tickerJSON = JSON.stringify(t.entries);
+      if (tickerJSON !== _prevTickerJSON) {
+        _prevTickerJSON = tickerJSON;
+        const parts = t.entries.map((e, i) => {
+          const cls = (e.flash && e.flash > 0) ? 'tick-item flash' : 'tick-item';
+          return `<span class="${cls}" data-i="${i}">${escapeHtml(e.text)}</span>`;
+        }).join('<span class="sep">|</span>');
+        txt.innerHTML = parts;
+        flashCounts = t.entries.map(e => Math.max(0, e.flash || 0));
+      }
     } else if (t.text) {
       txt.textContent = t.text;
     } else {
@@ -1147,6 +1153,7 @@
   // ══════════════════════════════════════════════
   const JUDGE_NAMES = ['Keith Honore', 'Sherman Rivers', 'Tony Bently', 'Coach 4', 'Coach 5'];
   let _prevRevealed = [false, false, false, false, false];
+  let _prevDunker = null;
 
   // ── applyDunk (was apply in dunk overlay) ──
   function applyDunk(state) {
@@ -1155,6 +1162,10 @@
     if (!dk || !dk.show) { wrap.classList.add('hidden'); return; }
     wrap.classList.remove('hidden');
 
+    if (dk.dunker !== _prevDunker) {
+      _prevRevealed = [false, false, false, false, false];
+      _prevDunker = dk.dunker;
+    }
     document.getElementById('dkDunkerName').textContent   = (dk.dunker || '—').toUpperCase();
     document.getElementById('dkDunkerSchool').textContent = dk.dunkerSchool || '';
     document.getElementById('dkDunkerIg').textContent     = dk.dunkerIg ? '@' + dk.dunkerIg : '';
@@ -1166,7 +1177,7 @@
     const photoWrap = document.getElementById('dkPhotoWrap');
     const photoEl   = document.getElementById('dkPhoto');
     if (dk.dunkerPhoto) {
-      photoEl.src = dk.dunkerPhoto;
+      photoEl.src = resolveAsset(dk.dunkerPhoto);
       photoWrap.classList.remove('no-photo');
     } else {
       photoEl.src = '';
