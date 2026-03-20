@@ -443,6 +443,13 @@ html, body {
   </div>
 </div>
 
+<!-- ═══ TAB BAR ═══ -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabBtnGame" onclick="switchTab('game')">Game</button>
+  <button class="tab-btn" id="tabBtnThreept" onclick="switchTab('threept')">3PT</button>
+  <button class="tab-btn" id="tabBtnDunk" onclick="switchTab('dunk')">Dunk</button>
+</div>
+
 <!-- ═══ GAME TAB ═══ -->
 <div class="tab-pane active" id="tabGame">
   <!-- OVERLAY SHOW/HIDE + REPORT -->
@@ -1229,7 +1236,7 @@ function logStat() {
   else if (_flow.event==='STL'){s.stl++;desc=`⚡ ${tCode} ${pName} — Steal`;}
   else if (_flow.event==='BLK'){s.blk++;desc=`✋ ${tCode} ${pName} — Block`;}
   else if (_flow.event==='TO'){s.to++;desc=`💸 ${tCode} ${pName} — Turnover`;}
-  else if (_flow.event==='PF'){s.pf++;desc=`🚨 ${tCode} ${pName} — Foul (${S[team].fouls+1} team)`;}
+  else if (_flow.event==='PF'){s.pf++;S[team].fouls=(S[team].fouls||0)+1;renderFouls(team);desc=`🚨 ${tCode} ${pName} — Foul (${S[team].fouls} team)`;}
   if (_flow.assistPid) {
     const as=getStats(_flow.assistPid);as.ast++;
     const aName=(S[team].players||[]).find(x=>x.id===_flow.assistPid)?.name.split(' ').pop()||'?';
