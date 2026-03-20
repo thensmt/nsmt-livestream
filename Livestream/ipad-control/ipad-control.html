@@ -396,6 +396,35 @@ html, body {
 .bcast-btn { min-height: 90px; font-size: 18px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--surf2); border: 1px solid var(--border2); color: var(--text); border-radius: var(--r); cursor: pointer; transition: transform .1s, opacity .1s; }
 .bcast-btn:active { transform: scale(.94); opacity: .8; background: var(--surf3); }
 .bcast-btn.full-width { grid-column: 1 / -1; }
+/* ── RESIZABLE SECTIONS ── */
+.game-top {
+  resize: vertical;
+  overflow: auto;
+  min-height: 100px;
+  max-height: 60vh;
+}
+.game-bottom {
+  resize: vertical;
+  overflow: auto;
+  min-height: 100px;
+}
+.teams-split > .team-split-col {
+  resize: horizontal;
+  overflow: auto;
+  min-width: 120px;
+}
+.tp-pane, .dk-pane {
+  resize: vertical;
+  overflow: auto;
+}
+/* Resize handle hint */
+.game-top::-webkit-resizer,
+.game-bottom::-webkit-resizer,
+.teams-split > .team-split-col::-webkit-resizer,
+.tp-pane::-webkit-resizer,
+.dk-pane::-webkit-resizer {
+  background: linear-gradient(135deg, transparent 60%, var(--border2) 60%, var(--border2) 75%, transparent 75%, transparent 85%, var(--border2) 85%);
+}
 </style>
 </head>
 <body>

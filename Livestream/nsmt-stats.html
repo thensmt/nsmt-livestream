@@ -561,6 +561,16 @@ label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-tra
   .sop-step-desc,.cheat-val,.gl-def,.sop-check,.sop-tip{ color:#333!important; }
   .gl-abbr,.cheat-key,.fd-step{ color:#000!important; }
 }
+
+/* ── RESIZABLE SECTIONS ── */
+.teams-row > div {
+  resize: horizontal;
+  overflow: auto;
+  min-width: 200px;
+}
+.teams-row > div::-webkit-resizer {
+  background: linear-gradient(135deg, transparent 60%, #333 60%, #333 75%, transparent 75%, transparent 85%, #333 85%);
+}
 </style>
 </head>
 <body>

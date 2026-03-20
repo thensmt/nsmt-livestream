@@ -488,6 +488,31 @@ textarea{resize:vertical;min-height:80px}
   min-width: 160px;
   max-width: 360px;
 }
+/* Stats team columns resizable */
+.stats-section {
+  resize: vertical;
+  overflow: auto;
+  min-height: 200px;
+}
+.stats-team-col {
+  resize: horizontal;
+  overflow: auto;
+  min-width: 200px;
+}
+/* Ticker columns resizable */
+.ticker-layout > .ticker-col:first-child {
+  resize: horizontal;
+  overflow: auto;
+  min-width: 200px;
+  max-width: 70%;
+}
+/* Overlay settings columns resizable */
+.overlay-settings-layout > .os-col:first-child {
+  resize: horizontal;
+  overflow: auto;
+  min-width: 200px;
+  max-width: 70%;
+}
 /* Resize handle styling */
 .bc-col::-webkit-resizer,
 .roster-sidebar::-webkit-resizer {
