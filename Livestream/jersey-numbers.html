@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSMT - Jersey Numbers</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #111;
+    color: #eee;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 6px;
+    color: #0E80FC;
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .event-section {
+    max-width: 900px;
+    margin: 0 auto 32px auto;
+  }
+  .event-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0E80FC;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #222;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .teams-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 600px) {
+    .teams-row { grid-template-columns: 1fr; }
+  }
+  .team-card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #333;
+  }
+  .team-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .team-name .code {
+    color: #0E80FC;
+    margin-left: 6px;
+    font-size: 13px;
+  }
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .player-name {
+    flex: 1;
+    font-size: 15px;
+    color: #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .player-pos {
+    font-size: 12px;
+    color: #666;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .jersey-input {
+    width: 64px;
+    height: 44px;
+    background: #222;
+    border: 2px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+  }
+  .jersey-input:focus {
+    border-color: #0E80FC;
+  }
+  .jersey-input::placeholder {
+    color: #555;
+    font-weight: 400;
+    font-size: 14px;
+  }
+  .actions {
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    height: 56px;
+    padding: 0 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.1s, opacity 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-save {
+    background: #0E80FC;
+    color: #fff;
+    flex: 1;
+    min-width: 200px;
+  }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-clear {
+    background: #333;
+    color: #aaa;
+    min-width: 120px;
+  }
+  .btn-clear:hover { background: #444; }
+  .btn-copy {
+    background: #1a1a1a;
+    color: #0E80FC;
+    border: 2px solid #0E80FC;
+    min-width: 150px;
+  }
+  .btn-copy:hover { background: #0E80FC22; }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #0E80FC;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .instructions {
+    max-width: 900px;
+    margin: 32px auto 0 auto;
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #333;
+  }
+  .instructions h3 {
+    color: #0E80FC;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .instructions ol {
+    padding-left: 20px;
+    color: #999;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .instructions code {
+    background: #222;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #0E80FC;
+    font-size: 13px;
+  }
+
+  .json-output {
+    max-width: 900px;
+    margin: 16px auto 0 auto;
+    display: none;
+  }
+  .json-output textarea {
+    width: 100%;
+    height: 200px;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #0E80FC;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 12px;
+    resize: vertical;
+    outline: none;
+  }
+  .json-output label {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .status-bar {
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    text-align: center;
+    font-size: 13px;
+    color: #555;
+  }
+  .status-bar .count {
+    color: #0E80FC;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<h1>NSMT Jersey Numbers</h1>
+<p class="subtitle">Hoopfest 2026 — Enter jersey numbers before game time</p>
+
+<div class="status-bar" id="statusBar"></div>
+
+<div id="rosterContainer"></div>
+
+<div class="actions">
+  <button class="btn btn-save" onclick="saveNumbers()">Save to iPad</button>
+  <button class="btn btn-copy" onclick="copyJSON()">Copy JSON</button>
+  <button class="btn btn-clear" onclick="clearAll()">Clear All</button>
+</div>
+
+<div class="json-output" id="jsonOutput">
+  <label>Generated JSON (for manual use):</label>
+  <textarea id="jsonText" readonly></textarea>
+</div>
+
+<div class="instructions">
+  <h3>How to use</h3>
+  <ol>
+    <li>Enter jersey numbers for each player above.</li>
+    <li>Click <strong>Save to iPad</strong> — numbers are saved to this browser's localStorage.</li>
+    <li>Open the <strong>iPad Control Panel</strong> from the same device/browser. When you activate a preset (Nova 24 or PvP), jersey numbers will load automatically.</li>
+    <li>If using a different browser/device for the iPad panel, click <strong>Copy JSON</strong>, then paste the JSON into that browser's console: <code>localStorage.setItem('nsmt_jersey_numbers', '...')</code></li>
+    <li>Numbers persist until you clear them. You can update anytime — just change values and click Save again.</li>
+  </ol>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// All roster data — matches _ROSTERS in ipad-control/index.html
+const EVENTS = [
+  {
+    key: 'nova24',
+    title: 'Nova 24',
+    teams: [
+      { side: 'away', name: 'Team Lin', code: 'LIN', players: [
+        {id:'p_N24_Will_Robinson',   name:'Will Robinson',   pos:'W'},
+        {id:'p_N24_Adam_Perdue',     name:'Adam Perdue',     pos:'G'},
+        {id:'p_N24_Landon_Judy',     name:'Landon Judy',     pos:'W'},
+        {id:'p_N24_Max_Lawson',      name:'Max Lawson',      pos:'G'},
+        {id:'p_N24_Shreyas_Vaidya',  name:'Shreyas Vaidya',  pos:'W'},
+        {id:'p_N24_Charlie_Boone',   name:'Charlie Boone',   pos:'G'},
+        {id:'p_N24_Medwyn_Opoku',    name:'Medwyn Opoku',    pos:'W'},
+        {id:'p_N24_Nathan_Pewett',   name:'Nathan Pewett',   pos:'G'},
+        {id:'p_N24_Mason_Ogburn',    name:'Mason Ogburn',    pos:'G'},
+        {id:'p_N24_Kaci_Jones-Carr', name:'Kaci Jones-Carr', pos:'G'},
+        {id:'p_N24_Makhai_Ramos',    name:'Makhai Ramos',    pos:'G'},
+        {id:'p_N24_Will_Davis',      name:'Will Davis',      pos:'W'},
+      ]},
+      { side: 'home', name: 'Team Rivers', code: 'RIV', players: [
+        {id:'p_N24_Brian_Burns',      name:'Brian Burns',      pos:'F'},
+        {id:'p_N24_Noah_Conrad',      name:'Noah Conrad',      pos:'W'},
+        {id:'p_N24_Colin_Stemberger', name:'Colin Stemberger', pos:'G'},
+        {id:'p_N24_Denari_Nesbitt',   name:'Denari Nesbitt',   pos:'G'},
+        {id:'p_N24_Jacob_Bell',       name:'Jacob Bell',       pos:'W'},
+        {id:'p_N24_Isaac_Heaton',     name:'Isaac Heaton',     pos:'G'},
+        {id:'p_N24_Barrett_Medhurst', name:'Barrett Medhurst', pos:'F'},
+        {id:'p_N24_Devon_Pettibone',  name:'Devon Pettibone',  pos:'G'},
+        {id:'p_N24_Antonio_Jones',    name:'Antonio Jones',    pos:'G'},
+        {id:'p_N24_Caleb_Roach',      name:'Caleb Roach',      pos:'G'},
+        {id:'p_N24_Ty_Wilkerson',     name:'Ty Wilkerson',     pos:'G'},
+        {id:'p_N24_Mikey_Robinson',   name:'Mikey Robinson',   pos:'W'},
+      ]}
+    ]
+  },
+  {
+    key: 'pvp',
+    title: 'Public vs Private',
+    teams: [
+      { side: 'away', name: 'Team Public', code: 'PUB', players: [
+        {id:'p_PVP_Ryan_Brzezanski',     name:'Ryan Brzezanski',     pos:'WF'},
+        {id:'p_PVP_Ryan_Corallo',        name:'Ryan Corallo',        pos:'G'},
+        {id:'p_PVP_Elijah_Gaskins',      name:'Elijah Gaskins',      pos:'G'},
+        {id:'p_PVP_Johnathan_Anderson',  name:'Johnathan Anderson',  pos:'G'},
+        {id:'p_PVP_Sean_Madrigal',       name:'Sean Madrigal',       pos:'W'},
+        {id:'p_PVP_Jemon_Price',         name:'Jemon Price',         pos:'G'},
+        {id:'p_PVP_Colin_Spencer_Byrd',  name:'Colin Spencer Byrd',  pos:'G'},
+        {id:'p_PVP_Dominic_Julian_Mack', name:'Dominic Julian Mack', pos:'W'},
+        {id:'p_PVP_Ethan_Jeremiah_Poole',name:'Ethan Jeremiah Poole',pos:'G'},
+        {id:'p_PVP_Rodney_Carmichael',   name:'Rodney Carmichael',   pos:'W'},
+        {id:'p_PVP_Nate_McComb',         name:'Nate McComb',         pos:'F'},
+        {id:'p_PVP_Jacob_Coulam',        name:'Jacob Coulam',        pos:'G'},
+        {id:'p_PVP_Isaiah_Brown',        name:'Isaiah Brown',        pos:'G'},
+      ]},
+      { side: 'home', name: 'Team Private', code: 'PVT', players: [
+        {id:'p_PVP_Darius_Bivins',   name:'Darius Bivins',   pos:'G'},
+        {id:'p_PVP_Akim_Iscandari',  name:'Akim Iscandari',  pos:'G'},
+        {id:'p_PVP_Marcus_Hancock',  name:'Marcus Hancock',  pos:'G'},
+        {id:'p_PVP_Messiah_Dixon',   name:'Messiah Dixon',   pos:'G'},
+        {id:'p_PVP_RJ_Jones',        name:'RJ Jones',        pos:'G'},
+        {id:'p_PVP_Jafet_Valencia',  name:'Jafet Valencia',  pos:'W'},
+        {id:'p_PVP_Frank_Siaca_Bey', name:'Frank Siaca Bey', pos:'F'},
+        {id:'p_PVP_Jake_Bahr',       name:'Jake Bahr',       pos:'G'},
+        {id:'p_PVP_Silas_Devonish',  name:'Silas Devonish',  pos:'G'},
+        {id:'p_PVP_Ripp_Kodi',       name:'Ripp Kodi',       pos:'WF'},
+        {id:'p_PVP_Justin_Edwards',  name:'Justin Edwards',  pos:'W'},
+        {id:'p_PVP_Jahda_Swann',     name:'Jahda Swann',     pos:'W'},
+        {id:'p_PVP_Cole_Forbrich',   name:'Cole Forbrich',   pos:'G'},
+      ]}
+    ]
+  }
+];
+
+const LS_KEY = 'nsmt_jersey_numbers';
+let toastTimer = null;
+
+function showToast(msg, duration) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration || 2500);
+}
+
+function buildUI() {
+  const container = document.getElementById('rosterContainer');
+  container.innerHTML = '';
+  EVENTS.forEach(ev => {
+    const section = document.createElement('div');
+    section.className = 'event-section';
+    let html = `<div class="event-title">${ev.title}</div><div class="teams-row">`;
+    ev.teams.forEach(team => {
+      html += `<div class="team-card"><div class="team-name">${team.name} <span class="code">${team.code}</span></div>`;
+      team.players.forEach(p => {
+        html += `<div class="player-row">
+          <span class="player-pos">${p.pos}</span>
+          <span class="player-name">${p.name}</span>
+          <input class="jersey-input" type="text" inputmode="numeric" maxlength="3"
+                 placeholder="#" data-pid="${p.id}" autocomplete="off">
+        </div>`;
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    section.innerHTML = html;
+    container.appendChild(section);
+  });
+}
+
+function gatherNumbers() {
+  const nums = {};
+  document.querySelectorAll('.jersey-input').forEach(inp => {
+    const v = inp.value.trim();
+    if (v) nums[inp.dataset.pid] = v;
+  });
+  return nums;
+}
+
+function updateStatus() {
+  const all = document.querySelectorAll('.jersey-input');
+  const filled = [...all].filter(i => i.value.trim()).length;
+  const bar = document.getElementById('statusBar');
+  bar.innerHTML = `<span class="count">${filled}</span> / ${all.length} players have jersey numbers`;
+}
+
+function saveNumbers() {
+  const nums = gatherNumbers();
+  localStorage.setItem(LS_KEY, JSON.stringify(nums));
+  const count = Object.keys(nums).length;
+  showToast(`Saved ${count} jersey number${count !== 1 ? 's' : ''} to localStorage`);
+  updateStatus();
+}
+
+function copyJSON() {
+  const nums = gatherNumbers();
+  const json = JSON.stringify(nums, null, 2);
+  const area = document.getElementById('jsonText');
+  area.value = json;
+  document.getElementById('jsonOutput').style.display = 'block';
+  navigator.clipboard.writeText(json).then(() => {
+    showToast('JSON copied to clipboard');
+  }).catch(() => {
+    area.select();
+    showToast('JSON generated below -- select and copy manually');
+  });
+}
+
+function clearAll() {
+  if (!confirm('Clear all jersey numbers?')) return;
+  document.querySelectorAll('.jersey-input').forEach(i => { i.value = ''; });
+  localStorage.removeItem(LS_KEY);
+  document.getElementById('jsonOutput').style.display = 'none';
+  updateStatus();
+  showToast('All jersey numbers cleared');
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const nums = JSON.parse(raw);
+    document.querySelectorAll('.jersey-input').forEach(inp => {
+      if (nums[inp.dataset.pid]) inp.value = nums[inp.dataset.pid];
+    });
+  } catch(e) { /* ignore corrupt data */ }
+}
+
+// Init
+buildUI();
+loadSaved();
+updateStatus();
+
+// Live status update
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('jersey-input')) updateStatus();
+});
+</script>
+</body>
+</html>

@@ -1244,6 +1244,7 @@ function logStat() {
   }
   s.pts=calcPts(s);
   _pushEvent(team,pid,_flow.event,_flow.result,pts,_flow.assistPid,desc);
+  if(_flow.event==='PF') pushBug();
   pushStats(); saveState(); toast(desc); resetFlow();
 }
 
@@ -2019,6 +2020,24 @@ const _ROSTERS = {
     ]}
   }
 };
+
+// Merge jersey numbers from localStorage (set by jersey-numbers.html)
+(function mergeJerseyNumbers() {
+  try {
+    const raw = localStorage.getItem('nsmt_jersey_numbers');
+    if (!raw) return;
+    const nums = JSON.parse(raw);
+    for (const evKey of Object.keys(_ROSTERS)) {
+      for (const side of ['away','home']) {
+        const players = _ROSTERS[evKey][side].players;
+        for (const p of players) {
+          if (nums[p.id]) p.num = nums[p.id];
+        }
+      }
+    }
+    console.log('[NSMT] Merged jersey numbers from localStorage:', Object.keys(nums).length, 'entries');
+  } catch(e) { console.warn('[NSMT] Failed to load jersey numbers:', e); }
+})();
 
 function setEventPreset(preset) {
   _activePreset = preset;
