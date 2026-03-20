@@ -77,6 +77,10 @@ def build_report_html(state, label_override=None):
         return f'<div class="pb"><div class="pb-title">Period Breakdown — {esc(side_name)}</div><table><thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead><tbody>{rows}</tbody></table></div>'
     pb_html = pb_section("away", away_name, a_t, away_score) + '\n' + pb_section("home", home_name, h_t, home_score)
 
+    # Point type data
+    pt = stats.get("pointTypes", {})
+    apt = pt.get("away", {}); hpt = pt.get("home", {})
+
     html = f'''<!DOCTYPE html><html><head><meta charset="UTF-8"><title>NSMT Game Report</title>
 <style>
 @page{{size:letter portrait;margin:.4in .35in}}
@@ -146,10 +150,10 @@ tr.tr td{{border-top:1.5pt solid #999;font-weight:700;background:#f5f5f5}}
     <div class="sec-title">Point Type</div>
     <table class="smtbl"><thead><tr><th class="nl"></th><th>{esc(away_code)}</th><th>{esc(home_code)}</th></tr></thead>
     <tbody>
-      <tr><td class="nl">In Paint</td><td>0</td><td>0</td></tr>
-      <tr><td class="nl">Fast Break</td><td>0</td><td>0</td></tr>
-      <tr><td class="nl">2nd Chance</td><td>0</td><td>0</td></tr>
-      <tr><td class="nl">Off Turnovers</td><td>0</td><td>0</td></tr>
+      <tr><td class="nl">In Paint</td><td>{apt.get("inPaint",0)}</td><td>{hpt.get("inPaint",0)}</td></tr>
+      <tr><td class="nl">Fast Break</td><td>{apt.get("fastBreak",0)}</td><td>{hpt.get("fastBreak",0)}</td></tr>
+      <tr><td class="nl">2nd Chance</td><td>{apt.get("secondChance",0)}</td><td>{hpt.get("secondChance",0)}</td></tr>
+      <tr><td class="nl">Off Turnovers</td><td>{apt.get("offTurnovers",0)}</td><td>{hpt.get("offTurnovers",0)}</td></tr>
     </tbody></table>
   </div>
   <div>

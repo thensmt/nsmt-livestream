@@ -172,6 +172,22 @@ def simulate_game(preset):
 
             s["pts"] = calc_pts(s)
 
+    # Generate point type breakdown per team
+    point_types = {}
+    for side in ("away", "home"):
+        team_pts = sum(stats[p["id"]]["pts"] for p in game[side]["players"])
+        # Distribute total points across point types (some overlap is fine)
+        paint = random.randint(int(team_pts * 0.30), int(team_pts * 0.45))
+        fastbreak = random.randint(int(team_pts * 0.08), int(team_pts * 0.18))
+        second_chance = random.randint(int(team_pts * 0.05), int(team_pts * 0.12))
+        off_to = random.randint(int(team_pts * 0.08), int(team_pts * 0.16))
+        point_types[side] = {
+            "inPaint": paint,
+            "fastBreak": fastbreak,
+            "secondChance": second_chance,
+            "offTurnovers": off_to
+        }
+
     # Build per-quarter team aggregates
     for side in ("away", "home"):
         for q in range(1, 5):
@@ -190,7 +206,7 @@ def simulate_game(preset):
             ps = period_stats[side][q]
             ps["pts"] = (ps["fgm"] - ps["t3m"]) * 2 + ps["t3m"] * 3 + ps["ftm"]
 
-    return stats, period_stats
+    return stats, period_stats, point_types
 
 def build_team_payload(game, side, stats):
     """Build the stats team object for a WebSocket patch."""
@@ -216,7 +232,7 @@ async def run_simulation(preset_name):
     import websockets
 
     game = PRESETS[preset_name]
-    stats, period_stats = simulate_game(preset_name)
+    stats, period_stats, point_types = simulate_game(preset_name)
 
     # Calculate team scores
     away_score = sum(stats[p["id"]]["pts"] for p in game["away"]["players"])
@@ -259,7 +275,8 @@ async def run_simulation(preset_name):
                 "periodStats": {
                     "away": {str(q): period_stats["away"][q] for q in range(1,5)},
                     "home": {str(q): period_stats["home"][q] for q in range(1,5)}
-                }
+                },
+                "pointTypes": point_types
             }
         }
 

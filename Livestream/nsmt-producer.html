@@ -1259,6 +1259,7 @@ NSMTClient.onMessage((msg) => {
       }
     });
     if (state.stats.periodStats) G.periodStats = state.stats.periodStats;
+    if (state.stats.pointTypes) G.pointTypes = state.stats.pointTypes;
   }
 });
 
@@ -2304,7 +2305,13 @@ window.generateStatReport = function(autoPrint) {
     const pbThead = '<thead><tr><th class="nl" style="width:30pt"></th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>TO</th></tr></thead>';
     return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-top:8pt">'
     + '<div><div class="sec-title">Point Type</div><table class="smtbl"><thead><tr><th class="nl"></th><th>'+esc(aC)+'</th><th>'+esc(hC)+'</th></tr></thead><tbody>'
-    + '<tr><td class="nl">In Paint</td><td>0</td><td>0</td></tr><tr><td class="nl">Fast Break</td><td>0</td><td>0</td></tr><tr><td class="nl">2nd Chance</td><td>0</td><td>0</td></tr><tr><td class="nl">Off Turnovers</td><td>0</td><td>0</td></tr>'
+    + (function(){
+      var apt=(G.pointTypes||{}).away||{}, hpt=(G.pointTypes||{}).home||{};
+      return '<tr><td class="nl">In Paint</td><td>'+(apt.inPaint||0)+'</td><td>'+(hpt.inPaint||0)+'</td></tr>'
+      +'<tr><td class="nl">Fast Break</td><td>'+(apt.fastBreak||0)+'</td><td>'+(hpt.fastBreak||0)+'</td></tr>'
+      +'<tr><td class="nl">2nd Chance</td><td>'+(apt.secondChance||0)+'</td><td>'+(hpt.secondChance||0)+'</td></tr>'
+      +'<tr><td class="nl">Off Turnovers</td><td>'+(apt.offTurnovers||0)+'</td><td>'+(hpt.offTurnovers||0)+'</td></tr>';
+    }())
     + '</tbody></table></div>'
     + '<div><div class="sec-title">Team Stats</div><table class="smtbl"><thead><tr><th class="nl"></th><th>'+esc(aC)+'</th><th>'+esc(hC)+'</th></tr></thead><tbody>'
     + '<tr><td class="nl">FG%</td><td>'+pct(aT.tFgm,aT.tFga)+'</td><td>'+pct(hT.tFgm,hT.tFga)+'</td></tr>'
