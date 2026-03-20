@@ -1164,6 +1164,45 @@ NSMTClient.onConnect(() => {
 });
 NSMTClient.onDisconnect(() => setWsBadge('OFFLINE'));
 
+let _lastPushTime = 0;
+NSMTClient.onMessage((msg) => {
+  if (Date.now() - _lastPushTime < 300) return;
+  const state = (msg.type === 'state' || msg.type === 'snapshot') ? (msg.data || msg) : (msg.type === 'patch' ? msg : null);
+  if (!state) return;
+  const b = state.bug;
+  if (b) {
+    if (b.awayScore !== undefined) G.away.score = b.awayScore;
+    if (b.homeScore !== undefined) G.home.score = b.homeScore;
+    if (b.awayFouls !== undefined) G.away.fouls = b.awayFouls;
+    if (b.homeFouls !== undefined) G.home.fouls = b.homeFouls;
+    if (b.awayTOs !== undefined) G.away.timeouts = b.awayTOs;
+    if (b.homeTOs !== undefined) G.home.timeouts = b.homeTOs;
+    if (b.clock !== undefined) G.clock.display = b.clock;
+    if (b.clockSecs !== undefined) G.clock.secs = b.clockSecs;
+    if (b.periodNum !== undefined) G.currentPeriod = b.periodNum;
+    updateScoreUI();
+  }
+  if (state.stats) {
+    ['away','home'].forEach(team => {
+      const incoming = state.stats[team];
+      if (!incoming || !incoming.players) return;
+      if (!G[team].players || G[team].players.length === 0) {
+        G[team].players = incoming.players.map(p => ({...p}));
+        if (incoming.name) G[team].name = incoming.name;
+      } else {
+        incoming.players.forEach(ip => {
+          const existing = G[team].players.find(p => p.id === ip.id);
+          if (existing) {
+            ['fgm','fga','t3m','t3a','ftm','fta','off','def','ast','stl','blk','to','pf','pts'].forEach(f => {
+              if (ip[f] !== undefined) existing[f] = ip[f];
+            });
+          }
+        });
+      }
+    });
+  }
+});
+
 window.connectWS = function() { NSMTClient.connect('ws://localhost:8765'); };
 
 function setWsBadge(label, ok=false) {
@@ -1415,6 +1454,7 @@ function extractColorsFromLogo(team, src) {
 // PUSH OVERLAY STATE → WebSocket
 // ═══════════════════════════════════
 function pushOverlayState(extra={}) {
+  _lastPushTime = Date.now();
   const { graphic, lastScoreEvent, periodChange, gameOver, clockExpired: ce, ...rest } = extra;
   wsSend({ type: 'patch', bug: {
     awayName: G.away.name, awayCode: G.away.code, awayScore: G.away.score,
@@ -2913,6 +2953,7 @@ function fireSpotlight(team, pid) {
   if (!p) return;
   wsSend({ type: 'patch', bug: { spotlight: {
     active: true,
+    teamSide: team,
     playerName: p.name || '',
     playerNum: p.num || '',
     playerPhoto: p.photo || '',

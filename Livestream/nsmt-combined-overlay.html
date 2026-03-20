@@ -221,20 +221,43 @@
   .go-warn{font-size:13px;color:#ef4444;font-weight:700;}
   /* ── Player Spotlight Card ── */
   .pc-wrap{
-    position:absolute; left:50%; bottom:320px;
-    transform:translateX(-50%);
+    position:absolute; bottom:320px;
     display:flex; flex-direction:row;
     background:linear-gradient(135deg,#0a0a0c 0%,#161820 100%);
     border:1px solid rgba(255,255,255,.13);
     border-radius:12px; overflow:hidden;
     box-shadow:0 20px 60px rgba(0,0,0,.9);
     z-index:210; min-width:360px; max-width:520px;
-    animation:pcSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
   }
   .pc-wrap.hidden{display:none;}
   .pc-wrap.dismissing{animation:pcSlideOut 0.3s ease-in forwards;}
+
+  /* Away team: slides in from the left side */
+  .pc-wrap.slide-left{
+    left:60px; right:auto;
+    animation:pcSlideInLeft 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .pc-wrap.slide-left.dismissing{animation:pcSlideOutLeft 0.3s ease-in forwards;}
+
+  /* Home team: slides in from the right side */
+  .pc-wrap.slide-right{
+    right:60px; left:auto;
+    animation:pcSlideInRight 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .pc-wrap.slide-right.dismissing{animation:pcSlideOutRight 0.3s ease-in forwards;}
+
+  /* Default fallback (center, like original) */
+  .pc-wrap.slide-center{
+    left:50%; transform:translateX(-50%);
+    animation:pcSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
   @keyframes pcSlideIn{from{opacity:0;transform:translateX(-50%) translateY(32px) scale(0.91);}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}}
   @keyframes pcSlideOut{from{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}to{opacity:0;transform:translateX(-50%) translateY(32px) scale(0.91);}}
+  @keyframes pcSlideInLeft{from{opacity:0;transform:translateX(-100%);}to{opacity:1;transform:translateX(0);}}
+  @keyframes pcSlideOutLeft{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(-100%);}}
+  @keyframes pcSlideInRight{from{opacity:0;transform:translateX(100%);}to{opacity:1;transform:translateX(0);}}
+  @keyframes pcSlideOutRight{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(100%);}}
   .pc-accent-bar{width:6px;flex-shrink:0;background:#0E80FC;}
   .pc-photo-wrap{width:120px;flex-shrink:0;overflow:hidden;background:#111;}
   .pc-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
@@ -838,7 +861,7 @@
       clearTimeout(_spotlightTimer);
       if (!card.classList.contains('hidden')) {
         card.classList.add('dismissing');
-        setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
+        setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing', 'slide-left', 'slide-right', 'slide-center'); }, 300);
       }
       return;
     }
@@ -868,9 +891,14 @@
     else               { commitEl.classList.add('hidden'); }
     const photoEl   = document.getElementById('pcPhoto');
     const photoWrap = document.getElementById('pcPhotoWrap');
-    if (sp.playerPhoto) {
-      photoEl.src = resolveAsset(sp.playerPhoto);
+    var photoSrc = sp.playerPhoto;
+    if (!photoSrc && sp.playerName) {
+      photoSrc = '/uploads/players/' + sp.playerName + '/photo.jpg';
+    }
+    if (photoSrc) {
+      photoEl.src = resolveAsset(photoSrc);
       photoWrap.style.width = '120px';
+      photoEl.onerror = function() { photoWrap.style.width = '0'; photoEl.src = ''; };
     } else {
       photoEl.src = '';
       photoWrap.style.width = '0';
@@ -878,11 +906,23 @@
     const accentBar = document.getElementById('pcAccentBar');
     if (accentBar) accentBar.style.background = sp.teamColor || '#0E80FC';
     card.classList.remove('hidden', 'dismissing');
+    // Remove old slide classes
+    card.classList.remove('slide-left', 'slide-right', 'slide-center');
+    // Reset inline positioning
+    card.style.left = ''; card.style.right = '';
+    // Apply team-side animation
+    if (sp.teamSide === 'away') {
+      card.classList.add('slide-left');
+    } else if (sp.teamSide === 'home') {
+      card.classList.add('slide-right');
+    } else {
+      card.classList.add('slide-center');
+    }
     void card.offsetWidth;
     if (sp.dismissAfter && sp.dismissAfter > 0) {
       _spotlightTimer = setTimeout(function () {
         card.classList.add('dismissing');
-        setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing'); }, 300);
+        setTimeout(function () { card.classList.add('hidden'); card.classList.remove('dismissing', 'slide-left', 'slide-right', 'slide-center'); }, 300);
       }, sp.dismissAfter);
     }
   }

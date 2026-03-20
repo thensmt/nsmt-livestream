@@ -458,6 +458,11 @@ html, body {
     <button class="ov-btn hide-btn" id="ovBtnHide" onclick="setOverlay(false)">■ HIDE</button>
     <button class="ov-btn" style="background:var(--blue);color:#fff;flex:0 0 auto;padding:0 14px;" onclick="printStatReport()">📊 REPORT</button>
   </div>
+  <div class="ov-row" style="gap:6px;">
+    <button class="ov-btn" id="tog_scorebug" onclick="toggleOverlayLayer('scorebug')" style="font-size:12px;padding:6px 10px;">BUG ●</button>
+    <button class="ov-btn" id="tog_ticker" onclick="toggleOverlayLayer('ticker')" style="font-size:12px;padding:6px 10px;">TICKER</button>
+    <button class="ov-btn" id="tog_ads" onclick="toggleOverlayLayer('ads')" style="font-size:12px;padding:6px 10px;">ADS ●</button>
+  </div>
   <div class="game-top">
   <div class="main">
     <div class="team-col away">
@@ -776,6 +781,7 @@ let _liveTab = 0;
 let _boxPeriod = null;
 let _subMode = false;
 let _subOut = { team: null, pid: null };
+let _lastPushTime = 0;
 
 // ═══════════════════════════════════
 // TABS
@@ -788,6 +794,18 @@ function switchTab(name) {
   const _btn = document.getElementById('tabBtn' + cap); if (_btn) _btn.classList.add('active');
   const hideScore = (name === 'threept' || name === 'dunk');
   document.getElementById('tbScoreStrip').style.display = hideScore ? 'none' : '';
+  // Auto-hide/show overlays based on active tab
+  if (name === 'game') {
+    _overlayFlags.scorebug = true;
+    NSMTClient.send({type:'patch',bug:{showScorebug:true,allStarEvent:''}});
+  } else if (name === 'threept') {
+    _overlayFlags.scorebug = false;
+    NSMTClient.send({type:'patch',bug:{showScorebug:false,allStarEvent:'3pt'}});
+  } else if (name === 'dunk') {
+    _overlayFlags.scorebug = false;
+    NSMTClient.send({type:'patch',bug:{showScorebug:false,allStarEvent:'dunk'}});
+  }
+  renderOverlayToggles();
 }
 
 // ═══════════════════════════════════
@@ -836,14 +854,14 @@ function spotlightCurrentPlayer() {
   if (!_detailTeam||!_detailPid) return;
   const p=(S[_detailTeam].players||[]).find(x=>x.id===_detailPid); if(!p)return;
   const st=STATS[_detailPid]||{};
-  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[_detailTeam].name,teamColor:S[_detailTeam].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
+  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,teamSide:_detailTeam,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[_detailTeam].name,teamColor:S[_detailTeam].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
   toast('★ Spotlight: '+p.name);
 }
 function spotlightPlayer(team, pid, evt) {
   if (evt) evt.stopPropagation();
   const p = (S[team].players||[]).find(x=>x.id===pid); if(!p)return;
   const st = STATS[pid]||{};
-  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[team].name,teamColor:S[team].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
+  NSMTClient.send({type:'patch',bug:{spotlight:{active:true,teamSide:team,playerName:p.name,playerNum:p.num,playerPhoto:p.photo||'',teamName:S[team].name,teamColor:S[team].primary||'#0E80FC',height:p.height||'',pos:p.pos||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||'',stats:{pts:calcPts(st),reb:(st.off||0)+(st.def||0),ast:st.ast||0,stl:st.stl||0,blk:st.blk||0},dismissAfter:8000}}});
   toast('★ Spotlight: '+p.name);
 }
 
@@ -916,6 +934,7 @@ function renderStatDetail() {
   document.getElementById('statRows').innerHTML=`<div class="stat-group-label">Shooting</div><div class="stat-row-grid">${row('FG Made','fgm',st.fgm||0,(st.fgm||0)+'/'+(st.fga||0)+' FG')}${row('FG Att','fga',st.fga||0)}</div><div class="stat-row-grid">${row('3PT Made','t3m',st.t3m||0,(st.t3m||0)+'/'+(st.t3a||0)+' 3P')}${row('3PT Att','t3a',st.t3a||0)}</div><div class="stat-row-grid">${row('FT Made','ftm',st.ftm||0,(st.ftm||0)+'/'+(st.fta||0)+' FT')}${row('FT Att','fta',st.fta||0)}</div><div class="stat-group-label">Rebounds &amp; Misc</div><div class="stat-row-grid">${row('Off Reb','off',st.off||0,reb+' REB')}${row('Def Reb','def',st.def||0)}</div><div class="stat-row-grid">${row('Assists','ast',st.ast||0)}${row('Steals','stl',st.stl||0)}</div><div class="stat-row-grid">${row('Blocks','blk',st.blk||0)}${row('Turnovers','to',st.to||0)}</div><div class="stat-group-label">Fouls</div>${row('Personal Fouls','pf',st.pf||0)}`;
 }
 function pushStats() {
+  _lastPushTime=Date.now();
   const toStatObj=team=>({name:S[team].name,fouls:S[team].fouls||0,players:(S[team].players||[]).map(p=>{const st=STATS[p.id]||{};return{id:p.id||'',num:p.num||'',name:p.name||'',photo:p.photo||'',fgm:st.fgm||0,fga:st.fga||0,t3m:st.t3m||0,t3a:st.t3a||0,ftm:st.ftm||0,fta:st.fta||0,off:st.off||0,def:st.def||0,ast:st.ast||0,stl:st.stl||0,blk:st.blk||0,to:st.to||0,pf:st.pf||0,pts:calcPts(st)};})});
   NSMTClient.send({type:'patch',stats:{away:toStatObj('away'),home:toStatObj('home')}});
 }
@@ -1591,7 +1610,16 @@ function loadRosterFromServer(statsState) {
     const t=statsState[team]; if(!t||!t.players||!t.players.length)return;
     if(t.name)S[team].name=t.name;
     S[team].players=t.players.map(p=>({id:p.id||('p_'+p.num+'_'+team),num:p.num||'',name:p.name||'',photo:p.photo||'',pos:p.pos||'',height:p.height||'',ppg:p.ppg||0,rpg:p.rpg||0,apg:p.apg||0,commitment:p.commitment||''})).filter(p=>p.name);
-    S[team].players.forEach(p=>{if(!STATS[p.id])STATS[p.id]=statDefaults();});
+    S[team].players.forEach(p=>{
+  const incoming=t.players.find(ip=>(ip.id||('p_'+ip.num+'_'+team))===p.id);
+  if(!STATS[p.id])STATS[p.id]=statDefaults();
+  if(incoming && Date.now()-_lastPushTime>300){
+    ['fgm','fga','t3m','t3a','ftm','fta','off','def','ast','stl','blk','to','pf'].forEach(f=>{
+      if(incoming[f]!==undefined)STATS[p.id][f]=incoming[f];
+    });
+    STATS[p.id].pts=calcPts(STATS[p.id]);
+  }
+});
   });
 }
 
@@ -1599,6 +1627,7 @@ function loadRosterFromServer(statsState) {
 // WEBSOCKET PUSH (game)
 // ═══════════════════════════════════
 function pushBug(extra) {
+  _lastPushTime=Date.now();
   saveState();
   NSMTClient.send({type:'patch',bug:{awayScore:S.away.score,homeScore:S.home.score,awayFouls:S.away.fouls,homeFouls:S.home.fouls,awayTOs:S.away.timeouts,homeTOs:S.home.timeouts,clock:S.clock.display,clockRunning:S.clock.running,clockSecs:S.clock.secs,quarter:getPeriodLabel(),periodNum:S.period,...(extra||{})}});
 }
@@ -1901,12 +1930,21 @@ function dkSyncFromServer(state) {
 // ═══════════════════════════════════
 function applyServerState(state) {
   if(!state)return;
+  if(Date.now()-_lastPushTime<300)return;
   const b=state.bug;
   if(b){
     if(b.awayName)S.away.name=b.awayName;if(b.homeName)S.home.name=b.homeName;
     if(b.awayCode)S.away.code=b.awayCode;if(b.homeCode)S.home.code=b.homeCode;
     if(b.awayPrimary)S.away.primary=b.awayPrimary;if(b.homePrimary)S.home.primary=b.homePrimary;
-    if(b.showScoreboard !== undefined){ _overlayShown = b.showScoreboard; renderOverlayBtns(); }
+    if(b.awayScore!==undefined)S.away.score=b.awayScore;
+    if(b.homeScore!==undefined)S.home.score=b.homeScore;
+    if(b.awayFouls!==undefined)S.away.fouls=b.awayFouls;
+    if(b.homeFouls!==undefined)S.home.fouls=b.homeFouls;
+    if(b.awayTOs!==undefined)S.away.timeouts=b.awayTOs;
+    if(b.homeTOs!==undefined)S.home.timeouts=b.homeTOs;
+    if(b.showScorebug!==undefined){_overlayFlags.scorebug=b.showScorebug;renderOverlayToggles();}
+    if(b.showTicker!==undefined){_overlayFlags.ticker=b.showTicker;renderOverlayToggles();}
+    if(b.showAds!==undefined){_overlayFlags.ads=b.showAds;renderOverlayToggles();}
   }
   if(state.stats)loadRosterFromServer(state.stats);
   renderAll();renderPlayerGrids();
@@ -1932,6 +1970,17 @@ NSMTClient.onMessage((data) => {
   if(state)applyServerState(state);
 });
 NSMTClient.connect();
+
+// Auto-load player photos from server
+(function loadPlayerPhotos(){
+  fetch('/list-player-photos').then(r=>r.json()).then(photos=>{
+    ['away','home'].forEach(team=>{
+      (S[team].players||[]).forEach(p=>{
+        if(!p.photo && photos[p.name]){p.photo=photos[p.name];}
+      });
+    });
+  }).catch(()=>{});
+})();
 
 // ═══════════════════════════════════
 // INIT
@@ -2078,19 +2127,31 @@ function setEventPreset(preset) {
 // ═══════════════════════════════════
 // OVERLAY SHOW / HIDE
 // ═══════════════════════════════════
-let _overlayShown = null;
+let _overlayFlags = {scorebug:true,ticker:false,ads:true};
 function setOverlay(show) {
-  _overlayShown = show;
-  NSMTClient.send({ type:'patch', bug:{ showScoreboard: show } });
-  renderOverlayBtns();
-  toast(show ? 'Overlay SHOWN' : 'Overlay HIDDEN');
+  _overlayFlags.scorebug=show;
+  NSMTClient.send({type:'patch',bug:{showScorebug:show}});
+  renderOverlayToggles();
+  toast(show?'Scorebug SHOWN':'Scorebug HIDDEN');
 }
-function renderOverlayBtns() {
-  const s = document.getElementById('ovBtnShow');
-  const h = document.getElementById('ovBtnHide');
-  if (!s || !h) return;
-  s.classList.toggle('active', _overlayShown === true);
-  h.classList.toggle('active', _overlayShown === false);
+function toggleOverlayLayer(layer) {
+  _overlayFlags[layer]=!_overlayFlags[layer];
+  const patch={};
+  if(layer==='scorebug')patch.showScorebug=_overlayFlags.scorebug;
+  if(layer==='ticker')patch.showTicker=_overlayFlags.ticker;
+  if(layer==='ads')patch.showAds=_overlayFlags.ads;
+  NSMTClient.send({type:'patch',bug:patch});
+  renderOverlayToggles();
+}
+function renderOverlayToggles() {
+  const s=document.getElementById('ovBtnShow');
+  const h=document.getElementById('ovBtnHide');
+  if(s)s.classList.toggle('active',_overlayFlags.scorebug===true);
+  if(h)h.classList.toggle('active',_overlayFlags.scorebug===false);
+  ['scorebug','ticker','ads'].forEach(k=>{
+    const el=document.getElementById('tog_'+k);
+    if(el){el.classList.toggle('active',_overlayFlags[k]);el.textContent=(k==='scorebug'?'BUG':k.toUpperCase())+((_overlayFlags[k])?' ●':'');}
+  });
 }
 
 // ═══════════════════════════════════
