@@ -2039,21 +2039,7 @@ const _mkP = (id, num, name, pos, height, ppg, rpg, apg, commitment) => ({
 });
 const _ROSTERS = {
   nova24: {
-    away: { name:'Team Lin', code:'LIN', players:[
-      _mkP('p_N24_Adam_Perdue',       '22','Adam Perdue',       'G', "6'2", 20,   4,   2,   'Swarthmore College'),
-      _mkP('p_N24_Charlie_Boone',     '2', 'Charlie Boone',     'G', "6'0", 14.5, 4,   2,   'Mcdaniels College'),
-      _mkP('p_N24_Kaci_Jones-Carr',   '0', 'Kaci Jones-Carr',   'G', "6'1", 15,   4,   0,   ''),
-      _mkP('p_N24_Landon_Judy',       '2', 'Landon Judy',       'W', "6'3", 10,   3.3, 2,   ''),
-      _mkP('p_N24_Makhai_Ramos',      '2', 'Makhai Ramos',      'G', "6'0", 17,   5,   4,   ''),
-      _mkP('p_N24_Mason_Ogburn',      '1', 'Mason Ogburn',      'G', "6'0", 17.4, 4.2, 3,   ''),
-      _mkP('p_N24_Max_Lawson',        '3', 'Max Lawson',        'G', "6'4", 20.4, 6.5, 3.5, 'Mary Washington'),
-      _mkP('p_N24_Medwyn_Opoku-Arthur','12','Medwyn Opoku-Arthur','W',"6'6", 6,    5,   0,   ''),
-      _mkP('p_N24_Nathan_Pewett',     '3', 'Nathan Pewett',     'G', "6'0", 13.5, 4.1, 4.3, ''),
-      _mkP('p_N24_Shreyas_Vaidya',    '3', 'Shreyas Vaidya',    'W', "6'4", 12,   3,   1,   ''),
-      _mkP('p_N24_Will_Davis',        '5', 'Will Davis',        'W', "6'3", 19.2, 3.2, 2,   'Juniata College'),
-      _mkP('p_N24_William_Robinson',  '24','William Robinson',  'W', "6'5", 14,   8,   2,   ''),
-    ]},
-    home: { name:'Team Rivers', code:'RIV', players:[
+    away: { name:'Team Rivers', code:'RIV', logo:'hoopfest-logo-blue.png', primary:'#0E80FC', secondary:'#ffffff', textColor:'#ffffff', accent:'#7fbfff', players:[
       _mkP('p_N24_Devon_Pettibone',   '1', 'Devon Pettibone',   'G', "6'0", 13,   4.5, 4,   'Hood'),
       _mkP('p_N24_TJ_Wilkerson',      '2', 'TJ Wilkerson',      'G', "6'1", 20,   3.3, 5,   ''),
       _mkP('p_N24_Barrett_Medhurst',  '30','Barrett Medhurst',  'F', "6'5", 5,    7,   2,   'Marymount'),
@@ -2067,10 +2053,24 @@ const _ROSTERS = {
       _mkP('p_N24_Colin_Stemberger',  '4', 'Colin Stemberger',  'G', "6'0", 10,   3,   5,   'Mary Washington'),
       _mkP('p_N24_Aiden_Moore',       '3', 'Aiden Moore',       'G', "6'2", 8.5,  3,   2,   ''),
       _mkP('p_N24_Caleb_Roach',       '',  'Caleb Roach',       'G', "6'0", 19,   5,   0,   'Hood'),
+    ]},
+    home: { name:'Team Lin', code:'LIN', logo:'hoopfest-logo-white.png', primary:'#ffffff', secondary:'#0E80FC', textColor:'#0E80FC', accent:'#0E80FC', players:[
+      _mkP('p_N24_Adam_Perdue',       '22','Adam Perdue',       'G', "6'2", 20,   4,   2,   'Swarthmore College'),
+      _mkP('p_N24_Charlie_Boone',     '2', 'Charlie Boone',     'G', "6'0", 14.5, 4,   2,   'Mcdaniels College'),
+      _mkP('p_N24_Kaci_Jones-Carr',   '0', 'Kaci Jones-Carr',   'G', "6'1", 15,   4,   0,   ''),
+      _mkP('p_N24_Landon_Judy',       '2', 'Landon Judy',       'W', "6'3", 10,   3.3, 2,   ''),
+      _mkP('p_N24_Makhai_Ramos',      '2', 'Makhai Ramos',      'G', "6'0", 17,   5,   4,   ''),
+      _mkP('p_N24_Mason_Ogburn',      '1', 'Mason Ogburn',      'G', "6'0", 17.4, 4.2, 3,   ''),
+      _mkP('p_N24_Max_Lawson',        '3', 'Max Lawson',        'G', "6'4", 20.4, 6.5, 3.5, 'Mary Washington'),
+      _mkP('p_N24_Medwyn_Opoku-Arthur','12','Medwyn Opoku-Arthur','W',"6'6", 6,    5,   0,   ''),
+      _mkP('p_N24_Nathan_Pewett',     '3', 'Nathan Pewett',     'G', "6'0", 13.5, 4.1, 4.3, ''),
+      _mkP('p_N24_Shreyas_Vaidya',    '3', 'Shreyas Vaidya',    'W', "6'4", 12,   3,   1,   ''),
+      _mkP('p_N24_Will_Davis',        '5', 'Will Davis',        'W', "6'3", 19.2, 3.2, 2,   'Juniata College'),
+      _mkP('p_N24_William_Robinson',  '24','William Robinson',  'W', "6'5", 14,   8,   2,   ''),
     ]}
   },
   pvp: {
-    away: { name:'Team Public', code:'PUB', players:[
+    away: { name:'Team Public', code:'PUB', logo:'hoopfest-logo-white.png', primary:'#ffffff', secondary:'#0E80FC', textColor:'#0E80FC', accent:'#0E80FC', players:[
       _mkP('p_PVP_Colin_Spencer_Byrd',  '0', 'Colin Spencer Byrd',  'G',  "6'4", 22.5, 7.1, 3.1, 'Grambling State'),
       _mkP('p_PVP_Elijah_Gaskins',      '1', 'Elijah Gaskins',      'G',  "6'2", 18,   5,   6,   ''),
       _mkP('p_PVP_Jonathan_Anderson',   '2', 'Jonathan Anderson',   'G',  "6'1", 16,   4,   4,   ''),
@@ -2085,7 +2085,7 @@ const _ROSTERS = {
       _mkP('p_PVP_Rodney_E_Carmichael', '15','Rodney E Carmichael', 'W',  "6'3", 14.2, 8.4, 2.2, ''),
       _mkP('p_PVP_Nate_McComb',         '20','Nate McComb',         'F',  "6'7", 19,   10.5,2,   ''),
     ]},
-    home: { name:'Team Private', code:'PVT', players:[
+    home: { name:'Team Private', code:'PVT', logo:'hoopfest-logo-blue.png', primary:'#0E80FC', secondary:'#ffffff', textColor:'#ffffff', accent:'#7fbfff', players:[
       _mkP('p_PVP_Akim_Iscandari',  '0', 'Akim Iscandari',  'G',  "6'0", 16.2, 6,   5,   'Navy'),
       _mkP('p_PVP_Darius_Bivins',   '1', 'Darius Bivins',   'G',  "6'1", 18,   4.3, 5,   ''),
       _mkP('p_PVP_Cole_Forbrich',   '2', 'Cole Forbrich',   'G',  "5'10",12,   2,   1,   ''),
@@ -2128,13 +2128,13 @@ function setEventPreset(preset) {
   if (map[preset]) document.getElementById(map[preset]).classList.add('active');
   if (preset === 'nova24' || preset === 'pvp') {
     const r = _ROSTERS[preset];
-    S.away.name=r.away.name;S.away.code=r.away.code;S.away.players=r.away.players;S.away.starters=[];
-    S.home.name=r.home.name;S.home.code=r.home.code;S.home.players=r.home.players;S.home.starters=[];
+    S.away.name=r.away.name;S.away.code=r.away.code;S.away.players=r.away.players;S.away.starters=[];S.away.primary=r.away.primary||'';
+    S.home.name=r.home.name;S.home.code=r.home.code;S.home.players=r.home.players;S.home.starters=[];S.home.primary=r.home.primary||'';
     // Always reset stats (clears any test data)
     r.away.players.forEach(p=>{ STATS[p.id]=statDefaults(); });
     r.home.players.forEach(p=>{ STATS[p.id]=statDefaults(); });
     G.events=[];
-    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, homeScore:0, awayScore:0, clock:'8:00', clockSecs:480, quarter:'Q1', periodNum:1, clockRunning:false, awayFouls:0, homeFouls:0, spotlight:{active:false}, allStarEvent:preset } });
+    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, homeScore:0, awayScore:0, clock:'8:00', clockSecs:480, quarter:'Q1', periodNum:1, clockRunning:false, awayFouls:0, homeFouls:0, spotlight:{active:false}, allStarEvent:preset, awayLogo:r.away.logo||'', homeLogo:r.home.logo||'', awayPrimary:r.away.primary||'#00007f', awaySecondary:r.away.secondary||'#ffffff', awayText:r.away.textColor||'#ffffff', awayAccent:r.away.accent||'#7f7f7f', homePrimary:r.home.primary||'#046333', homeSecondary:r.home.secondary||'#ffffff', homeText:r.home.textColor||'#ffffff', homeAccent:r.home.accent||'#c0c0c0' } });
     NSMTClient.send({ type:'patch', stats:{ away:{ name:r.away.name, players:r.away.players }, home:{ name:r.home.name, players:r.home.players } } });
     renderAll(); resetFlow(); switchTab('game');
   } else if (preset === 'dunk') {

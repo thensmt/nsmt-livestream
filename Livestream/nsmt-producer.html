@@ -576,7 +576,7 @@ textarea{resize:vertical;min-height:80px;height:auto}
           <div class="card-title" style="margin-bottom:10px;color:var(--gold)">⚡ HOOPFEST QUICK SETUP</div>
           <div style="font-size:14px;color:var(--muted);margin-bottom:10px">One tap to pre-fill all team info and rosters for each game.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-surf" style="flex:1;min-width:140px" onclick="applyPreset('nova24')">★ Nova 24<br><span style="font-size:13px;font-weight:400;color:var(--muted)">Team Lin vs Team Rivers</span></button>
+            <button class="btn btn-surf" style="flex:1;min-width:140px" onclick="applyPreset('nova24')">★ Nova 24<br><span style="font-size:13px;font-weight:400;color:var(--muted)">Team Rivers vs Team Lin</span></button>
             <button class="btn btn-surf" style="flex:1;min-width:140px" onclick="applyPreset('pvp')">⚡ Public vs Private<br><span style="font-size:13px;font-weight:400;color:var(--muted)">Team Public vs Team Private</span></button>
           </div>
         </div>
@@ -1731,17 +1731,18 @@ window.applyPreset = function(key) {
       event: 'NSMT Hoopfest — Nova 24',
       venue: 'The St. James, Springfield VA',
       date:  '2026-03-22',
+      time:  '2:20 PM',
       periods: '4', periodLen: '8',
-      home: { name:'Team Rivers', code:'RIV', rid:'r_NOVA24_RIVERS' },
-      away: { name:'Team Lin',    code:'LIN', rid:'r_NOVA24_LIN'    },
+      away: { name:'Team Rivers', code:'RIV', rid:'r_NOVA24_RIVERS', logo:'hoopfest-logo-blue.png',  primary:'#0E80FC', secondary:'#ffffff', textColor:'#ffffff', accent:'#7fbfff' },
+      home: { name:'Team Lin',    code:'LIN', rid:'r_NOVA24_LIN',    logo:'hoopfest-logo-white.png', primary:'#ffffff', secondary:'#0E80FC', textColor:'#0E80FC', accent:'#0E80FC' },
     },
     pvp: {
       event: 'NSMT Hoopfest — Public vs Private',
       venue: 'The St. James, Springfield VA',
       date:  '2026-03-22',
       periods: '4', periodLen: '8',
-      home: { name:'Team Private', code:'PVT', rid:'r_PVP_PRIVATE' },
-      away: { name:'Team Public',  code:'PUB', rid:'r_PVP_PUBLIC'  },
+      away: { name:'Team Public',  code:'PUB', rid:'r_PVP_PUBLIC',  logo:'hoopfest-logo-white.png', primary:'#ffffff', secondary:'#0E80FC', textColor:'#0E80FC', accent:'#0E80FC' },
+      home: { name:'Team Private', code:'PVT', rid:'r_PVP_PRIVATE', logo:'hoopfest-logo-blue.png',  primary:'#0E80FC', secondary:'#ffffff', textColor:'#ffffff', accent:'#7fbfff' },
     },
   };
   const p = PRESETS[key]; if (!p) return;
@@ -1754,6 +1755,17 @@ window.applyPreset = function(key) {
   ['home','away'].forEach(t => {
     sv('cfg' + cap(t) + 'Name', p[t].name);
     sv('cfg' + cap(t) + 'Code', p[t].code);
+    // Apply colors
+    sv('cfg' + cap(t) + 'Primary',   p[t].primary);
+    sv('cfg' + cap(t) + 'Secondary', p[t].secondary);
+    sv('cfg' + cap(t) + 'Text',      p[t].textColor);
+    sv('cfg' + cap(t) + 'Accent',    p[t].accent);
+    G[t].primary   = p[t].primary;
+    G[t].secondary = p[t].secondary;
+    G[t].textColor = p[t].textColor;
+    G[t].accent    = p[t].accent;
+    // Apply logo
+    if (p[t].logo) setLogoPreview(t, p[t].logo);
     loadRosterForTeam(t, p[t].rid);
   });
   onSetupChange();
