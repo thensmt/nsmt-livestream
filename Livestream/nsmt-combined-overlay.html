@@ -321,11 +321,10 @@
   }
 
   /* ── Header ── */
-  .ct-hdr{display:flex;align-items:center;justify-content:space-between;}
-  .ct-hdr-text{display:flex;flex-direction:column;gap:2px;}
+  .ct-hdr{display:flex;flex-direction:column;gap:2px;position:relative;}
   .ct-badge{font-size:6px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0E80FC;}
   .ct-label{font-size:6px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
-  .ct-logo{height:20px;width:auto;}
+  .ct-logo{height:20px;width:auto;position:absolute;top:0;right:0;}
 
   /* ── Shooter name + info ── */
   .ct-shooter{font-family:'Anton',Impact,sans-serif;font-size:24px;letter-spacing:1px;text-transform:uppercase;line-height:1;}
@@ -575,10 +574,8 @@
     <!-- Court 1 / Finals panel -->
     <div class="court-panel" id="court1Panel">
       <div class="ct-hdr">
-        <div class="ct-hdr-text">
-          <div class="ct-badge">3-POINT CONTEST</div>
-          <div class="ct-label" id="court1Label">COURT 1</div>
-        </div>
+        <div class="ct-badge">3-POINT CONTEST</div>
+        <div class="ct-label" id="court1Label">COURT 1</div>
         <img class="ct-logo" src="/silver-hoopfest-logo.png" alt="">
       </div>
       <div class="ct-shooter" id="court1Shooter"></div>
@@ -595,10 +592,8 @@
     <!-- Court 2 panel (hidden in finals) -->
     <div class="court-panel" id="court2Panel">
       <div class="ct-hdr">
-        <div class="ct-hdr-text">
-          <div class="ct-badge">3-POINT CONTEST</div>
-          <div class="ct-label">COURT 2</div>
-        </div>
+        <div class="ct-badge">3-POINT CONTEST</div>
+        <div class="ct-label">COURT 2</div>
         <img class="ct-logo" src="/silver-hoopfest-logo.png" alt="">
       </div>
       <div class="ct-shooter" id="court2Shooter"></div>
@@ -626,8 +621,8 @@
     </div>
 
     <div class="dk-dunker-row">
-      <div class="dk-photo" id="dkPhotoWrap">
-        <img id="dkPhoto" src="" alt="">
+      <div class="dk-photo no-photo" id="dkPhotoWrap">
+        <img id="dkPhoto" src="" alt="" onerror="this.parentElement.classList.add('no-photo');">
       </div>
       <div class="dk-dunker-info">
         <div class="dk-dunker-name" id="dkDunkerName">—</div>
