@@ -1763,6 +1763,12 @@ window.applyPreset = function(key) {
   sv('cfgPeriods',   p.periods);
   sv('cfgPeriodLen', p.periodLen);
   if (p.time) sv('cfgTime', p.time);
+  // Set center scorebug logo
+  G.nsmtLogo = '/silver-hoopfest-logo.png';
+  sv('nsmtLogoUrl', G.nsmtLogo);
+  const nImg = id('nsmtLogoPreviewImg'), nTxt = id('nsmtLogoPreviewText');
+  if (nImg) { nImg.src = G.nsmtLogo; nImg.style.display = 'block'; }
+  if (nTxt) { nTxt.style.display = 'none'; }
   ['home','away'].forEach(t => {
     sv('cfg' + cap(t) + 'Name', p[t].name);
     sv('cfg' + cap(t) + 'Code', p[t].code);
