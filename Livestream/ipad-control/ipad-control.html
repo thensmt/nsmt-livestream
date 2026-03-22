@@ -320,8 +320,13 @@ html, body {
 .tp-court-btn.active { background: rgba(14,128,252,.12); border-color: var(--gold); color: var(--gold); }
 .tp-round-btn { flex: 1; padding: 7px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-round-btn.active { background: rgba(14,128,252,.12); border-color: var(--gold); color: var(--gold); }
-.tp-shooter-input { width: 100%; background: var(--surf3); border: 1px solid var(--border2); color: var(--text); font-family: 'Rubik', sans-serif; font-size: 16px; font-weight: 600; padding: 8px 10px; border-radius: var(--r); outline: none; -webkit-appearance: none; }
-.tp-shooter-input:focus { border-color: var(--gold); }
+.tp-shooter-input { display:none; }
+.tp-contestant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tp-contestant-btn { padding: 10px 8px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--text); font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .12s; text-align: left; display: flex; flex-direction: column; gap: 2px; min-height: 54px; }
+.tp-contestant-btn:active { transform: scale(.96); }
+.tp-contestant-btn.active { background: rgba(14,128,252,.15); border-color: var(--gold); color: var(--gold); }
+.tp-contestant-btn .tp-c-name { font-weight: 700; }
+.tp-contestant-btn .tp-c-school { font-size: 10px; color: var(--muted); letter-spacing: .5px; }
 .tp-vis-btn { flex: 1; height: 45px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surf3); color: var(--muted); font-family: 'Rubik', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .15s; }
 .tp-vis-btn.active { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green); }
 .tp-money-btn { flex: 1; height: 60px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--surf3); color: var(--muted); font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
@@ -593,9 +598,9 @@ html, body {
 
     <div class="tp-card">
       <div class="tp-card-title">Shooter</div>
-      <input class="tp-shooter-input" id="tp-shooterName" type="text" placeholder="Enter player name…"
-             list="tp-contestantList" oninput="tpOnShooterInput()" autocorrect="off" spellcheck="false">
+      <input class="tp-shooter-input" id="tp-shooterName" type="hidden">
       <datalist id="tp-contestantList"></datalist>
+      <div class="tp-contestant-grid" id="tp-contestantGrid"></div>
       <div style="margin-top:8px;font-size:18px;color:var(--muted)" id="tp-shooterMeta"></div>
     </div>
 
@@ -1765,11 +1770,33 @@ let tpOtherKey = 'court2';
 let tpOtherCourt = { shooter:'', moneyRack:4, racks:TP_EMPTY_RACKS() };
 let TP = { show:false, round:'round1', moneyRack:4, racks:TP_EMPTY_RACKS() };
 
-// Populate datalist
+// Populate contestant grid
 (function(){
-  const dl = document.getElementById('tp-contestantList');
-  TP_CONTESTANTS.forEach(c => { const o=document.createElement('option'); o.value=c.name; dl.appendChild(o); });
+  const grid = document.getElementById('tp-contestantGrid');
+  TP_CONTESTANTS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'tp-contestant-btn';
+    btn.setAttribute('data-name', c.name);
+    btn.onclick = function() { tpSelectContestant(c.name); };
+    var nameDiv = document.createElement('div');
+    nameDiv.className = 'tp-c-name';
+    nameDiv.textContent = c.name;
+    var schoolDiv = document.createElement('div');
+    schoolDiv.className = 'tp-c-school';
+    schoolDiv.textContent = c.school;
+    btn.appendChild(nameDiv);
+    btn.appendChild(schoolDiv);
+    grid.appendChild(btn);
+  });
 })();
+
+function tpSelectContestant(name) {
+  document.getElementById('tp-shooterName').value = name;
+  // Update active state on buttons
+  var btns = document.getElementById('tp-contestantGrid').querySelectorAll('.tp-contestant-btn');
+  btns.forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-name') === name); });
+  tpOnShooterInput();
+}
 
 function tpGetContestant(name) { return TP_CONTESTANTS.find(c=>c.name.toLowerCase()===(name||'').toLowerCase())||null; }
 
@@ -1823,9 +1850,9 @@ function tpResetShooter() { TP.racks=TP_EMPTY_RACKS(); tpRenderBalls(); tpUpdate
 function tpNextShooter() {
   document.getElementById('tp-shooterName').value='';
   document.getElementById('tp-shooterMeta').textContent='';
+  document.getElementById('tp-contestantGrid').querySelectorAll('.tp-contestant-btn').forEach(function(b){b.classList.remove('active');});
   TP.racks=TP_EMPTY_RACKS(); TP.moneyRack=4;
   tpRenderMoneyRack(); tpRenderBalls(); tpUpdateTotal(); tpPushState();
-  document.getElementById('tp-shooterName').focus();
 }
 function tpPushState() {
   const shooter=document.getElementById('tp-shooterName').value.trim();
@@ -1842,7 +1869,7 @@ function tpSyncFromServer(state) {
   if(ct){
     if(ct.moneyRack!=null)TP.moneyRack=ct.moneyRack;
     if(ct.racks)TP.racks=ct.racks.map(r=>[...r]);
-    if(ct.shooter!=null){document.getElementById('tp-shooterName').value=ct.shooter;const c=tpGetContestant(ct.shooter);document.getElementById('tp-shooterMeta').textContent=c?c.school+'  ·  @'+c.ig:'';}
+    if(ct.shooter!=null){document.getElementById('tp-shooterName').value=ct.shooter;const c=tpGetContestant(ct.shooter);document.getElementById('tp-shooterMeta').textContent=c?c.school+'  ·  @'+c.ig:'';document.getElementById('tp-contestantGrid').querySelectorAll('.tp-contestant-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-name')===ct.shooter);});}
   }
   tpRenderAll();
 }
