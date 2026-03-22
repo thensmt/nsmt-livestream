@@ -2034,67 +2034,71 @@ dkRenderJudges();
 // EVENT PRESETS
 // ═══════════════════════════════════
 let _activePreset = null;
+const _mkP = (id, num, name, pos, height, ppg, rpg, apg, commitment) => ({
+  id, num, name, pos, photo:'', height:height||'', ppg:ppg||0, rpg:rpg||0, apg:apg||0, commitment:commitment||''
+});
 const _ROSTERS = {
   nova24: {
     away: { name:'Team Lin', code:'LIN', players:[
-      {id:'p_N24_Will_Robinson',   num:'', name:'Will Robinson',   pos:'W'},
-      {id:'p_N24_Adam_Perdue',     num:'', name:'Adam Perdue',     pos:'G'},
-      {id:'p_N24_Landon_Judy',     num:'', name:'Landon Judy',     pos:'W'},
-      {id:'p_N24_Max_Lawson',      num:'', name:'Max Lawson',      pos:'G'},
-      {id:'p_N24_Shreyas_Vaidya',  num:'', name:'Shreyas Vaidya',  pos:'W'},
-      {id:'p_N24_Charlie_Boone',   num:'', name:'Charlie Boone',   pos:'G'},
-      {id:'p_N24_Medwyn_Opoku',    num:'', name:'Medwyn Opoku',    pos:'W'},
-      {id:'p_N24_Nathan_Pewett',   num:'', name:'Nathan Pewett',   pos:'G'},
-      {id:'p_N24_Mason_Ogburn',    num:'', name:'Mason Ogburn',    pos:'G'},
-      {id:'p_N24_Kaci_Jones-Carr', num:'', name:'Kaci Jones-Carr', pos:'G'},
-      {id:'p_N24_Makhai_Ramos',    num:'', name:'Makhai Ramos',    pos:'G'},
-      {id:'p_N24_Will_Davis',      num:'', name:'Will Davis',      pos:'W'},
+      _mkP('p_N24_Adam_Perdue',       '22','Adam Perdue',       'G', "6'2", 20,   4,   2,   'Swarthmore College'),
+      _mkP('p_N24_Charlie_Boone',     '2', 'Charlie Boone',     'G', "6'0", 14.5, 4,   2,   'Mcdaniels College'),
+      _mkP('p_N24_Kaci_Jones-Carr',   '0', 'Kaci Jones-Carr',   'G', "6'1", 15,   4,   0,   ''),
+      _mkP('p_N24_Landon_Judy',       '2', 'Landon Judy',       'W', "6'3", 10,   3.3, 2,   ''),
+      _mkP('p_N24_Makhai_Ramos',      '2', 'Makhai Ramos',      'G', "6'0", 17,   5,   4,   ''),
+      _mkP('p_N24_Mason_Ogburn',      '1', 'Mason Ogburn',      'G', "6'0", 17.4, 4.2, 3,   ''),
+      _mkP('p_N24_Max_Lawson',        '3', 'Max Lawson',        'G', "6'4", 20.4, 6.5, 3.5, 'Mary Washington'),
+      _mkP('p_N24_Medwyn_Opoku-Arthur','12','Medwyn Opoku-Arthur','W',"6'6", 6,    5,   0,   ''),
+      _mkP('p_N24_Nathan_Pewett',     '3', 'Nathan Pewett',     'G', "6'0", 13.5, 4.1, 4.3, ''),
+      _mkP('p_N24_Shreyas_Vaidya',    '3', 'Shreyas Vaidya',    'W', "6'4", 12,   3,   1,   ''),
+      _mkP('p_N24_Will_Davis',        '5', 'Will Davis',        'W', "6'3", 19.2, 3.2, 2,   'Juniata College'),
+      _mkP('p_N24_William_Robinson',  '24','William Robinson',  'W', "6'5", 14,   8,   2,   ''),
     ]},
     home: { name:'Team Rivers', code:'RIV', players:[
-      {id:'p_N24_Brian_Burns',      num:'', name:'Brian Burns',      pos:'F'},
-      {id:'p_N24_Noah_Conrad',      num:'', name:'Noah Conrad',      pos:'W'},
-      {id:'p_N24_Colin_Stemberger', num:'', name:'Colin Stemberger', pos:'G'},
-      {id:'p_N24_Denari_Nesbitt',   num:'', name:'Denari Nesbitt',   pos:'G'},
-      {id:'p_N24_Jacob_Bell',       num:'', name:'Jacob Bell',       pos:'W'},
-      {id:'p_N24_Isaac_Heaton',     num:'', name:'Isaac Heaton',     pos:'G'},
-      {id:'p_N24_Barrett_Medhurst', num:'', name:'Barrett Medhurst', pos:'F'},
-      {id:'p_N24_Devon_Pettibone',  num:'', name:'Devon Pettibone',  pos:'G'},
-      {id:'p_N24_Antonio_Jones',    num:'', name:'Antonio Jones',    pos:'G'},
-      {id:'p_N24_Caleb_Roach',      num:'', name:'Caleb Roach',      pos:'G'},
-      {id:'p_N24_Ty_Wilkerson',     num:'', name:'Ty Wilkerson',     pos:'G'},
-      {id:'p_N24_Mikey_Robinson',   num:'', name:'Mikey Robinson',   pos:'W'},
+      _mkP('p_N24_Devon_Pettibone',   '1', 'Devon Pettibone',   'G', "6'0", 13,   4.5, 4,   'Hood'),
+      _mkP('p_N24_TJ_Wilkerson',      '2', 'TJ Wilkerson',      'G', "6'1", 20,   3.3, 5,   ''),
+      _mkP('p_N24_Barrett_Medhurst',  '30','Barrett Medhurst',  'F', "6'5", 5,    7,   2,   'Marymount'),
+      _mkP('p_N24_Antonio_Jones',     '3', 'Antonio Jones',     'G', "5'11",14,   3,   1.2, ''),
+      _mkP('p_N24_Jacob_Thomas_Bell', '3', 'Jacob Thomas Bell', 'W', "6'4", 20,   8,   0,   ''),
+      _mkP('p_N24_Noah_Conrad',       '3', 'Noah Conrad',       'W', "6'4", 12,   4,   3,   ''),
+      _mkP('p_N24_Brian_Burns_II',    '22','Brian Burns II',    'F', "6'6", 13.4, 7,   2,   ''),
+      _mkP('p_N24_Mikey_Robinson',    '13','Mikey Robinson',    'W', "6'6", 12,   6,   3,   ''),
+      _mkP('p_N24_Denari_Nesbitt',    '25','Denari Nesbitt',    'G', "6'0", 17,   5,   6,   ''),
+      _mkP('p_N24_Isaac_Heaton',      '11','Isaac Heaton',      'G', "6'0", 14,   2,   1,   ''),
+      _mkP('p_N24_Colin_Stemberger',  '4', 'Colin Stemberger',  'G', "6'0", 10,   3,   5,   'Mary Washington'),
+      _mkP('p_N24_Aiden_Moore',       '3', 'Aiden Moore',       'G', "6'2", 8.5,  3,   2,   ''),
+      _mkP('p_N24_Caleb_Roach',       '',  'Caleb Roach',       'G', "6'0", 19,   5,   0,   'Hood'),
     ]}
   },
   pvp: {
     away: { name:'Team Public', code:'PUB', players:[
-      {id:'p_PVP_Ryan_Brzezanski',     num:'', name:'Ryan Brzezanski',     pos:'WF'},
-      {id:'p_PVP_Ryan_Corallo',        num:'', name:'Ryan Corallo',        pos:'G'},
-      {id:'p_PVP_Elijah_Gaskins',      num:'', name:'Elijah Gaskins',      pos:'G'},
-      {id:'p_PVP_Johnathan_Anderson',  num:'', name:'Johnathan Anderson',  pos:'G'},
-      {id:'p_PVP_Sean_Madrigal',       num:'', name:'Sean Madrigal',       pos:'W'},
-      {id:'p_PVP_Jemon_Price',         num:'', name:'Jemon Price',         pos:'G'},
-      {id:'p_PVP_Colin_Spencer_Byrd',  num:'', name:'Colin Spencer Byrd',  pos:'G'},
-      {id:'p_PVP_Dominic_Julian_Mack', num:'', name:'Dominic Julian Mack', pos:'W'},
-      {id:'p_PVP_Ethan_Jeremiah_Poole',num:'', name:'Ethan Jeremiah Poole',pos:'G'},
-      {id:'p_PVP_Rodney_Carmichael',   num:'', name:'Rodney Carmichael',   pos:'W'},
-      {id:'p_PVP_Nate_McComb',         num:'', name:'Nate McComb',         pos:'F'},
-      {id:'p_PVP_Jacob_Coulam',        num:'', name:'Jacob Coulam',        pos:'G'},
-      {id:'p_PVP_Isaiah_Brown',        num:'', name:'Isaiah Brown',        pos:'G'},
+      _mkP('p_PVP_Colin_Spencer_Byrd',  '0', 'Colin Spencer Byrd',  'G',  "6'4", 22.5, 7.1, 3.1, 'Grambling State'),
+      _mkP('p_PVP_Elijah_Gaskins',      '1', 'Elijah Gaskins',      'G',  "6'2", 18,   5,   6,   ''),
+      _mkP('p_PVP_Jonathan_Anderson',   '2', 'Jonathan Anderson',   'G',  "6'1", 16,   4,   4,   ''),
+      _mkP('p_PVP_Isaiah_Brown',        '3', 'Isaiah Brown',        'G',  "6'2", 13,   4,   2,   ''),
+      _mkP('p_PVP_Sean_Madrigal',       '4', 'Sean Madrigal',       'W',  "6'4", 17,   4,   2,   ''),
+      _mkP('p_PVP_Jemon_Price',         '5', 'Jemon Price',         'G',  "6'2", 18.1, 4,   2.3, ''),
+      _mkP('p_PVP_Mike_Robinson_Jr.',   '10','Mike Robinson Jr.',   'W',  "6'6", 11.4, 6,   2.3, ''),
+      _mkP('p_PVP_Ryan_Brzezanski',     '11','Ryan Brzezanski',     'WF', "6'8", 20,   10,  3,   'Mt St Marys'),
+      _mkP('p_PVP_Ethan_Jeremiah_Poole','12','Ethan Jeremiah Poole','G',  "5'10",14,   5.2, 3,   ''),
+      _mkP('p_PVP_Ryan_Corallo',        '13','Ryan Corallo',        'G',  "6'2", 15.5, 4,   2,   'York'),
+      _mkP('p_PVP_Dominic_Julian_Mack', '14','Dominic Julian Mack', 'W',  "6'5", 16,   4.5, 1.3, ''),
+      _mkP('p_PVP_Rodney_E_Carmichael', '15','Rodney E Carmichael', 'W',  "6'3", 14.2, 8.4, 2.2, ''),
+      _mkP('p_PVP_Nate_McComb',         '20','Nate McComb',         'F',  "6'7", 19,   10.5,2,   ''),
     ]},
     home: { name:'Team Private', code:'PVT', players:[
-      {id:'p_PVP_Darius_Bivins',   num:'', name:'Darius Bivins',   pos:'G'},
-      {id:'p_PVP_Akim_Iscandari',  num:'', name:'Akim Iscandari',  pos:'G'},
-      {id:'p_PVP_Marcus_Hancock',  num:'', name:'Marcus Hancock',  pos:'G'},
-      {id:'p_PVP_Messiah_Dixon',   num:'', name:'Messiah Dixon',   pos:'G'},
-      {id:'p_PVP_RJ_Jones',        num:'', name:'RJ Jones',        pos:'G'},
-      {id:'p_PVP_Jafet_Valencia',  num:'', name:'Jafet Valencia',  pos:'W'},
-      {id:'p_PVP_Frank_Siaca_Bey', num:'', name:'Frank Siaca Bey', pos:'F'},
-      {id:'p_PVP_Jake_Bahr',       num:'', name:'Jake Bahr',       pos:'G'},
-      {id:'p_PVP_Silas_Devonish',  num:'', name:'Silas Devonish',  pos:'G'},
-      {id:'p_PVP_Ripp_Kodi',       num:'', name:'Ripp Kodi',       pos:'WF'},
-      {id:'p_PVP_Justin_Edwards',  num:'', name:'Justin Edwards',  pos:'W'},
-      {id:'p_PVP_Jahda_Swann',     num:'', name:'Jahda Swann',     pos:'W'},
-      {id:'p_PVP_Cole_Forbrich',   num:'', name:'Cole Forbrich',   pos:'G'},
+      _mkP('p_PVP_Akim_Iscandari',  '0', 'Akim Iscandari',  'G',  "6'0", 16.2, 6,   5,   'Navy'),
+      _mkP('p_PVP_Darius_Bivins',   '1', 'Darius Bivins',   'G',  "6'1", 18,   4.3, 5,   ''),
+      _mkP('p_PVP_Cole_Forbrich',   '2', 'Cole Forbrich',   'G',  "5'10",12,   2,   1,   ''),
+      _mkP('p_PVP_Messiah_Dixon',   '3', 'Messiah Dixon',   'G',  "6'0", 13,   3,   4,   'Clarion'),
+      _mkP('p_PVP_Jake_Bahr',       '4', 'Jake Bahr',       'G',  "6'4", 14,   8,   4.5, ''),
+      _mkP('p_PVP_Silas_Devonish',  '5', 'Silas Devonish',  'G',  "5'10",19,   2,   2.5, ''),
+      _mkP('p_PVP_Jafet_Valencia',  '10','Jafet Valencia',   'W',  "6'7", 12,   8.3, 7,   'Delaware'),
+      _mkP('p_PVP_Jahda_Swann',     '11','Jahda Swann',      'W',  "6'6", 17,   7,   4,   ''),
+      _mkP('p_PVP_RJ_Jones',        '12','RJ Jones',         'G',  "6'4", 13,   3,   2,   'Marymount'),
+      _mkP('p_PVP_Ripp_Kodi',       '13','Ripp Kodi',        'WF', "6'8", 9,    5,   1.3, ''),
+      _mkP('p_PVP_Marcus_Hancock',  '14','Marcus Hancock',   'G',  "6'2", 15.3, 4,   0.4, ''),
+      _mkP('p_PVP_Justin_Edwards',  '15','Justin Edwards',   'W',  "6'5", 12,   7,   2,   'Gannon'),
+      _mkP('p_PVP_Frank_Siaca_Bey', '20','Frank Siaca Bey',  'F',  "6'9", 17,   7.5, 1.2, 'Fordham'),
     ]}
   }
 };
@@ -2122,13 +2126,15 @@ function setEventPreset(preset) {
   document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
   const map = { nova24:'epBtnNova24', dunk:'epBtnDunk', '3pt':'epBtn3pt', pvp:'epBtnPvp' };
   if (map[preset]) document.getElementById(map[preset]).classList.add('active');
-  if (preset === 'nova24') {
-    const r = _ROSTERS.nova24;
+  if (preset === 'nova24' || preset === 'pvp') {
+    const r = _ROSTERS[preset];
     S.away.name=r.away.name;S.away.code=r.away.code;S.away.players=r.away.players;S.away.starters=[];
     S.home.name=r.home.name;S.home.code=r.home.code;S.home.players=r.home.players;S.home.starters=[];
-    r.away.players.forEach(p=>{if(!STATS[p.id])STATS[p.id]=statDefaults();});
-    r.home.players.forEach(p=>{if(!STATS[p.id])STATS[p.id]=statDefaults();});
-    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, allStarEvent:'nova24' } });
+    // Always reset stats (clears any test data)
+    r.away.players.forEach(p=>{ STATS[p.id]=statDefaults(); });
+    r.home.players.forEach(p=>{ STATS[p.id]=statDefaults(); });
+    G.events=[];
+    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, homeScore:0, awayScore:0, clock:'8:00', clockSecs:480, quarter:'Q1', periodNum:1, clockRunning:false, awayFouls:0, homeFouls:0, spotlight:{active:false}, allStarEvent:preset } });
     NSMTClient.send({ type:'patch', stats:{ away:{ name:r.away.name, players:r.away.players }, home:{ name:r.home.name, players:r.home.players } } });
     renderAll(); resetFlow(); switchTab('game');
   } else if (preset === 'dunk') {
@@ -2137,15 +2143,6 @@ function setEventPreset(preset) {
   } else if (preset === '3pt') {
     NSMTClient.send({ type:'patch', bug:{ allStarEvent:'3pt' } });
     switchTab('threept');
-  } else if (preset === 'pvp') {
-    const r = _ROSTERS.pvp;
-    S.away.name=r.away.name;S.away.code=r.away.code;S.away.players=r.away.players;S.away.starters=[];
-    S.home.name=r.home.name;S.home.code=r.home.code;S.home.players=r.home.players;S.home.starters=[];
-    r.away.players.forEach(p=>{if(!STATS[p.id])STATS[p.id]=statDefaults();});
-    r.home.players.forEach(p=>{if(!STATS[p.id])STATS[p.id]=statDefaults();});
-    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, allStarEvent:'pvp' } });
-    NSMTClient.send({ type:'patch', stats:{ away:{ name:r.away.name, players:r.away.players }, home:{ name:r.home.name, players:r.home.players } } });
-    renderAll(); resetFlow(); switchTab('game');
   }
   toast('Event: ' + preset.toUpperCase());
 }
