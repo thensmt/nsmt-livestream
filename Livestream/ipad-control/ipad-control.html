@@ -2158,14 +2158,21 @@ function setEventPreset(preset) {
   if (map[preset]) document.getElementById(map[preset]).classList.add('active');
   if (preset === 'nova24' || preset === 'pvp') {
     const r = _ROSTERS[preset];
-    S.away.name=r.away.name;S.away.code=r.away.code;S.away.players=r.away.players;S.away.starters=[];S.away.primary=r.away.primary||'';
-    S.home.name=r.home.name;S.home.code=r.home.code;S.home.players=r.home.players;S.home.starters=[];S.home.primary=r.home.primary||'';
-    // Always reset stats (clears any test data)
-    r.away.players.forEach(p=>{ STATS[p.id]=statDefaults(); });
-    r.home.players.forEach(p=>{ STATS[p.id]=statDefaults(); });
-    G.events=[];
-    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, homeScore:0, awayScore:0, clock:'8:00', clockSecs:480, quarter:'Q1', periodNum:1, clockRunning:false, awayFouls:0, homeFouls:0, spotlight:{active:false}, allStarEvent:preset, awayLogo:r.away.logo?'/'+r.away.logo:'', homeLogo:r.home.logo?'/'+r.home.logo:'', awayPrimary:r.away.primary||'#00007f', awaySecondary:r.away.secondary||'#ffffff', awayText:r.away.textColor||'#ffffff', awayAccent:r.away.accent||'#7f7f7f', homePrimary:r.home.primary||'#046333', homeSecondary:r.home.secondary||'#ffffff', homeText:r.home.textColor||'#ffffff', homeAccent:r.home.accent||'#c0c0c0' } });
+    // Clear old state completely
+    localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(STATS_KEY);localStorage.removeItem(EVENTS_KEY);
+    Object.keys(STATS).forEach(function(k){delete STATS[k];});
+    _events=[];
+    // Load new roster
+    S.away.name=r.away.name;S.away.code=r.away.code;S.away.players=r.away.players;S.away.starters=[];S.away.primary=r.away.primary||'';S.away.score=0;S.away.fouls=0;S.away.timeouts=4;
+    S.home.name=r.home.name;S.home.code=r.home.code;S.home.players=r.home.players;S.home.starters=[];S.home.primary=r.home.primary||'';S.home.score=0;S.home.fouls=0;S.home.timeouts=4;
+    S.clock.secs=S.periodLen*60;S.clock.display=fmtClock(S.clock.secs);S.clock.running=false;
+    clearInterval(_clockInterval);_clockInterval=null;S.period=1;S.totalPeriods=S.periods;
+    // Init fresh stats
+    r.away.players.forEach(function(p){ STATS[p.id]=statDefaults(); });
+    r.home.players.forEach(function(p){ STATS[p.id]=statDefaults(); });
+    NSMTClient.send({ type:'patch', bug:{ awayName:r.away.name, awayCode:r.away.code, homeName:r.home.name, homeCode:r.home.code, homeScore:0, awayScore:0, clock:'8:00', clockSecs:480, quarter:'Q1', periodNum:1, clockRunning:false, awayFouls:0, homeFouls:0, spotlight:{active:false}, allStarEvent:preset, awayLogo:r.away.logo?'/'+r.away.logo:'', homeLogo:r.home.logo?'/'+r.home.logo:'', awayPrimary:r.away.primary||'#00007f', awaySecondary:r.away.secondary||'#ffffff', awayText:r.away.textColor||'#ffffff', awayAccent:r.away.accent||'#7f7f7f', homePrimary:r.home.primary||'#046333', homeSecondary:r.home.secondary||'#ffffff', homeText:r.home.textColor||'#ffffff', homeAccent:r.home.accent||'#c0c0c0', showScorebug:true, mvp:{show:false} } });
     NSMTClient.send({ type:'patch', stats:{ away:{ name:r.away.name, players:r.away.players }, home:{ name:r.home.name, players:r.home.players } } });
+    saveState();
     renderAll(); resetFlow(); switchTab('game');
   } else if (preset === 'dunk') {
     NSMTClient.send({ type:'patch', bug:{ allStarEvent:'dunk' } });
