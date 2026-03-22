@@ -321,9 +321,9 @@
   }
 
   /* ── Header ── */
-  .ct-hdr{display:flex;align-items:center;justify-content:space-between;}
-  .ct-label{font-size:6px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .ct-hdr{display:flex;flex-direction:column;gap:2px;}
   .ct-badge{font-size:6px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0E80FC;}
+  .ct-label{font-size:6px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);}
 
   /* ── Shooter name + info ── */
   .ct-shooter{font-family:'Anton',Impact,sans-serif;font-size:24px;letter-spacing:1px;text-transform:uppercase;line-height:1;}
@@ -379,10 +379,10 @@
   @keyframes dkIn{from{opacity:0;transform:translateX(-50%) scale(.88);}to{opacity:1;transform:translateX(-50%) scale(1);}}
 
   /* ── Header ── */
-  .dk-hdr{display:flex;align-items:center;justify-content:space-between;}
-  .contest-logo{height:28px;object-fit:contain;margin-left:auto;}
-  .dk-badge{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0E80FC;}
+  .dk-hdr{display:flex;align-items:center;gap:14px;}
+  .dk-logo{height:28px;width:auto;}
   .dk-round-info{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .dk-attempt-info{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
 
   /* ── Dunker row ── */
   .dk-dunker-row{display:flex;align-items:center;gap:18px;}
@@ -573,11 +573,10 @@
     <!-- Court 1 / Finals panel -->
     <div class="court-panel" id="court1Panel">
       <div class="ct-hdr">
-        <div class="ct-label" id="court1Label">COURT 1</div>
         <div class="ct-badge">3-POINT CONTEST</div>
-        <img class="contest-logo" src="/silver-hoopfest-logo.png" alt="">
+        <div class="ct-label" id="court1Label">COURT 1</div>
       </div>
-      <div class="ct-shooter" id="court1Shooter">—</div>
+      <div class="ct-shooter" id="court1Shooter"></div>
       <div class="ct-school" id="court1School"></div>
       <div class="ct-ig" id="court1Ig"></div>
       <div id="court1Racks"></div>
@@ -591,11 +590,10 @@
     <!-- Court 2 panel (hidden in finals) -->
     <div class="court-panel" id="court2Panel">
       <div class="ct-hdr">
-        <div class="ct-label">COURT 2</div>
         <div class="ct-badge">3-POINT CONTEST</div>
-        <img class="contest-logo" src="/silver-hoopfest-logo.png" alt="">
+        <div class="ct-label">COURT 2</div>
       </div>
-      <div class="ct-shooter" id="court2Shooter">—</div>
+      <div class="ct-shooter" id="court2Shooter"></div>
       <div class="ct-school" id="court2School"></div>
       <div class="ct-ig" id="court2Ig"></div>
       <div id="court2Racks"></div>
@@ -614,9 +612,9 @@
   <div class="dk-wrap hidden" id="dkWrap">
 
     <div class="dk-hdr">
-      <div class="dk-badge">DUNK CONTEST</div>
-      <img class="contest-logo" src="/silver-hoopfest-logo.png" alt="">
-      <div class="dk-round-info" id="dkRoundInfo">ROUND 1 · ATTEMPT 1</div>
+      <img class="dk-logo" src="/hoopfest-logo-white.png" alt="NSMT Hoopfest">
+      <div class="dk-round-info" id="dkRoundInfo">ROUND 1</div>
+      <div class="dk-attempt-info" id="dkAttemptInfo">ATTEMPT 1</div>
     </div>
 
     <div class="dk-dunker-row">
@@ -1172,7 +1170,7 @@
     const c1      = tp.court1 || {};
     const c1racks = c1.racks || Array.from({ length: 5 }, () => Array(5).fill(false));
     const c1money = c1.moneyRack != null ? c1.moneyRack : 4;
-    document.getElementById('court1Shooter').textContent = (c1.shooter || '—').toUpperCase();
+    document.getElementById('court1Shooter').textContent = (c1.shooter || '').toUpperCase();
     document.getElementById('court1School').textContent  = c1.school || '';
     document.getElementById('court1Ig').textContent      = c1.ig ? '@' + c1.ig : '';
     renderRacks('court1Racks', c1racks, c1money);
@@ -1182,7 +1180,7 @@
       const c2      = tp.court2 || {};
       const c2racks = c2.racks || Array.from({ length: 5 }, () => Array(5).fill(false));
       const c2money = c2.moneyRack != null ? c2.moneyRack : 4;
-      document.getElementById('court2Shooter').textContent = (c2.shooter || '—').toUpperCase();
+      document.getElementById('court2Shooter').textContent = (c2.shooter || '').toUpperCase();
       document.getElementById('court2School').textContent  = c2.school || '';
       document.getElementById('court2Ig').textContent      = c2.ig ? '@' + c2.ig : '';
       renderRacks('court2Racks', c2racks, c2money);
@@ -1213,8 +1211,8 @@
     document.getElementById('dkDunkerIg').textContent     = dk.dunkerIg ? '@' + dk.dunkerIg : '';
     document.getElementById('dkDunkerSub').textContent =
       [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ');
-    document.getElementById('dkRoundInfo').textContent =
-      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ').toUpperCase();
+    document.getElementById('dkRoundInfo').textContent = dk.round ? ('ROUND ' + dk.round) : '';
+    document.getElementById('dkAttemptInfo').textContent = dk.attempt ? ('ATTEMPT ' + dk.attempt) : '';
 
     const photoWrap = document.getElementById('dkPhotoWrap');
     const photoEl   = document.getElementById('dkPhoto');
