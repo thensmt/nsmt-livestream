@@ -201,6 +201,12 @@ def start_http():
     class Handler(SimpleHTTPRequestHandler):
         def log_message(self, fmt, *args):
             return
+        def end_headers(self):
+            if self.path.endswith('.html') or self.path == '/':
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Pragma', 'no-cache')
+                self.send_header('Expires', '0')
+            super().end_headers()
         def do_GET(self):
             parsed = urlparse(self.path)
             path   = parsed.path
