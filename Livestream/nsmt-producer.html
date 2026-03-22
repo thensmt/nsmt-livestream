@@ -1686,6 +1686,16 @@ window.previewLogo = function(team) {
   } else { img.style.display='none'; ph.style.display='flex'; }
 };
 
+window.setLogoPreview = function(team, filename) {
+  const url = filename.startsWith('/') ? filename : '/' + filename;
+  const img = id(team + 'LogoImg');
+  const ph  = id(team + 'LogoPlaceholder');
+  if (img) { img.src = url; img.style.display = 'block'; }
+  if (ph)  { ph.style.display = 'none'; }
+  G[team].logoUrl = url;
+  G[team].logoData = '';
+};
+
 window.handleLogoUpload = function(team, input) {
   const file = input.files[0]; if (!file) return;
   const formData = new FormData();
@@ -1731,7 +1741,7 @@ window.applyPreset = function(key) {
       event: 'NSMT Hoopfest — Nova 24',
       venue: 'The St. James, Springfield VA',
       date:  '2026-03-22',
-      time:  '2:20 PM',
+      time:  '14:20',
       periods: '4', periodLen: '8',
       away: { name:'Team Rivers', code:'RIV', rid:'r_NOVA24_RIVERS', logo:'hoopfest-logo-blue.png',  primary:'#0E80FC', secondary:'#ffffff', textColor:'#ffffff', accent:'#7fbfff' },
       home: { name:'Team Lin',    code:'LIN', rid:'r_NOVA24_LIN',    logo:'hoopfest-logo-white.png', primary:'#ffffff', secondary:'#0E80FC', textColor:'#0E80FC', accent:'#0E80FC' },
@@ -1752,6 +1762,7 @@ window.applyPreset = function(key) {
   sv('cfgDate',      p.date);
   sv('cfgPeriods',   p.periods);
   sv('cfgPeriodLen', p.periodLen);
+  if (p.time) sv('cfgTime', p.time);
   ['home','away'].forEach(t => {
     sv('cfg' + cap(t) + 'Name', p[t].name);
     sv('cfg' + cap(t) + 'Code', p[t].code);
