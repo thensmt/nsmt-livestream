@@ -905,7 +905,8 @@ textarea{resize:vertical;min-height:80px;height:auto}
       <div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0">
         <span style="font-family:'Rubik',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#0E80FC">★ PLAYER SPOTLIGHT</span>
         <span style="font-size:12px;color:var(--muted);flex:1">Click ★ on any player card below to spotlight them on the overlay. Auto-fires at 10, 15, 20, 25, 30 pts.</span>
-        <button class="btn btn-ghost btn-xs" onclick="dismissSpotlight()">✕ Dismiss</button>
+        <button class="btn btn-ghost btn-xs" onclick="dismissSpotlight()">✕ Dismiss Spotlight</button>
+        <button class="btn btn-ghost btn-xs" style="color:#F5C518" onclick="dismissMvp()">✕ Dismiss MVP</button>
       </div>
       <!-- Live stats section -->
       <div class="stats-section">
@@ -3053,6 +3054,7 @@ function renderStatsTab() {
         <div class="sp-card-pts">${p.pts||0}pts</div>
         <div class="sp-card-fouls">${pips}</div>
         <button class="sp-card-spotlight" title="Spotlight on overlay" onclick="event.stopPropagation();fireSpotlight('${team}','${p.id}')">★</button>
+        <button class="sp-card-spotlight" style="top:18px;color:#F5C518" title="MVP announcement" onclick="event.stopPropagation();fireMvp('${team}','${p.id}',prompt('Award title:','GAME MVP'))">🏆</button>
       </button>`;
     }).join('');
   });
@@ -3123,6 +3125,42 @@ function _checkMilestones(team) {
     }
     _prevPts[p.id] = cur;
   });
+}
+
+// ═══════════════════════════════════
+// MVP / WINNER ANNOUNCEMENT
+// ═══════════════════════════════════
+function fireMvp(team, pid, title) {
+  const p = (G[team].players||[]).find(x => x.id === pid);
+  if (!p) return;
+  wsSend({ type: 'patch', bug: { mvp: {
+    show: true,
+    title: title || 'GAME MVP',
+    name: p.name || '',
+    num: p.num || '',
+    school: p.school || '',
+    ig: p.ig || '',
+    pos: p.pos || '',
+    photo: p.photo || '',
+    ppg: p.ppg || 0,
+    rpg: p.rpg || 0,
+    apg: p.apg || 0,
+    commitment: p.commitment || '',
+    awards: p.awards || '',
+    gameStats: {
+      pts: p.pts || 0,
+      fgm: p.fgm || 0, fga: p.fga || 0,
+      t3m: p.t3m || 0, t3a: p.t3a || 0,
+      ftm: p.ftm || 0, fta: p.fta || 0,
+      off: p.off || 0, def: p.def || 0,
+      ast: p.ast || 0, stl: p.stl || 0,
+      blk: p.blk || 0, to: p.to || 0
+    }
+  }}});
+  toast('🏆 MVP: ' + p.name);
+}
+function dismissMvp() {
+  wsSend({ type: 'patch', bug: { mvp: { show: false } } });
 }
 
 // ═══════════════════════════════════

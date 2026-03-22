@@ -427,6 +427,79 @@
   .dk-total-lbl{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
   .dk-total-val{font-family:'Anton',Impact,sans-serif;font-size:60px;line-height:1;}
   .dk-total-max{font-size:14px;color:rgba(255,255,255,.22);}
+
+  /* ═══════════════════════════════════════════════
+     MVP / WINNER ANNOUNCEMENT CSS
+  ═══════════════════════════════════════════════ */
+  .mvp-wrap{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Rubik',sans-serif;color:#fff;
+    animation:mvpFadeIn 0.6s ease;
+  }
+  .mvp-wrap.hidden{display:none;}
+  @keyframes mvpFadeIn{from{opacity:0;}to{opacity:1;}}
+
+  .mvp-card{
+    background:rgba(10,11,16,0.95);
+    border:2px solid rgba(255,255,255,.12);border-radius:20px;
+    padding:40px 50px;min-width:750px;max-width:1100px;
+    box-shadow:0 40px 100px rgba(0,0,0,.95);
+    display:flex;flex-direction:column;gap:24px;
+  }
+
+  /* Header */
+  .mvp-header{display:flex;align-items:center;justify-content:space-between;}
+  .mvp-award-title{
+    font-size:14px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#F5C518;
+  }
+  .mvp-logo{height:44px;width:auto;}
+
+  /* Player info row */
+  .mvp-player-row{display:flex;align-items:center;gap:28px;}
+  .mvp-photo{
+    width:120px;height:120px;border-radius:14px;overflow:hidden;
+    background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);flex-shrink:0;
+  }
+  .mvp-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+  .mvp-photo.no-photo{display:none;}
+  .mvp-player-info{display:flex;flex-direction:column;gap:3px;}
+  .mvp-player-name{font-family:'Anton',Impact,sans-serif;font-size:56px;text-transform:uppercase;letter-spacing:2px;line-height:1;}
+  .mvp-player-school{font-size:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+  .mvp-player-ig{font-size:14px;font-weight:600;letter-spacing:.5px;color:#0E80FC;}
+  .mvp-player-meta{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:2px;}
+
+  /* Stats grid */
+  .mvp-stats-section{
+    padding-top:16px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .mvp-stats-label{
+    font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+    color:rgba(255,255,255,.25);margin-bottom:10px;
+  }
+  .mvp-stats-grid{
+    display:flex;gap:8px;flex-wrap:wrap;
+  }
+  .mvp-stat{
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+    border-radius:10px;padding:10px 16px;min-width:80px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  .mvp-stat-val{font-family:'Anton',Impact,sans-serif;font-size:32px;line-height:1;}
+  .mvp-stat-lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .mvp-stat.highlight{background:rgba(14,128,252,.1);border-color:rgba(14,128,252,.3);}
+  .mvp-stat.highlight .mvp-stat-val{color:#0E80FC;}
+
+  /* Awards / accolades */
+  .mvp-awards-section{
+    padding-top:12px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .mvp-awards-text{
+    font-size:13px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.5);line-height:1.5;
+  }
+  .mvp-commitment{
+    font-size:14px;font-weight:700;letter-spacing:1px;color:#0E80FC;margin-bottom:4px;
+  }
 </style>
 </head>
 <body>
@@ -639,6 +712,41 @@
       <div class="dk-total-max">/50</div>
     </div>
 
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MVP / WINNER ANNOUNCEMENT HTML
+  ══════════════════════════════════════════ -->
+  <div class="mvp-wrap hidden" id="mvpWrap">
+    <div class="mvp-card">
+      <div class="mvp-header">
+        <div class="mvp-award-title" id="mvpAwardTitle">GAME MVP</div>
+        <img class="mvp-logo" src="/silver-hoopfest-logo.png" alt="">
+      </div>
+      <div class="mvp-player-row">
+        <div class="mvp-photo no-photo" id="mvpPhotoWrap">
+          <img id="mvpPhoto" src="" alt="" onerror="this.parentElement.classList.add('no-photo');">
+        </div>
+        <div class="mvp-player-info">
+          <div class="mvp-player-name" id="mvpPlayerName"></div>
+          <div class="mvp-player-school" id="mvpPlayerSchool"></div>
+          <div class="mvp-player-ig" id="mvpPlayerIg"></div>
+          <div class="mvp-player-meta" id="mvpPlayerMeta"></div>
+        </div>
+      </div>
+      <div class="mvp-stats-section" id="mvpGameStats">
+        <div class="mvp-stats-label">GAME STATS</div>
+        <div class="mvp-stats-grid" id="mvpGameStatsGrid"></div>
+      </div>
+      <div class="mvp-stats-section" id="mvpSeasonStats">
+        <div class="mvp-stats-label">SEASON AVERAGES</div>
+        <div class="mvp-stats-grid" id="mvpSeasonStatsGrid"></div>
+      </div>
+      <div class="mvp-awards-section" id="mvpAwardsSection">
+        <div class="mvp-commitment" id="mvpCommitment"></div>
+        <div class="mvp-awards-text" id="mvpAwardsText"></div>
+      </div>
+    </div>
   </div>
 
 </div><!-- end .stage -->
@@ -1247,6 +1355,114 @@
   }
 
   // ══════════════════════════════════════════════
+  // MVP / WINNER ANNOUNCEMENT helpers
+  // ══════════════════════════════════════════════
+  function applyMvp(state) {
+    const mvp  = state && state.bug && state.bug.mvp;
+    const wrap = document.getElementById('mvpWrap');
+    if (!mvp || !mvp.show) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+
+    document.getElementById('mvpAwardTitle').textContent = (mvp.title || 'GAME MVP').toUpperCase();
+    document.getElementById('mvpPlayerName').textContent = (mvp.name || '').toUpperCase();
+    document.getElementById('mvpPlayerSchool').textContent = mvp.school || '';
+    document.getElementById('mvpPlayerIg').textContent = mvp.ig ? '@' + mvp.ig : '';
+
+    const metaParts = [];
+    if (mvp.pos) metaParts.push(mvp.pos);
+    if (mvp.num) metaParts.push('#' + mvp.num);
+    document.getElementById('mvpPlayerMeta').textContent = metaParts.join(' · ');
+
+    const photoWrap = document.getElementById('mvpPhotoWrap');
+    const photoEl = document.getElementById('mvpPhoto');
+    if (mvp.photo) {
+      photoEl.src = resolveAsset(mvp.photo);
+      photoWrap.classList.remove('no-photo');
+    } else {
+      photoEl.src = '';
+      photoWrap.classList.add('no-photo');
+    }
+
+    // Game stats — build DOM nodes safely (no innerHTML with user data)
+    const gameGrid = document.getElementById('mvpGameStatsGrid');
+    const gameSection = document.getElementById('mvpGameStats');
+    if (mvp.gameStats) {
+      gameSection.style.display = '';
+      const gs = mvp.gameStats;
+      const reb = (gs.off || 0) + (gs.def || 0);
+      const statItems = [
+        { val: gs.pts || 0, lbl: 'PTS', highlight: true },
+        { val: (gs.fgm||0) + '-' + (gs.fga||0), lbl: 'FG' },
+        { val: (gs.t3m||0) + '-' + (gs.t3a||0), lbl: '3PT' },
+        { val: (gs.ftm||0) + '-' + (gs.fta||0), lbl: 'FT' },
+        { val: reb, lbl: 'REB' },
+        { val: gs.ast || 0, lbl: 'AST' },
+        { val: gs.stl || 0, lbl: 'STL' },
+        { val: gs.blk || 0, lbl: 'BLK' },
+        { val: gs.to || 0, lbl: 'TO' },
+      ];
+      gameGrid.textContent = '';
+      statItems.forEach(function(s) {
+        var box = document.createElement('div');
+        box.className = 'mvp-stat' + (s.highlight ? ' highlight' : '');
+        var valEl = document.createElement('div');
+        valEl.className = 'mvp-stat-val';
+        valEl.textContent = s.val;
+        var lblEl = document.createElement('div');
+        lblEl.className = 'mvp-stat-lbl';
+        lblEl.textContent = s.lbl;
+        box.appendChild(valEl);
+        box.appendChild(lblEl);
+        gameGrid.appendChild(box);
+      });
+    } else {
+      gameSection.style.display = 'none';
+    }
+
+    // Season averages
+    var seasonGrid = document.getElementById('mvpSeasonStatsGrid');
+    var seasonSection = document.getElementById('mvpSeasonStats');
+    if (mvp.ppg || mvp.rpg || mvp.apg) {
+      seasonSection.style.display = '';
+      var seasonItems = [
+        { val: mvp.ppg || 0, lbl: 'PPG' },
+        { val: mvp.rpg || 0, lbl: 'RPG' },
+        { val: mvp.apg || 0, lbl: 'APG' },
+      ];
+      seasonGrid.textContent = '';
+      seasonItems.forEach(function(s) {
+        var box = document.createElement('div');
+        box.className = 'mvp-stat';
+        var valEl = document.createElement('div');
+        valEl.className = 'mvp-stat-val';
+        valEl.textContent = s.val;
+        var lblEl = document.createElement('div');
+        lblEl.className = 'mvp-stat-lbl';
+        lblEl.textContent = s.lbl;
+        box.appendChild(valEl);
+        box.appendChild(lblEl);
+        seasonGrid.appendChild(box);
+      });
+    } else {
+      seasonSection.style.display = 'none';
+    }
+
+    // Awards & commitment
+    var awardsSection = document.getElementById('mvpAwardsSection');
+    var commitEl = document.getElementById('mvpCommitment');
+    var awardsEl = document.getElementById('mvpAwardsText');
+    if (mvp.commitment || mvp.awards) {
+      awardsSection.style.display = '';
+      commitEl.textContent = mvp.commitment ? 'Committed: ' + mvp.commitment : '';
+      commitEl.style.display = mvp.commitment ? '' : 'none';
+      awardsEl.textContent = mvp.awards || '';
+      awardsEl.style.display = mvp.awards ? '' : 'none';
+    } else {
+      awardsSection.style.display = 'none';
+    }
+  }
+
+  // ══════════════════════════════════════════════
   // SINGLE WebSocket connection
   // ══════════════════════════════════════════════
   function connect() {
@@ -1260,14 +1476,16 @@
         applyBug(s);
         applyThreePt(s);
         applyDunk(s);
+        applyMvp(s);
       } else if (msg.type === 'patch') {
-        // Merge patch fields into existing state, then re-apply
         if (!state) state = { bug: {}, ticker: {} };
         if (msg.bug)    Object.assign(state.bug, msg.bug);
         if (msg.ticker) Object.assign(state.ticker, msg.ticker);
+        if (msg.stats)  state.stats = Object.assign(state.stats || {}, msg.stats);
         applyBug(state);
         applyThreePt(state);
         applyDunk(state);
+        applyMvp(state);
       }
     };
     ws.onclose = () => setTimeout(connect, 1500);
