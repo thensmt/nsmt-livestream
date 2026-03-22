@@ -1112,8 +1112,8 @@ function renderLineupSetup() {
     return `<div class="team-split-col" data-team="${team}"><div class="team-split-label">${t.name} <span style="color:${countColor};font-size:16px">${count}/5</span></div><div class="player-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${btns}</div></div>`;
   };
   const bothFull = (S.away.starters||[]).length===5 && (S.home.starters||[]).length===5;
-  const lockBtn = bothFull ? `<button class="lineup-lock-btn" onclick="lockLineup()">✓ LOCK LINEUP — START GAME</button>` : '';
-  return `<div style="display:flex;flex-direction:column;flex:1;min-height:0"><div style="padding:8px 10px;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--surf2);border-bottom:1px solid var(--border);flex-shrink:0">SELECT STARTING 5 PER TEAM</div>${lockBtn}<div class="teams-split" style="flex:1;overflow-y:auto">${mkTeam('away')}${mkTeam('home')}</div></div>`;
+  const lockBtn = bothFull ? `<button class="lineup-lock-btn" style="position:sticky;bottom:0;z-index:10;margin:0;width:100%;border-radius:0;min-height:70px;font-size:18px" onclick="lockLineup()">✓ LOCK LINEUP — START GAME</button>` : '';
+  return `<div style="display:flex;flex-direction:column;flex:1;min-height:0"><div style="padding:8px 10px;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--surf2);border-bottom:1px solid var(--border);flex-shrink:0">SELECT STARTING 5 PER TEAM</div><div class="teams-split" style="flex:1;overflow-y:auto">${mkTeam('away')}${mkTeam('home')}${lockBtn}</div></div>`;
 }
 function toggleLineupPlayer(team, pid) {
   if (!S[team].starters) S[team].starters = [];
