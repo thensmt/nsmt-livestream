@@ -31,9 +31,10 @@
   @keyframes dkIn{from{opacity:0;transform:translateX(-50%) scale(.88);}to{opacity:1;transform:translateX(-50%) scale(1);}}
 
   /* ── Header ── */
-  .dk-hdr{display:flex;align-items:center;justify-content:space-between;}
-  .dk-badge{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0E80FC;}
+  .dk-hdr{display:flex;align-items:center;gap:14px;}
+  .dk-logo{height:28px;width:auto;}
   .dk-round-info{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
+  .dk-attempt-info{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);}
 
   /* ── Dunker row ── */
   .dk-dunker-row{display:flex;align-items:center;gap:18px;}
@@ -84,8 +85,9 @@
   <div class="dk-wrap hidden" id="dkWrap">
 
     <div class="dk-hdr">
-      <div class="dk-badge">DUNK CONTEST</div>
-      <div class="dk-round-info" id="dkRoundInfo">ROUND 1 · ATTEMPT 1</div>
+      <img class="dk-logo" src="/hoopfest-logo-white.png" alt="NSMT Hoopfest">
+      <div class="dk-round-info" id="dkRoundInfo">ROUND 1</div>
+      <div class="dk-attempt-info" id="dkAttemptInfo">ATTEMPT 1</div>
     </div>
 
     <div class="dk-dunker-row">
@@ -146,8 +148,8 @@
     document.getElementById('dkDunkerIg').textContent     = dk.dunkerIg ? '@' + dk.dunkerIg : '';
     document.getElementById('dkDunkerSub').textContent =
       [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ');
-    document.getElementById('dkRoundInfo').textContent =
-      [(dk.round ? 'Round ' + dk.round : ''), (dk.attempt ? 'Attempt ' + dk.attempt : '')].filter(Boolean).join(' · ').toUpperCase();
+    document.getElementById('dkRoundInfo').textContent = dk.round ? ('ROUND ' + dk.round) : '';
+    document.getElementById('dkAttemptInfo').textContent = dk.attempt ? ('ATTEMPT ' + dk.attempt) : '';
 
     // Photo
     const photoWrap = document.getElementById('dkPhotoWrap');
