@@ -1242,7 +1242,7 @@ function flowSelectRebounder(rebTeam, rebPid, rebType) {
   if (rebType === 'OREB') { rs.off++; _pushEvent(rebTeam,rebPid,'OREB',null,0,null,`💪 ${rCode} ${rName} — Off Reb`); }
   else { rs.def++; _pushEvent(rebTeam,rebPid,'DREB',null,0,null,`🛡️ ${rCode} ${rName} — Def Reb`); }
   rs.pts = calcPts(rs);
-  pushStats(); saveState();
+  pushBug(); pushStats(); saveState();
   toast(`🛡️ Reb: ${rName}`);
   resetFlow();
 }
@@ -1293,9 +1293,9 @@ function logStat() {
     desc+=` (Ast: ${aName})`;
   }
   s.pts=calcPts(s);
+  if (pts > 0) { S[team].score += pts; renderScore(team); }
   _pushEvent(team,pid,_flow.event,_flow.result,pts,_flow.assistPid,desc);
-  if(_flow.event==='PF') pushBug();
-  pushStats(); saveState(); toast(desc); resetFlow();
+  pushBug(); pushStats(); saveState(); toast(desc); resetFlow();
 }
 
 function undoLast() {
