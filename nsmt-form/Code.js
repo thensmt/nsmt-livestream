@@ -31,7 +31,7 @@ const FORM_CONFIG = {
 };
 
 const DISCORD_WEBHOOK_URL =
-  'https://discord.com/api/webhooks/1506898161468313600/h_AdDMI8Vp_rC4siNTtMGKVKifwGOSPwXWlcum55nZ3rKB6eG0g83RfieI-sLG_uqKxV';
+  'https://discord.com/api/webhooks/1507010156981129257/b8zcoes6D6XJngxUXYkxuKSelWPmfoxLzAQDBzOXvp3iukrd1sbQg8B58hEODPYPQ9HU';
 
 const NSMT_BLUE = 0x0E80FC;
 
