@@ -374,6 +374,46 @@ function testDiscordNotification() {
   notifyDiscordOnSubmit({ response: latest });
 }
 
+/**
+ * One-time backfill: replay every form response through the notifier.
+ * Use this to post applicants who submitted BEFORE setupDiscordTrigger
+ * was wired (or to recover after the proxy was broken).
+ *
+ * WARNING: running this twice creates duplicate threads. Delete any
+ * threads already in #applications first, or accept the dupes and clean
+ * up after.
+ */
+function backfillAllSubmissions() {
+  const form = FormApp.openById(FORM_CONFIG.formId);
+  const responses = form.getResponses();
+  if (responses.length === 0) {
+    Logger.log('No form responses to backfill.');
+    return;
+  }
+
+  Logger.log('Backfilling ' + responses.length + ' submission(s)...');
+
+  let succeeded = 0;
+  let failed = 0;
+
+  for (let i = 0; i < responses.length; i++) {
+    try {
+      notifyDiscordOnSubmit({ response: responses[i] });
+      succeeded++;
+      Logger.log('  (' + (i + 1) + '/' + responses.length + ') ✓');
+    } catch (err) {
+      failed++;
+      Logger.log('  (' + (i + 1) + '/' + responses.length + ') ✗ ' + err.message);
+    }
+    // Stay under Discord webhook rate limit (5/sec on the bucket).
+    if (i < responses.length - 1) {
+      Utilities.sleep(500);
+    }
+  }
+
+  Logger.log('Backfill complete: ' + succeeded + ' succeeded, ' + failed + ' failed.');
+}
+
 function postToDiscord(payload, maxRetries) {
   maxRetries = maxRetries || 3;
 
