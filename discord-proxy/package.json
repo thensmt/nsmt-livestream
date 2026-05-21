@@ -1,0 +1,14 @@
+{
+  "name": "nsmt-discord-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker proxy: NSMT Apps Script -> Discord webhook",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

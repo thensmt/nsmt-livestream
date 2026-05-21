@@ -1,0 +1,7 @@
+name = "nsmt-discord-proxy"
+main = "src/index.js"
+compatibility_date = "2026-05-21"
+
+# Secrets are set via `npx wrangler secret put NAME` after first deploy:
+#   DISCORD_WEBHOOK_URL  - full Discord webhook URL
+#   SHARED_SECRET        - random string Apps Script also knows
