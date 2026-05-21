@@ -30,8 +30,10 @@ const FORM_CONFIG = {
   formId: '1WRAt5jHuSFZclEIrmWXUAIVvv5yai3QtehZLRRuuGdU',
 };
 
-const DISCORD_WEBHOOK_URL =
-  'https://discord.com/api/webhooks/1507010156981129257/b8zcoes6D6XJngxUXYkxuKSelWPmfoxLzAQDBzOXvp3iukrd1sbQg8B58hEODPYPQ9HU';
+// Cloudflare Worker proxy. The real Discord webhook URL lives only as a
+// worker secret. Apps Script authenticates to the worker with SHARED_SECRET
+// stored in Script Properties (Project Settings → Script Properties).
+const PROXY_URL = 'https://nsmt-discord-proxy.old-glitter-7307.workers.dev';
 
 const NSMT_BLUE = 0x0E80FC;
 
@@ -375,14 +377,20 @@ function testDiscordNotification() {
 function postToDiscord(payload, maxRetries) {
   maxRetries = maxRetries || 3;
 
+  const secret = PropertiesService.getScriptProperties().getProperty('SHARED_SECRET');
+  if (!secret) {
+    Logger.log('ERROR: SHARED_SECRET missing. Set it in Project Settings → Script Properties.');
+    return;
+  }
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const response = UrlFetchApp.fetch(DISCORD_WEBHOOK_URL, {
+    const response = UrlFetchApp.fetch(PROXY_URL, {
       method: 'post',
       contentType: 'application/json',
       payload: JSON.stringify(payload),
       muteHttpExceptions: true,
       headers: {
-        'User-Agent': 'NSMT-AppsScript-Bot/1.0 (DiscordBot)',
+        'X-NSMT-Auth': secret,
       },
     });
 
