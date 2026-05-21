@@ -22,37 +22,50 @@ const PROXY_USER_AGENT = 'NSMT-Proxy/1.0 (https://nsmtsports.com)';
 
 export default {
   async fetch(request, env) {
-    if (request.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
+    try {
+      if (request.method !== 'POST') {
+        return new Response('Method not allowed', { status: 405 });
+      }
+
+      const auth = request.headers.get('X-NSMT-Auth');
+      if (!auth || auth !== env.SHARED_SECRET) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+
+      if (!env.DISCORD_WEBHOOK_URL) {
+        return new Response('Worker misconfigured: DISCORD_WEBHOOK_URL not set', { status: 500 });
+      }
+
+      // Strip accidental whitespace/newlines that may have been pasted into
+      // the secret. fetch() throws TypeError if the URL has any.
+      const upstreamUrl = env.DISCORD_WEBHOOK_URL.trim();
+
+      const body = await request.text();
+
+      const upstream = await fetch(upstreamUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': PROXY_USER_AGENT,
+        },
+        body,
+      });
+
+      const upstreamBody = await upstream.text();
+
+      return new Response(upstreamBody, {
+        status: upstream.status,
+        headers: {
+          'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+        },
+      });
+    } catch (err) {
+      const msg = err && err.message ? err.message : String(err);
+      const stack = err && err.stack ? err.stack : '';
+      return new Response(
+        'Worker exception: ' + msg + '\n\n' + stack,
+        { status: 500, headers: { 'Content-Type': 'text/plain' } }
+      );
     }
-
-    const auth = request.headers.get('X-NSMT-Auth');
-    if (!auth || auth !== env.SHARED_SECRET) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-
-    if (!env.DISCORD_WEBHOOK_URL) {
-      return new Response('Worker misconfigured: DISCORD_WEBHOOK_URL not set', { status: 500 });
-    }
-
-    const body = await request.text();
-
-    const upstream = await fetch(env.DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': PROXY_USER_AGENT,
-      },
-      body,
-    });
-
-    const upstreamBody = await upstream.text();
-
-    return new Response(upstreamBody, {
-      status: upstream.status,
-      headers: {
-        'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
-      },
-    });
   },
 };
